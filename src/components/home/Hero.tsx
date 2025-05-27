@@ -14,13 +14,13 @@ function HeroSection() {
               placeholder="Add your address"
               className="flex-grow px-3 text-gray-800 focus:outline-none h-12"
             />
-            <button className="bg-orange-500 text-white px-3 rounded-r-lg hover:bg-orange-600 transition-colors h-12 flex items-center justify-center flex-shrink-0">
+            <button className="hidden bg-orange-500 text-white px-3 rounded-r-lg hover:bg-orange-600 transition-colors h-12 md:flex items-center justify-center flex-shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </button>
           </div>
-        </div>
+        </div>    
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-gray-300">
           <div className="flex items-center space-x-2">
             <img src="https://placehold.co/24x24/ffffff/000000?text=A" alt="App Store" className="h-6 w-6 rounded-full" /> 
@@ -31,9 +31,6 @@ function HeroSection() {
             <span className="text-yellow-400">5,000+ reviews</span>
           </div>
         </div>
-      </div>
-      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-        
       </div>
     </section>
   );
