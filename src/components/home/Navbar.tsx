@@ -2,9 +2,11 @@
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import { signOut, useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 const menuItems = [
     { name: 'Services', href: '#link' },
@@ -14,10 +16,17 @@ const menuItems = [
 ]
 
 export const Navbar = () => {
-    const [menuState, setMenuState] = React.useState(false)
-    const [isScrolled, setIsScrolled] = React.useState(false)
+    const router = useRouter();
+    const session = useSession()
+    const [menuState, setMenuState] = useState(false)
+    const [isScrolled, setIsScrolled] = useState(false)
 
-    React.useEffect(() => {
+    function logout() {
+        signOut();
+        router.push("/login");
+    }
+
+    useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50)
         }
@@ -76,34 +85,27 @@ export const Navbar = () => {
                                     ))}
                                 </ul>
                             </div>
-                            <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                                <Button
-                                    asChild
-                                    variant="ghost"
-                                    size="sm"
-                                    className={cn(isScrolled && 'lg:hidden', 'rounded-full')}>
-                                    <Link href="#">
-                                        <span>Login</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
-                                    variant="ghost"
-                                    size="sm"
-                                    className={cn(isScrolled && 'lg:hidden', 'rounded-full')}>
-                                    <Link href="#">
-                                        <span>Sign Up</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
-                                    size="sm"
-                                    className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'rounded-full')}>
-                                    <Link href="#">
-                                        <span>Sign Up</span>
-                                    </Link>
-                                </Button>
-                            </div>
+                            {!!session.data?.user && 
+                                <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">                                
+                                    <Button
+                                        asChild
+                                        variant="ghost"
+                                        size="sm"
+                                        className={cn(isScrolled && 'lg:hidden', 'rounded-full')}>
+                                        <Link href="#">
+                                            <span>Sign Up</span>
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        asChild
+                                        size="sm"
+                                        className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'rounded-full')}>
+                                        <Link href="#">
+                                            <span>Sign Up</span>
+                                        </Link>
+                                    </Button>
+                                </div>
+                            }                            
                         </div>
                     </div>
                 </div>
