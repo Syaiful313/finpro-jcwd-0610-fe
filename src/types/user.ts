@@ -3,22 +3,25 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
   role: Role;
-  phoneNumber: string;
-  profilePic?: string;
+  phoneNumber: number;
+  profilePic: string;
   isVerified: boolean;
   provider: Provider;
   createdAt: string;
   updatedAt: string;
-  deletedAt?: string;
-  notificationId?: number;
+  deletedAt?: string | null;
+  notificationId?: number | null;
 }
 
 export enum Role {
   ADMIN = "ADMIN",
   OUTLET_ADMIN = "OUTLET_ADMIN",
   CUSTOMER = "CUSTOMER",
-  WORKER = "WORKER",
+  WORKER_WASHING = "WORKER_WASHING",
+  WORKER_IRONING = "WORKER_IRONING",
+  WORKER_PACKING = "WORKER_PACKING",
   DRIVER = "DRIVER",
 }
 
