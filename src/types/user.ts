@@ -13,6 +13,11 @@ export interface User {
   updatedAt: string;
   deletedAt?: string | null;
   notificationId?: number | null;
+  employeeInfo?: {
+    id: number;
+    npwp: string;
+    createdAt: string;
+  } | null;
 }
 
 export enum Role {
@@ -29,3 +34,5 @@ export enum Provider {
   GOOGLE = "GOOGLE",
   CREDENTIAL = "CREDENTIAL",
 }
+
+// ini commit 
