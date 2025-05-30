@@ -19,21 +19,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import useUpdateUser from "@/hooks/api/admin-super/useUpdateUser";
-import { User } from "@/types/user";
+import { User as ApiUser } from "@/hooks/api/admin/useGetUsers";
+import useUpdateUser from "@/hooks/api/admin/useUpdateUser";
+import useGetOutlets from "@/hooks/api/outlet/useGetOutlets";
 import { useFormik } from "formik";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, TrashIcon, Upload } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useRef, useState, useEffect } from "react";
-
-// Removed Yup schema to avoid cyclic dependency
-// Using only custom validation instead
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  createUserValidationSchema,
+  isEmployeeDataRequired,
+  isProfileRequired,
+  validateProfilePicture,
+} from "../schemas";
 
 interface EditUserModalProps {
   open: boolean;
-  user: User;
+  user: ApiUser;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
 export default function EditUserModal({
@@ -43,12 +48,39 @@ export default function EditUserModal({
   onSuccess,
 }: EditUserModalProps) {
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [currentProfilePic, setCurrentProfilePic] = useState<string | null>(
-    null,
-  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateUserMutation = useUpdateUser(user.id);
+  const { data: outletsData, isLoading: outletsLoading } = useGetOutlets({
+    all: true,
+  });
+
+  const { data: session } = useSession();
+  const currentUserRole = session?.user?.role || "ADMIN";
+
+  const getAvailableRoles = () => {
+    if (currentUserRole === "ADMIN") {
+      return [
+        { value: "OUTLET_ADMIN", label: "Admin Outlet" },
+        { value: "CUSTOMER", label: "Customer" },
+        { value: "WORKER", label: "Worker" },
+        { value: "DRIVER", label: "Driver" },
+      ];
+    } else if (currentUserRole === "OUTLET_ADMIN") {
+      return [
+        { value: "WORKER", label: "Worker" },
+        { value: "DRIVER", label: "Driver" },
+      ];
+    }
+    return [];
+  };
+
+  const validationSchema = useMemo(() => {
+    return createUserValidationSchema({
+      isEditMode: true,
+      currentUserRole,
+    });
+  }, [currentUserRole]);
 
   const formik = useFormik({
     initialValues: {
@@ -56,123 +88,95 @@ export default function EditUserModal({
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       password: "",
-      role: user?.role || "CUSTOMER",
+      role: user?.role || "",
       phoneNumber: user?.phoneNumber || "",
       provider: user?.provider || "CREDENTIAL",
       isVerified: user?.isVerified || false,
       profile: null as File | null,
-      notificationId: user?.notificationId?.toString() || "",
+      outletId: "",
+      npwp: user?.employeeInfo?.npwp || "",
     },
-    // Removed validationSchema, using custom validate function instead
+    validationSchema: validationSchema,
     enableReinitialize: true,
-    validate: (values) => {
-      const errors: any = {};
-      
-      // Only validate fields that are filled/changed
-      if (values.email.trim() && values.email !== user.email) {
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-          errors.email = "Email tidak valid";
-        }
-      }
-      
-      if (values.firstName.trim() && values.firstName !== user.firstName) {
-        if (values.firstName.length < 2) {
-          errors.firstName = "Nama depan minimal 2 karakter";
-        }
-      }
-      
-      if (values.lastName.trim() && values.lastName !== user.lastName) {
-        if (values.lastName.length < 2) {
-          errors.lastName = "Nama belakang minimal 2 karakter";
-        }
-      }
-      
-      if (values.password.trim()) {
-        if (values.password.length < 8) {
-          errors.password = "Password minimal 8 karakter";
-        }
-      }
-      
-      if (values.phoneNumber.trim() && values.phoneNumber !== user.phoneNumber) {
-        if (!/^08[0-9]{8,11}$/.test(values.phoneNumber)) {
-          errors.phoneNumber = "Format nomor telepon tidak valid";
-        }
-      }
-      
-      if (!values.role) {
-        errors.role = "Role harus dipilih";
-      }
-      
-      if (!values.provider) {
-        errors.provider = "Provider harus dipilih";
-      }
-      
-      return errors;
-    },
     onSubmit: async (values) => {
-      const updateUserPayload: any = {};
-
-      if (values.firstName.trim() && values.firstName !== user.firstName) {
-        updateUserPayload.firstName = values.firstName;
-      }
-      if (values.lastName.trim() && values.lastName !== user.lastName) {
-        updateUserPayload.lastName = values.lastName;
-      }
-      if (values.email.trim() && values.email !== user.email) {
-        updateUserPayload.email = values.email;
-      }
-      if (values.password.trim()) {
-        updateUserPayload.password = values.password;
-      }
-      if (values.role !== user.role) {
-        updateUserPayload.role = values.role;
-      }
-      if (
-        values.phoneNumber.trim() &&
-        values.phoneNumber !== user.phoneNumber
-      ) {
-        updateUserPayload.phoneNumber = values.phoneNumber;
-      }
-      if (values.provider !== user.provider) {
-        updateUserPayload.provider = values.provider;
-      }
-      if (values.isVerified !== user.isVerified) {
-        updateUserPayload.isVerified = values.isVerified;
-      }
-      if (values.notificationId !== (user?.notificationId?.toString() || "")) {
-        updateUserPayload.notificationId = values.notificationId
-          ? parseInt(values.notificationId)
-          : null;
-      }
-      if (values.profile instanceof File) {
-        updateUserPayload.profile = values.profile;
-      }
-
-      if (Object.keys(updateUserPayload).length === 0) {
-        handleClose();
+      const profileError = validateProfilePicture(
+        values.role,
+        values.profile,
+        true,
+      );
+      if (profileError && values.profile) {
+        formik.setFieldError("profile", profileError);
         return;
       }
+
+      const requiresEmployeeData = isEmployeeDataRequired(values.role);
+
+      if (requiresEmployeeData) {
+        if (currentUserRole === "ADMIN" && !values.outletId) {
+          formik.setFieldError(
+            "outletId",
+            `Outlet is required for ${values.role} role`,
+          );
+          return;
+        }
+
+        if (!values.npwp) {
+          formik.setFieldError(
+            "npwp",
+            `NPWP is required for ${values.role} role`,
+          );
+          return;
+        }
+      }
+
+      const updateUserPayload = {
+        id: user.id,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        role: values.role,
+        currentUserRole,
+        ...(values.phoneNumber && {
+          phoneNumber: values.phoneNumber.toString(),
+        }),
+        isVerified: values.isVerified,
+        provider: values.provider,
+        ...(values.profile && { profile: values.profile }),
+        ...(currentUserRole === "ADMIN" &&
+        requiresEmployeeData &&
+        values.outletId
+          ? { outletId: values.outletId }
+          : {}),
+        ...(requiresEmployeeData && values.npwp ? { npwp: values.npwp } : {}),
+      };
 
       updateUserMutation.mutate(updateUserPayload, {
         onSuccess: () => {
           handleClose();
-          onSuccess?.();
+          onSuccess();
         },
       });
     },
   });
 
   useEffect(() => {
+    const requiresEmployeeData = isEmployeeDataRequired(formik.values.role);
+    if (!requiresEmployeeData) {
+      formik.setFieldValue("outletId", "");
+      formik.setFieldValue("npwp", "");
+    }
+  }, [formik.values.role]);
+
+  useEffect(() => {
     if (user?.profilePic) {
-      setCurrentProfilePic(user.profilePic);
+      setProfilePreview(user.profilePic);
     }
   }, [user?.profilePic]);
 
   const handleClose = () => {
     if (!updateUserMutation.isPending) {
       formik.resetForm();
-      setProfilePreview(null);
-      setCurrentProfilePic(user?.profilePic || null);
+      setProfilePreview(user?.profilePic || null);
       onClose();
     }
   };
@@ -180,18 +184,9 @@ export default function EditUserModal({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-      if (!validTypes.includes(file.type)) {
-        formik.setFieldError(
-          "profile",
-          "Only JPEG, JPG, and PNG files are allowed",
-        );
-        return;
-      }
-
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        formik.setFieldError("profile", "File size must be less than 5MB");
+      const error = validateProfilePicture(formik.values.role, file, true);
+      if (error && error.includes("JPEG")) {
+        formik.setFieldError("profile", error);
         return;
       }
 
@@ -215,8 +210,9 @@ export default function EditUserModal({
   };
 
   const isLoading = updateUserMutation.isPending;
-
-  const displayProfilePic = profilePreview || currentProfilePic;
+  const showEmployeeFields = isEmployeeDataRequired(formik.values.role);
+  const showOutletIdField = currentUserRole === "ADMIN" && showEmployeeFields;
+  const requiresProfile = isProfileRequired(formik.values.role);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -227,14 +223,14 @@ export default function EditUserModal({
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-xl font-semibold">Edit User</DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm">
-            Edit informasi user. Kosongkan field yang tidak ingin diubah.
+            Edit informasi user yang sudah ada
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
-              Email
+              Email *
             </Label>
             <Input
               id="email"
@@ -245,24 +241,19 @@ export default function EditUserModal({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={isLoading}
-              className={
-                formik.touched.email && formik.errors.email
-                  ? "border-red-500 focus-visible:ring-red-500"
-                  : ""
-              }
             />
             {formik.touched.email && formik.errors.email && (
               <p className="mt-1 text-xs text-red-500">{formik.errors.email}</p>
             )}
             <p className="text-muted-foreground text-xs">
-              Kosongkan jika tidak ingin mengubah email
+              Email akan digunakan untuk login dan notifikasi
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-sm font-medium">
-                Nama Depan
+                Nama Depan *
               </Label>
               <Input
                 id="firstName"
@@ -272,11 +263,6 @@ export default function EditUserModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 disabled={isLoading}
-                className={
-                  formik.touched.firstName && formik.errors.firstName
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
-                }
               />
               {formik.touched.firstName && formik.errors.firstName && (
                 <p className="mt-1 text-xs text-red-500">
@@ -287,7 +273,7 @@ export default function EditUserModal({
 
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-sm font-medium">
-                Nama Belakang
+                Nama Belakang *
               </Label>
               <Input
                 id="lastName"
@@ -297,11 +283,6 @@ export default function EditUserModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 disabled={isLoading}
-                className={
-                  formik.touched.lastName && formik.errors.lastName
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
-                }
               />
               {formik.touched.lastName && formik.errors.lastName && (
                 <p className="mt-1 text-xs text-red-500">
@@ -309,35 +290,6 @@ export default function EditUserModal({
                 </p>
               )}
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">
-              Password Baru (Opsional)
-            </Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="********"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              disabled={isLoading}
-              className={
-                formik.touched.password && formik.errors.password
-                  ? "border-red-500 focus-visible:ring-red-500"
-                  : ""
-              }
-            />
-            {formik.touched.password && formik.errors.password && (
-              <p className="mt-1 text-xs text-red-500">
-                {formik.errors.password}
-              </p>
-            )}
-            <p className="text-muted-foreground text-xs">
-              Kosongkan jika tidak ingin mengubah password
-            </p>
           </div>
 
           <div className="space-y-2">
@@ -349,25 +301,29 @@ export default function EditUserModal({
               onValueChange={(value) => formik.setFieldValue("role", value)}
               disabled={isLoading}
             >
-              <SelectTrigger
-                className={
-                  formik.touched.role && formik.errors.role
-                    ? "border-red-500 focus:ring-red-500"
-                    : ""
-                }
-              >
+              <SelectTrigger>
                 <SelectValue placeholder="Pilih role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="OUTLET_ADMIN">Admin Outlet</SelectItem>
-                <SelectItem value="CUSTOMER">Customer</SelectItem>
-                <SelectItem value="WORKER">Worker</SelectItem>
-                <SelectItem value="DRIVER">Driver</SelectItem>
+                {getAvailableRoles().map((role) => (
+                  <SelectItem key={role.value} value={role.value}>
+                    {role.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {formik.touched.role && formik.errors.role && (
               <p className="mt-1 text-xs text-red-500">{formik.errors.role}</p>
+            )}
+            {currentUserRole === "ADMIN" && (
+              <p className="text-muted-foreground text-xs">
+                Admin dapat mengubah semua role kecuali Admin
+              </p>
+            )}
+            {currentUserRole === "OUTLET_ADMIN" && (
+              <p className="text-muted-foreground text-xs">
+                Anda hanya dapat mengubah role ke Worker dan Driver
+              </p>
             )}
           </div>
 
@@ -383,11 +339,7 @@ export default function EditUserModal({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={isLoading}
-              className={
-                formik.touched.phoneNumber && formik.errors.phoneNumber
-                  ? "border-red-500 focus-visible:ring-red-500"
-                  : ""
-              }
+              maxLength={13}
             />
             {formik.touched.phoneNumber && formik.errors.phoneNumber && (
               <p className="mt-1 text-xs text-red-500">
@@ -399,6 +351,75 @@ export default function EditUserModal({
             </p>
           </div>
 
+          {showEmployeeFields && (
+            <>
+              {showOutletIdField && (
+                <div className="space-y-2">
+                  <Label htmlFor="outletId" className="text-sm font-medium">
+                    Outlet *
+                  </Label>
+                  <Select
+                    value={formik.values.outletId}
+                    onValueChange={(value) =>
+                      formik.setFieldValue("outletId", value)
+                    }
+                    disabled={isLoading || outletsLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          outletsLoading ? "Loading outlets..." : "Pilih outlet"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {outletsData?.data?.map((outlet) => (
+                        <SelectItem
+                          key={outlet.id}
+                          value={outlet.id.toString()}
+                        >
+                          {outlet.outletName} - {outlet.address}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formik.touched.outletId && formik.errors.outletId && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {formik.errors.outletId}
+                    </p>
+                  )}
+                  <p className="text-muted-foreground text-xs">
+                    Pilih outlet tempat user akan bekerja
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="npwp" className="text-sm font-medium">
+                  NPWP *
+                </Label>
+                <Input
+                  id="npwp"
+                  name="npwp"
+                  placeholder="123456789012345"
+                  value={formik.values.npwp}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={isLoading}
+                  maxLength={15}
+                />
+                {formik.touched.npwp && formik.errors.npwp && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {formik.errors.npwp}
+                  </p>
+                )}
+                <p className="text-muted-foreground text-xs">
+                  NPWP harus 15 digit angka
+                </p>
+              </div>
+            </>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="provider" className="text-sm font-medium">
               Provider Login
@@ -408,13 +429,7 @@ export default function EditUserModal({
               onValueChange={(value) => formik.setFieldValue("provider", value)}
               disabled={isLoading}
             >
-              <SelectTrigger
-                className={
-                  formik.touched.provider && formik.errors.provider
-                    ? "border-red-500 focus:ring-red-500"
-                    : ""
-                }
-              >
+              <SelectTrigger>
                 <SelectValue placeholder="Pilih provider" />
               </SelectTrigger>
               <SelectContent>
@@ -430,45 +445,27 @@ export default function EditUserModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notificationId" className="text-sm font-medium">
-              Notification ID (Optional)
+            <Label className="text-sm font-medium">
+              Profile Picture {requiresProfile ? "*" : "(Optional)"}
             </Label>
-            <Input
-              id="notificationId"
-              name="notificationId"
-              placeholder="Enter notification ID"
-              value={formik.values.notificationId}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              disabled={isLoading}
-            />
-            <p className="text-muted-foreground text-xs">
-              ID untuk push notification (opsional)
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Profile Picture</Label>
             <div className="flex flex-col space-y-3">
-              {displayProfilePic ? (
+              {profilePreview ? (
                 <div className="relative mx-auto h-24 w-24">
                   <Image
-                    src={displayProfilePic}
+                    src={profilePreview}
                     alt="Profile preview"
                     className="h-24 w-24 rounded-full border-2 border-gray-200 object-cover"
                     width={96}
                     height={96}
                   />
-                  {profilePreview && (
-                    <button
-                      type="button"
-                      onClick={removeProfilePicture}
-                      className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
-                      disabled={isLoading}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
+                  <Button
+                    type="button"
+                    onClick={removeProfilePicture}
+                    className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
+                    disabled={isLoading}
+                  >
+                    <TrashIcon className="h-3 w-3" />
+                  </Button>
                 </div>
               ) : (
                 <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed border-gray-300">
@@ -484,11 +481,7 @@ export default function EditUserModal({
                   disabled={isLoading}
                   className="w-full sm:w-auto"
                 >
-                  {profilePreview
-                    ? "Change Photo"
-                    : displayProfilePic
-                      ? "Update Photo"
-                      : "Upload Photo"}
+                  {profilePreview ? "Change Photo" : "Upload Photo"}
                 </Button>
               </div>
 
@@ -507,8 +500,7 @@ export default function EditUserModal({
               </p>
             )}
             <p className="text-muted-foreground text-center text-xs">
-              Upload JPG, JPEG, atau PNG. Maksimal 5MB. Kosongkan untuk tidak
-              mengubah foto.
+              Upload JPG, JPEG, atau PNG. Maksimal 2MB
             </p>
           </div>
 
@@ -546,7 +538,7 @@ export default function EditUserModal({
           <Button
             type="submit"
             onClick={() => formik.handleSubmit()}
-            disabled={isLoading}
+            disabled={isLoading || !formik.isValid}
             className="w-full sm:w-auto"
           >
             {isLoading ? (

@@ -18,9 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useDeleteUser from "@/hooks/api/admin-super/useDeleteUser";
-import useGetUsers, { User } from "@/hooks/api/admin/useGetUsers";
-import { PROVIDER_CONFIG, ROLE_CONFIG } from "@/lib/config";
+import useDeleteUser from "@/hooks/api/admin/useDeleteUser";
+import useGetUsers, { User as ApiUser } from "@/hooks/api/admin/useGetUsers";
+import { ROLE_CONFIG } from "@/lib/config";
 import {
   DndContext,
   KeyboardSensor,
@@ -66,7 +66,7 @@ import CreateUserModal from "./CreateUserModal";
 import DeleteUserAlert from "./DeleteUserAlert";
 import EditUserModal from "./EditUserModal";
 
-function DraggableRow({ row }: { row: Row<User> }) {
+function DraggableRow({ row }: { row: Row<ApiUser> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.id,
   });
@@ -116,7 +116,6 @@ function DraggableRow({ row }: { row: Row<User> }) {
 }
 
 export function UserManagementTable() {
-  // ✅ ALL HOOKS - Called before any conditional logic
   const { data: session } = useSession();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -133,14 +132,13 @@ export function UserManagementTable() {
   } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [data, setData] = useState<User[]>([]);
+  const [editingUser, setEditingUser] = useState<ApiUser | null>(null);
+  const [data, setData] = useState<ApiUser[]>([]);
   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   const queryClient = useQueryClient();
   const deleteUserMutation = useDeleteUser();
 
-  // ✅ ALL HOOKS - useId, useSensors, useMemo, useCallback
   const sortableId = React.useId();
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -148,13 +146,11 @@ export function UserManagementTable() {
     useSensor(KeyboardSensor, {}),
   );
 
-  // ✅ Calculate derived values
   const userRole = session?.user?.role;
   const outletId = session?.user?.outletId;
   const isOutletAdmin = userRole === "OUTLET_ADMIN";
   const isSuperAdmin = userRole === "ADMIN";
 
-  // ✅ ALL useEffect hooks
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -163,7 +159,6 @@ export function UserManagementTable() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // ✅ UPDATED: Use simplified hook - no outletId parameter needed
   const {
     data: usersData,
     isLoading,
@@ -179,7 +174,7 @@ export function UserManagementTable() {
     },
     {
       enabled: !!session && (isSuperAdmin || isOutletAdmin),
-    }
+    },
   );
 
   useEffect(() => {
@@ -188,13 +183,11 @@ export function UserManagementTable() {
     }
   }, [usersData]);
 
-  // ✅ ALL useMemo hooks
   const dataIds = useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
     [data],
   );
 
-  // ✅ ALL useCallback hooks
   const handleSearch = useCallback((searchValue: string) => {
     setSearch(searchValue);
   }, []);
@@ -210,9 +203,9 @@ export function UserManagementTable() {
         onSuccess: () => {
           setShowDeleteAlert(false);
           setUserToDelete(null);
-          // ✅ UPDATED: Simplified query invalidation
-          queryClient.invalidateQueries({ 
-            queryKey: ["users"] 
+
+          queryClient.invalidateQueries({
+            queryKey: ["users"],
           });
         },
         onError: () => {},
@@ -229,18 +222,21 @@ export function UserManagementTable() {
     setPage(1);
   }, []);
 
-  const handleSort = useCallback((column: string) => {
-    const newSortOrder =
-      sortBy === column && sortOrder === "asc" ? "desc" : "asc";
-    setSortBy(column);
-    setSortOrder(newSortOrder);
-  }, [sortBy, sortOrder]);
+  const handleSort = useCallback(
+    (column: string) => {
+      const newSortOrder =
+        sortBy === column && sortOrder === "asc" ? "desc" : "asc";
+      setSortBy(column);
+      setSortOrder(newSortOrder);
+    },
+    [sortBy, sortOrder],
+  );
 
   const handleCreateUser = useCallback(() => {
     setShowCreateModal(true);
   }, []);
 
-  const handleEditUser = useCallback((user: User) => {
+  const handleEditUser = useCallback((user: ApiUser) => {
     setEditingUser(user);
     setShowEditModal(true);
   }, []);
@@ -255,24 +251,25 @@ export function UserManagementTable() {
   }, []);
 
   const handleEditSuccess = useCallback(() => {
-    // ✅ UPDATED: Simplified query invalidation
-    queryClient.invalidateQueries({ 
-      queryKey: ["users"] 
+    queryClient.invalidateQueries({
+      queryKey: ["users"],
     });
   }, [queryClient]);
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex);
-      });
-    }
-  }, [dataIds]);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (active && over && active.id !== over.id) {
+        setData((data) => {
+          const oldIndex = dataIds.indexOf(active.id);
+          const newIndex = dataIds.indexOf(over.id);
+          return arrayMove(data, oldIndex, newIndex);
+        });
+      }
+    },
+    [dataIds],
+  );
 
-  // ✅ Badge components sebagai useCallback
   const RoleBadge = useCallback(({ role }: { role: string }) => {
     const config = ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] || {
       color: "bg-gray-50 text-gray-700 border-gray-200",
@@ -304,184 +301,186 @@ export function UserManagementTable() {
     );
   }, []);
 
-  // ✅ UPDATED: Role filtering for OUTLET_ADMIN
   const availableRoles = useMemo(() => {
     if (isOutletAdmin) {
-      // OUTLET_ADMIN hanya bisa filter DRIVER dan WORKER
       return {
         DRIVER: ROLE_CONFIG.DRIVER,
         WORKER: ROLE_CONFIG.WORKER,
       };
     } else if (isSuperAdmin) {
-      // ADMIN bisa filter semua role
       return ROLE_CONFIG;
     }
     return {};
   }, [isOutletAdmin, isSuperAdmin]);
 
-  // ✅ Define columns dengan useMemo
-  const columns: ColumnDef<User>[] = useMemo(() => [
-    {
-      accessorKey: "index",
-      header: () => (
-        <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-          No
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="text-center text-sm sm:text-sm">
-          {(page - 1) * pageSize + row.index + 1}
-        </div>
-      ),
-      enableHiding: false,
-      size: 40,
-    },
-    {
-      accessorKey: "name",
-      header: () => (
-        <Button
-          variant="ghost"
-          onClick={() => handleSort("firstName")}
-          className="p-0 text-xs font-semibold tracking-wider uppercase hover:bg-transparent sm:text-xs"
-        >
-          Nama
-          <ArrowUpDown className="ml-1 h-3 w-3" />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="flex flex-col">
-          <div className="text-sm font-medium sm:text-sm">
-            {row.original.firstName} {row.original.lastName}
+  const columns: ColumnDef<ApiUser>[] = useMemo(
+    () => [
+      {
+        accessorKey: "index",
+        header: () => (
+          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
+            No
           </div>
-          <div className="mt-1 flex items-center text-xs text-gray-500">
-            <Mail className="mr-1 h-3 w-3" />
-            {row.original.email}
+        ),
+        cell: ({ row }) => (
+          <div className="text-center text-sm sm:text-sm">
+            {(page - 1) * pageSize + row.index + 1}
           </div>
-          {/* ✅ UPDATED: Show outlet-specific info for OUTLET_ADMIN */}
-          {isOutletAdmin && row.original.totalOrdersInOutlet !== undefined && (
-            <div className="mt-1 text-xs text-blue-600">
-              {row.original.totalOrdersInOutlet} orders di outlet ini
-            </div>
-          )}
-          {isOutletAdmin && row.original.employeeInfo && (
-            <div className="mt-1 text-xs text-green-600">
-              Employee ID: {row.original.employeeInfo.id} | NPWP: {row.original.employeeInfo.npwp}
-            </div>
-          )}
-        </div>
-      ),
-      size: 200,
-    },
-    {
-      accessorKey: "phoneNumber",
-      header: () => (
-        <div className="text-left text-xs font-semibold tracking-wider uppercase sm:text-xs">
-          Telepon
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center text-sm sm:text-sm">
-          <Phone className="mr-1 h-3 w-3 text-gray-400" />
-          {row.original.phoneNumber || "-"}
-        </div>
-      ),
-      size: 120,
-    },
-    {
-      accessorKey: "role",
-      header: () => (
-        <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-          Role
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex justify-center">
-          <RoleBadge role={row.original.role} />
-        </div>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: "status",
-      header: () => (
-        <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-          Status
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex justify-center">
-          <StatusBadge isVerified={row.original.isVerified} />
-        </div>
-      ),
-      size: 80,
-    },
-    {
-      accessorKey: "createdAt",
-      header: () => (
-        <Button
-          variant="ghost"
-          onClick={() => handleSort("createdAt")}
-          className="p-0 text-xs font-semibold tracking-wider uppercase hover:bg-transparent sm:text-xs"
-        >
-          Dibuat
-          <ArrowUpDown className="ml-1 h-3 w-3" />
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const date = new Date(row.original.createdAt);
-        return (
-          <div className="text-sm sm:text-sm">
-            {date.toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </div>
-        );
+        ),
+        enableHiding: false,
+        size: 40,
       },
-      size: 100,
-    },
-    {
-      id: "actions",
-      header: () => (
-        <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-          Aksi
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex justify-center gap-1 sm:gap-1">
+      {
+        accessorKey: "name",
+        header: () => (
           <Button
             variant="ghost"
-            className="h-8 w-8 rounded-full p-1 text-green-600 hover:bg-green-50 hover:text-green-800 sm:h-8 sm:w-8 sm:p-1"
-            size="icon"
-            onClick={() => handleEditUser(row.original)}
+            onClick={() => handleSort("firstName")}
+            className="p-0 text-xs font-semibold tracking-wider uppercase hover:bg-transparent sm:text-xs"
           >
-            <Edit className="h-4 w-4 sm:h-4 sm:w-4" />
-            <span className="sr-only">Edit pengguna</span>
+            Nama
+            <ArrowUpDown className="ml-1 h-3 w-3" />
           </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="flex flex-col">
+            <div className="text-sm font-medium sm:text-sm">
+              {row.original.firstName} {row.original.lastName}
+            </div>
+            <div className="mt-1 flex items-center text-xs text-gray-500">
+              <Mail className="mr-1 h-3 w-3" />
+              {row.original.email}
+            </div>
+            {isOutletAdmin && row.original.employeeInfo && (
+              <div className="mt-1 text-xs text-green-600">
+                NPWP: {row.original.employeeInfo.npwp}
+              </div>
+            )}
+          </div>
+        ),
+        size: 200,
+      },
+      {
+        accessorKey: "phoneNumber",
+        header: () => (
+          <div className="text-left text-xs font-semibold tracking-wider uppercase sm:text-xs">
+            Telepon
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center text-sm sm:text-sm">
+            <Phone className="mr-1 h-3 w-3 text-gray-400" />
+            {row.original.phoneNumber || "-"}
+          </div>
+        ),
+        size: 120,
+      },
+      {
+        accessorKey: "role",
+        header: () => (
+          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
+            Role
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <RoleBadge role={row.original.role} />
+          </div>
+        ),
+        size: 100,
+      },
+      {
+        accessorKey: "status",
+        header: () => (
+          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
+            Status
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <StatusBadge isVerified={row.original.isVerified} />
+          </div>
+        ),
+        size: 80,
+      },
+      {
+        accessorKey: "createdAt",
+        header: () => (
           <Button
             variant="ghost"
-            className="h-8 w-8 rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800 sm:h-8 sm:w-8 sm:p-1"
-            size="icon"
-            onClick={() =>
-              handleDeleteUser(
-                row.original.id,
-                `${row.original.firstName} ${row.original.lastName}`,
-              )
-            }
-            disabled={deleteUserMutation.isPending}
+            onClick={() => handleSort("createdAt")}
+            className="p-0 text-xs font-semibold tracking-wider uppercase hover:bg-transparent sm:text-xs"
           >
-            <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
-            <span className="sr-only">Hapus pengguna</span>
+            Dibuat
+            <ArrowUpDown className="ml-1 h-3 w-3" />
           </Button>
-        </div>
-      ),
-      enableHiding: false,
-      size: 120,
-    },
-  ], [page, pageSize, handleSort, isOutletAdmin, RoleBadge, StatusBadge, handleEditUser, handleDeleteUser, deleteUserMutation.isPending]);
+        ),
+        cell: ({ row }) => {
+          const date = new Date(row.original.createdAt);
+          return (
+            <div className="text-sm sm:text-sm">
+              {date.toLocaleDateString("id-ID", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </div>
+          );
+        },
+        size: 100,
+      },
+      {
+        id: "actions",
+        header: () => (
+          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
+            Aksi
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex justify-center gap-1 sm:gap-1">
+            <Button
+              variant="ghost"
+              className="h-8 w-8 rounded-full p-1 text-green-600 hover:bg-green-50 hover:text-green-800 sm:h-8 sm:w-8 sm:p-1"
+              size="icon"
+              onClick={() => handleEditUser(row.original)}
+            >
+              <Edit className="h-4 w-4 sm:h-4 sm:w-4" />
+              <span className="sr-only">Edit pengguna</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800 sm:h-8 sm:w-8 sm:p-1"
+              size="icon"
+              onClick={() =>
+                handleDeleteUser(
+                  row.original.id,
+                  `${row.original.firstName} ${row.original.lastName}`,
+                )
+              }
+              disabled={deleteUserMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
+              <span className="sr-only">Hapus pengguna</span>
+            </Button>
+          </div>
+        ),
+        enableHiding: false,
+        size: 120,
+      },
+    ],
+    [
+      page,
+      pageSize,
+      handleSort,
+      isOutletAdmin,
+      RoleBadge,
+      StatusBadge,
+      handleEditUser,
+      handleDeleteUser,
+      deleteUserMutation.isPending,
+    ],
+  );
 
-  // ✅ useReactTable hook
   const table = useReactTable({
     data: data || [],
     columns,
@@ -496,10 +495,9 @@ export function UserManagementTable() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // ✅ CONDITIONAL RENDERING - After all hooks are called
   if (!session) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="flex items-center">
           <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
           <span className="ml-2 text-sm">Loading session...</span>
@@ -510,10 +508,10 @@ export function UserManagementTable() {
 
   if (!isSuperAdmin && !isOutletAdmin) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-center">
           <span className="text-red-500">Access Denied</span>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="mt-2 text-sm text-gray-500">
             You don't have permission to view this page.
           </p>
         </div>
@@ -521,7 +519,6 @@ export function UserManagementTable() {
     );
   }
 
-  // ✅ UPDATED: Remove outletId check since it's handled by backend
   return (
     <>
       <div className="max-w-full space-y-4 sm:space-y-4">
@@ -529,7 +526,6 @@ export function UserManagementTable() {
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600">
             Kelola pengguna aplikasi dan permission mereka
-            {/* ✅ UPDATED: Show different context based on role */}
             {isOutletAdmin && " (Driver & Worker di outlet Anda)"}
             {isSuperAdmin && " (Global Access - Semua User)"}
           </p>
@@ -579,7 +575,6 @@ export function UserManagementTable() {
                   >
                     Semua Role
                   </DropdownMenuItem>
-                  {/* ✅ UPDATED: Show only available roles based on user permission */}
                   {Object.entries(availableRoles).map(([role, config]) => (
                     <DropdownMenuItem
                       key={role}
@@ -745,10 +740,9 @@ export function UserManagementTable() {
                         className="h-24 text-center"
                       >
                         <span className="text-sm">
-                          {isOutletAdmin 
+                          {isOutletAdmin
                             ? "Tidak ada driver atau worker ditemukan di outlet Anda"
-                            : "Tidak ada data pengguna ditemukan"
-                          }
+                            : "Tidak ada data pengguna ditemukan"}
                         </span>
                       </TableCell>
                     </TableRow>
@@ -785,14 +779,14 @@ export function UserManagementTable() {
         currentUserRole={userRole}
       />
 
-      {/* {editingUser && (
+      {editingUser && (
         <EditUserModal
           open={showEditModal}
           user={editingUser}
           onClose={handleCloseEditModal}
           onSuccess={handleEditSuccess}
         />
-      )} */}
+      )}
     </>
   );
 }

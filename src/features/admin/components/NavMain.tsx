@@ -1,6 +1,5 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,8 +8,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 
 export function NavMain({
   items,

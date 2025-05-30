@@ -1,10 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { axiosInstance } from "@/lib/axios";
 import { User } from "@/types/user";
-import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
-import { axiosInstance } from "@/lib/axios";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export const useLogin = () => {
   const router = useRouter();
@@ -19,7 +19,7 @@ export const useLogin = () => {
       if (data.role === "ADMIN" || data.role === "OUTLET_ADMIN") {
         router.push("/admin/dashboard");
       } else {
-        router.push("/"); // Redirect to home or a default page
+        router.push("/");
       }
     },
     onError: (error: AxiosError<any>) => {

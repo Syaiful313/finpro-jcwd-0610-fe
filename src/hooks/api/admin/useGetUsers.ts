@@ -13,19 +13,16 @@ interface User {
   profilePic: string | null;
   isVerified: boolean;
   provider: string;
-  outletId?: number; // ✅ NEW: Added for OUTLET_ADMIN
+  outletId?: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
-  // ❌ REMOVED: notificationId (tidak ada di backend schema)
-  
-  // Fields conditional berdasarkan role
-  totalOrdersInOutlet?: number; // ✅ Only for DRIVER & WORKER
+  totalOrdersInOutlet?: number;
   employeeInfo?: {
     id: number;
     npwp: string;
     createdAt: string;
-  } | null; // ✅ For all roles yang punya Employee record
+  } | null;
 }
 
 interface GetUsersQueries extends PaginationQueries {
@@ -39,7 +36,6 @@ interface UseGetUsersOptions {
   staleTime?: number;
 }
 
-// ✅ NEW: Response wrapper type to match backend format
 interface GetUsersResponse {
   success: boolean;
   message: string;
@@ -57,13 +53,8 @@ const useGetUsers = (
   options?: UseGetUsersOptions,
 ) => {
   const axiosInstance = useAxios();
-
-  // ✅ Endpoint remains the same - backend handles role-based filtering
   const endpoint = `/admin/users`;
-
-  // ✅ Query key includes all relevant params for proper caching
   const queryKey = ["users", queries];
-
   const defaultQueries = {
     take: 10,
     page: 1,
@@ -76,41 +67,29 @@ const useGetUsers = (
     queryKey,
     queryFn: async () => {
       try {
-        console.log('[DEBUG] Fetching users with params:', defaultQueries);
-        
-        // ✅ Updated to expect new response format from backend
-        const { data } = await axiosInstance.get<GetUsersResponse>(
-          endpoint,
-          {
-            params: defaultQueries,
-          },
-        );
-        
-        // ✅ Handle new response format
-        if (!data || typeof data !== 'object') {
-          throw new Error('Invalid response format');
+        const { data } = await axiosInstance.get<GetUsersResponse>(endpoint, {
+          params: defaultQueries,
+        });
+
+        if (!data || typeof data !== "object") {
+          throw new Error("Invalid response format");
         }
 
         if (!data.success) {
-          throw new Error(data.message || 'Failed to fetch users');
+          throw new Error(data.message || "Failed to fetch users");
         }
 
-        console.log('[DEBUG] Fetched users count:', data.data?.length || 0);
-        console.log('[DEBUG] Response meta:', data.meta);
-        
-        // ✅ Return in PageableResponse format for compatibility
         const response: PageableResponse<User> = {
           data: data.data,
           meta: {
             page: data.meta.page,
             take: data.meta.take,
-            total: data.meta.count, // Map 'count' from backend to 'total'
+            total: data.meta.count,
           },
         };
-        
+
         return response;
       } catch (error) {
-        console.error('Error fetching users:', error);
         throw error;
       }
     },
