@@ -1,6 +1,5 @@
 "use client";
-
-import { axiosInstance } from "@/lib/axios";
+import useAxios from "@/hooks/useAxios";
 import { PageableResponse, PaginationQueries } from "@/types/pagination";
 import { useQuery } from "@tanstack/react-query";
 
@@ -10,25 +9,28 @@ interface User {
   lastName: string;
   email: string;
   role: string;
-  phoneNumber: string;
+  phoneNumber: string | null;
   profilePic: string | null;
   isVerified: boolean;
   provider: string;
+  outletId?: number; // ✅ NEW: Added for OUTLET_ADMIN
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
-  notificationId: string | null;
-  totalOrdersInOutlet?: number;
+  // ❌ REMOVED: notificationId (tidak ada di backend schema)
+  
+  // Fields conditional berdasarkan role
+  totalOrdersInOutlet?: number; // ✅ Only for DRIVER & WORKER
   employeeInfo?: {
     id: number;
     npwp: string;
     createdAt: string;
-  } | null;
+  } | null; // ✅ For all roles yang punya Employee record
 }
 
 interface GetUsersQueries extends PaginationQueries {
   search?: string;
-  role?: string;
+  role?: "ADMIN" | "OUTLET_ADMIN" | "CUSTOMER" | "WORKER" | "DRIVER";
 }
 
 interface UseGetUsersOptions {
@@ -36,48 +38,89 @@ interface UseGetUsersOptions {
   refetchInterval?: number;
   staleTime?: number;
 }
+
+// ✅ NEW: Response wrapper type to match backend format
+interface GetUsersResponse {
+  success: boolean;
+  message: string;
+  data: User[];
+  meta: {
+    page: number;
+    take: number;
+    count: number;
+    totalPages: number;
+  };
+}
+
 const useGetUsers = (
-  outletId?: number,
   queries?: GetUsersQueries,
-  options?: UseGetUsersOptions
+  options?: UseGetUsersOptions,
 ) => {
-  // Conditional endpoint berdasarkan role
-  const endpoint = outletId 
-    ? `/admin/outlets/${outletId}/users`  // Outlet Admin endpoint
-    : `/admin/users`;                     // Super Admin endpoint
+  const axiosInstance = useAxios();
 
-  // Conditional queryKey untuk proper caching
-  const queryKey = outletId 
-    ? ["outlet-users", outletId, queries]  // Cache per outlet
-    : ["users", queries];                  // Global cache
+  // ✅ Endpoint remains the same - backend handles role-based filtering
+  const endpoint = `/admin/users`;
 
-  // Default query parameters
+  // ✅ Query key includes all relevant params for proper caching
+  const queryKey = ["users", queries];
+
   const defaultQueries = {
     take: 10,
     page: 1,
     sortBy: "createdAt",
     sortOrder: "desc" as const,
-    ...queries
+    ...queries,
   };
 
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const { data } = await axiosInstance.get<PageableResponse<User>>(
-        endpoint,
-        { 
-          params: defaultQueries
+      try {
+        console.log('[DEBUG] Fetching users with params:', defaultQueries);
+        
+        // ✅ Updated to expect new response format from backend
+        const { data } = await axiosInstance.get<GetUsersResponse>(
+          endpoint,
+          {
+            params: defaultQueries,
+          },
+        );
+        
+        // ✅ Handle new response format
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid response format');
         }
-      );
-      return data;
+
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to fetch users');
+        }
+
+        console.log('[DEBUG] Fetched users count:', data.data?.length || 0);
+        console.log('[DEBUG] Response meta:', data.meta);
+        
+        // ✅ Return in PageableResponse format for compatibility
+        const response: PageableResponse<User> = {
+          data: data.data,
+          meta: {
+            page: data.meta.page,
+            take: data.meta.take,
+            total: data.meta.count, // Map 'count' from backend to 'total'
+          },
+        };
+        
+        return response;
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+      }
     },
-    enabled: options?.enabled !== false && (outletId ? !!outletId : true),
+    enabled: options?.enabled !== false,
     refetchInterval: options?.refetchInterval,
-    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes default
+    staleTime: options?.staleTime || 5 * 60 * 1000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };
 
 export default useGetUsers;
-export type { User, GetUsersQueries, UseGetUsersOptions };
+export type { GetUsersQueries, UseGetUsersOptions, User };

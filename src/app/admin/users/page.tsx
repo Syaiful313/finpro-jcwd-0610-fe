@@ -1,4 +1,4 @@
-import UsersPage from "@/features/super/users";
+import UsersPage from "@/features/admin/users";
 
 const Users = () => {
   return <UsersPage />;

@@ -19,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useDeleteUser from "@/hooks/api/admin-super/useDeleteUser";
-// ✅ Updated import - gunakan hooks yang baru
 import useGetUsers, { User } from "@/hooks/api/admin/useGetUsers";
 import { PROVIDER_CONFIG, ROLE_CONFIG } from "@/lib/config";
 import {
@@ -61,6 +60,7 @@ import {
   Trash2,
   UserPlus,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CreateUserModal from "./CreateUserModal";
 import DeleteUserAlert from "./DeleteUserAlert";
@@ -116,6 +116,8 @@ function DraggableRow({ row }: { row: Row<User> }) {
 }
 
 export function UserManagementTable() {
+  // ✅ ALL HOOKS - Called before any conditional logic
+  const { data: session } = useSession();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
@@ -129,16 +131,30 @@ export function UserManagementTable() {
     id: number;
     name: string;
   } | null>(null);
-
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [data, setData] = useState<User[]>([]);
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   const queryClient = useQueryClient();
-
   const deleteUserMutation = useDeleteUser();
 
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  // ✅ ALL HOOKS - useId, useSensors, useMemo, useCallback
+  const sortableId = React.useId();
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {}),
+  );
+
+  // ✅ Calculate derived values
+  const userRole = session?.user?.role;
+  const outletId = session?.user?.outletId;
+  const isOutletAdmin = userRole === "OUTLET_ADMIN";
+  const isSuperAdmin = userRole === "ADMIN";
+
+  // ✅ ALL useEffect hooks
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -147,24 +163,24 @@ export function UserManagementTable() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // ✅ Updated hooks call - untuk OUTLET_ADMIN dengan outletId = 1
-  // TODO: Ganti outletId = 1 dengan nilai yang sesuai dari database atau user context
-  const OUTLET_ID = 1; // Hardcoded untuk testing, nanti bisa dari context/props
-  
+  // ✅ UPDATED: Use simplified hook - no outletId parameter needed
   const {
     data: usersData,
     isLoading,
     error,
-  } = useGetUsers(OUTLET_ID, {
-    page: page,
-    take: pageSize,
-    search: debouncedSearch,
-    role: role as any,
-    sortBy: sortBy,
-    sortOrder: sortOrder,
-  });
-
-  const [data, setData] = useState<User[]>([]);
+  } = useGetUsers(
+    {
+      page: page,
+      take: pageSize,
+      search: debouncedSearch,
+      role: role as any,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+    },
+    {
+      enabled: !!session && (isSuperAdmin || isOutletAdmin),
+    }
+  );
 
   useEffect(() => {
     if (usersData?.data) {
@@ -172,7 +188,92 @@ export function UserManagementTable() {
     }
   }, [usersData]);
 
-  const RoleBadge = ({ role }: { role: string }) => {
+  // ✅ ALL useMemo hooks
+  const dataIds = useMemo<UniqueIdentifier[]>(
+    () => data?.map(({ id }) => id) || [],
+    [data],
+  );
+
+  // ✅ ALL useCallback hooks
+  const handleSearch = useCallback((searchValue: string) => {
+    setSearch(searchValue);
+  }, []);
+
+  const handleDeleteUser = useCallback((userId: number, name: string) => {
+    setUserToDelete({ id: userId, name });
+    setShowDeleteAlert(true);
+  }, []);
+
+  const confirmDeleteUser = useCallback(() => {
+    if (userToDelete) {
+      deleteUserMutation.mutate(userToDelete.id, {
+        onSuccess: () => {
+          setShowDeleteAlert(false);
+          setUserToDelete(null);
+          // ✅ UPDATED: Simplified query invalidation
+          queryClient.invalidateQueries({ 
+            queryKey: ["users"] 
+          });
+        },
+        onError: () => {},
+      });
+    }
+  }, [userToDelete, deleteUserMutation, queryClient]);
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage);
+  }, []);
+
+  const handleRoleFilter = useCallback((newRole: string) => {
+    setRole(newRole);
+    setPage(1);
+  }, []);
+
+  const handleSort = useCallback((column: string) => {
+    const newSortOrder =
+      sortBy === column && sortOrder === "asc" ? "desc" : "asc";
+    setSortBy(column);
+    setSortOrder(newSortOrder);
+  }, [sortBy, sortOrder]);
+
+  const handleCreateUser = useCallback(() => {
+    setShowCreateModal(true);
+  }, []);
+
+  const handleEditUser = useCallback((user: User) => {
+    setEditingUser(user);
+    setShowEditModal(true);
+  }, []);
+
+  const handleCloseCreateModal = useCallback(() => {
+    setShowCreateModal(false);
+  }, []);
+
+  const handleCloseEditModal = useCallback(() => {
+    setShowEditModal(false);
+    setEditingUser(null);
+  }, []);
+
+  const handleEditSuccess = useCallback(() => {
+    // ✅ UPDATED: Simplified query invalidation
+    queryClient.invalidateQueries({ 
+      queryKey: ["users"] 
+    });
+  }, [queryClient]);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setData((data) => {
+        const oldIndex = dataIds.indexOf(active.id);
+        const newIndex = dataIds.indexOf(over.id);
+        return arrayMove(data, oldIndex, newIndex);
+      });
+    }
+  }, [dataIds]);
+
+  // ✅ Badge components sebagai useCallback
+  const RoleBadge = useCallback(({ role }: { role: string }) => {
     const config = ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] || {
       color: "bg-gray-50 text-gray-700 border-gray-200",
       label: role,
@@ -186,27 +287,9 @@ export function UserManagementTable() {
         {config.label}
       </Badge>
     );
-  };
+  }, []);
 
-  const ProviderBadge = ({ provider }: { provider: string }) => {
-    const config = PROVIDER_CONFIG[
-      provider as keyof typeof PROVIDER_CONFIG
-    ] || {
-      color: "bg-gray-50 text-gray-700 border-gray-200",
-      label: provider,
-    };
-
-    return (
-      <Badge
-        variant="outline"
-        className={`px-2 py-1 text-xs font-medium whitespace-nowrap sm:px-2 sm:py-1 sm:text-xs ${config.color}`}
-      >
-        {config.label}
-      </Badge>
-    );
-  };
-
-  const StatusBadge = ({ isVerified }: { isVerified: boolean }) => {
+  const StatusBadge = useCallback(({ isVerified }: { isVerified: boolean }) => {
     return (
       <Badge
         variant="outline"
@@ -219,72 +302,25 @@ export function UserManagementTable() {
         {isVerified ? "Verified" : "Unverified"}
       </Badge>
     );
-  };
-
-  const handleDeleteUser = (userId: number, name: string) => {
-    setUserToDelete({ id: userId, name });
-    setShowDeleteAlert(true);
-  };
-
-  const confirmDeleteUser = () => {
-    if (userToDelete) {
-      deleteUserMutation.mutate(userToDelete.id, {
-        onSuccess: () => {
-          setShowDeleteAlert(false);
-          setUserToDelete(null);
-        },
-        onError: () => {},
-      });
-    }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleRoleFilter = (newRole: string) => {
-    setRole(newRole);
-    setPage(1);
-  };
-
-  const handleSearch = useCallback((searchValue: string) => {
-    setSearch(searchValue);
   }, []);
 
-  const handleSort = (column: string) => {
-    const newSortOrder =
-      sortBy === column && sortOrder === "asc" ? "desc" : "asc";
+  // ✅ UPDATED: Role filtering for OUTLET_ADMIN
+  const availableRoles = useMemo(() => {
+    if (isOutletAdmin) {
+      // OUTLET_ADMIN hanya bisa filter DRIVER dan WORKER
+      return {
+        DRIVER: ROLE_CONFIG.DRIVER,
+        WORKER: ROLE_CONFIG.WORKER,
+      };
+    } else if (isSuperAdmin) {
+      // ADMIN bisa filter semua role
+      return ROLE_CONFIG;
+    }
+    return {};
+  }, [isOutletAdmin, isSuperAdmin]);
 
-    setSortBy(column);
-    setSortOrder(newSortOrder);
-  };
-
-  const handleCreateUser = () => {
-    setShowCreateModal(true);
-  };
-
-  const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setShowEditModal(true);
-  };
-
-  const handleCloseCreateModal = () => {
-    setShowCreateModal(false);
-  };
-
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setEditingUser(null);
-  };
-
-  const handleEditSuccess = () => {
-    // ✅ Updated query invalidation untuk outlet-specific cache
-    queryClient.invalidateQueries({ 
-      queryKey: ["outlet-users", OUTLET_ID] 
-    });
-  };
-
-  const columns: ColumnDef<User>[] = [
+  // ✅ Define columns dengan useMemo
+  const columns: ColumnDef<User>[] = useMemo(() => [
     {
       accessorKey: "index",
       header: () => (
@@ -321,15 +357,15 @@ export function UserManagementTable() {
             <Mail className="mr-1 h-3 w-3" />
             {row.original.email}
           </div>
-          {/* ✅ Show outlet-specific info untuk OUTLET_ADMIN */}
-          {row.original.totalOrdersInOutlet !== undefined && (
+          {/* ✅ UPDATED: Show outlet-specific info for OUTLET_ADMIN */}
+          {isOutletAdmin && row.original.totalOrdersInOutlet !== undefined && (
             <div className="mt-1 text-xs text-blue-600">
               {row.original.totalOrdersInOutlet} orders di outlet ini
             </div>
           )}
-          {row.original.employeeInfo && (
+          {isOutletAdmin && row.original.employeeInfo && (
             <div className="mt-1 text-xs text-green-600">
-              Employee ID: {row.original.employeeInfo.id}
+              Employee ID: {row.original.employeeInfo.id} | NPWP: {row.original.employeeInfo.npwp}
             </div>
           )}
         </div>
@@ -346,7 +382,7 @@ export function UserManagementTable() {
       cell: ({ row }) => (
         <div className="flex items-center text-sm sm:text-sm">
           <Phone className="mr-1 h-3 w-3 text-gray-400" />
-          {row.original.phoneNumber}
+          {row.original.phoneNumber || "-"}
         </div>
       ),
       size: 120,
@@ -443,20 +479,9 @@ export function UserManagementTable() {
       enableHiding: false,
       size: 120,
     },
-  ];
+  ], [page, pageSize, handleSort, isOutletAdmin, RoleBadge, StatusBadge, handleEditUser, handleDeleteUser, deleteUserMutation.isPending]);
 
-  const sortableId = React.useId();
-  const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {}),
-  );
-
-  const dataIds = useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
-    [data],
-  );
-
+  // ✅ useReactTable hook
   const table = useReactTable({
     data: data || [],
     columns,
@@ -471,24 +496,42 @@ export function UserManagementTable() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex);
-      });
-    }
+  // ✅ CONDITIONAL RENDERING - After all hooks are called
+  if (!session) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+          <span className="ml-2 text-sm">Loading session...</span>
+        </div>
+      </div>
+    );
   }
 
+  if (!isSuperAdmin && !isOutletAdmin) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <span className="text-red-500">Access Denied</span>
+          <p className="text-sm text-gray-500 mt-2">
+            You don't have permission to view this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ UPDATED: Remove outletId check since it's handled by backend
   return (
     <>
       <div className="max-w-full space-y-4 sm:space-y-4">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600">
-            Kelola pengguna aplikasi dan permission mereka (Outlet ID: {OUTLET_ID})
+            Kelola pengguna aplikasi dan permission mereka
+            {/* ✅ UPDATED: Show different context based on role */}
+            {isOutletAdmin && " (Driver & Worker di outlet Anda)"}
+            {isSuperAdmin && " (Global Access - Semua User)"}
           </p>
         </div>
 
@@ -522,7 +565,7 @@ export function UserManagementTable() {
                     <FilterIcon className="mr-1.5 h-4 w-4" />
                     <span className="truncate">
                       {role
-                        ? ROLE_CONFIG[role as keyof typeof ROLE_CONFIG]
+                        ? availableRoles[role as keyof typeof availableRoles]
                             ?.label || role
                         : "Semua Role"}
                     </span>
@@ -536,7 +579,8 @@ export function UserManagementTable() {
                   >
                     Semua Role
                   </DropdownMenuItem>
-                  {Object.entries(ROLE_CONFIG).map(([role, config]) => (
+                  {/* ✅ UPDATED: Show only available roles based on user permission */}
+                  {Object.entries(availableRoles).map(([role, config]) => (
                     <DropdownMenuItem
                       key={role}
                       onClick={() => handleRoleFilter(role)}
@@ -701,7 +745,10 @@ export function UserManagementTable() {
                         className="h-24 text-center"
                       >
                         <span className="text-sm">
-                          Tidak ada data pengguna ditemukan
+                          {isOutletAdmin 
+                            ? "Tidak ada driver atau worker ditemukan di outlet Anda"
+                            : "Tidak ada data pengguna ditemukan"
+                          }
                         </span>
                       </TableCell>
                     </TableRow>
@@ -735,6 +782,7 @@ export function UserManagementTable() {
       <CreateUserModal
         open={showCreateModal}
         onClose={handleCloseCreateModal}
+        currentUserRole={userRole}
       />
 
       {/* {editingUser && (

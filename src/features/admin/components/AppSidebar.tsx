@@ -42,32 +42,32 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/admin/outlet/dashboard",
+      url: "/admin/dashboard",
       icon: LayoutDashboardIcon,
     },
     {
       title: "Management User",
-      url: "/admin/outlet/users",
+      url: "/admin/users",
       icon: UsersIcon,
     },
     {
       title: "Management Outlet",
-      url: "/admin/outlet/outlets",
+      url: "/admin/outlets",
       icon: StoreIcon,
     },
     {
       title: "Item Laundry",
-      url: "/admin/outlet/items",
+      url: "/admin/items",
       icon: PackageIcon,
     },
     {
       title: "Order Laundry",
-      url: "/admin/outlet/orders",
+      url: "/admin/orders",
       icon: ShoppingCartIcon,
     },
     {
       title: "Bypass Request",
-      url: "/admin/outlet/bypass-requests",
+      url: "/admin/bypass-requests",
       icon: SettingsIcon,
     },
   ],

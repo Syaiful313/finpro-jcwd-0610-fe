@@ -19,19 +19,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import useCreateUser from "@/hooks/api/admin-super/useCreateUser";
+import useCreateUser from "@/hooks/api/admin/useCreateUser";
+import useGetOutlets from "@/hooks/api/outlet/useGetOutlets";
 import { User } from "@/types/user";
 import { useFormik } from "formik";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, TrashIcon, Upload } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState } from "react";
-import { CretaUserSchema } from "../schemas";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  createUserValidationSchema,
+  isEmployeeDataRequired,
+  isProfileRequired,
+  validateProfilePicture,
+} from "../schemas";
 
 interface CreateUserModalProps {
   open: boolean;
   user?: User | null;
   onClose: () => void;
   onSave?: (userData: any) => void;
+  currentUserRole?: string;
 }
 
 export default function CreateUserModal({
@@ -39,12 +46,49 @@ export default function CreateUserModal({
   user,
   onClose,
   onSave,
+  currentUserRole = "ADMIN",
 }: CreateUserModalProps) {
   const isEditMode = !!user;
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const createUserMutation = useCreateUser();
+  const { data: outletsData, isLoading: outletsLoading } = useGetOutlets({
+    all: true,
+  });
+
+  const getAvailableRoles = () => {
+    if (currentUserRole === "ADMIN") {
+      return [
+        { value: "OUTLET_ADMIN", label: "Admin Outlet" },
+        { value: "CUSTOMER", label: "Customer" },
+        { value: "WORKER", label: "Worker" },
+        { value: "DRIVER", label: "Driver" },
+      ];
+    } else if (currentUserRole === "OUTLET_ADMIN") {
+      return [
+        { value: "WORKER", label: "Worker" },
+        { value: "DRIVER", label: "Driver" },
+      ];
+    }
+    return [];
+  };
+
+  const getDefaultRole = () => {
+    if (currentUserRole === "ADMIN") {
+      return "CUSTOMER";
+    } else if (currentUserRole === "OUTLET_ADMIN") {
+      return "WORKER";
+    }
+    return "CUSTOMER";
+  };
+
+  const validationSchema = useMemo(() => {
+    return createUserValidationSchema({
+      isEditMode,
+      currentUserRole,
+    });
+  }, [isEditMode, currentUserRole]);
 
   const formik = useFormik({
     initialValues: {
@@ -52,14 +96,15 @@ export default function CreateUserModal({
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       password: "",
-      role: user?.role || "CUSTOMER",
+      role: user?.role || getDefaultRole(),
       phoneNumber: user?.phoneNumber || "",
       provider: user?.provider || "CREDENTIAL",
       isVerified: user?.isVerified || false,
-      profile: user?.profilePic || null as File | null,
-      notificationId: "",
+      profile: null as File | null,
+      outletId: "",
+      npwp: "",
     },
-    validationSchema: CretaUserSchema,
+    validationSchema: validationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
       if (isEditMode) {
@@ -68,12 +113,37 @@ export default function CreateUserModal({
             ...values,
             id: user!.id,
           };
-          await onSave(userData);
+          onSave(userData);
         }
       } else {
-        if (!values.profile) {
-          formik.setFieldError("profile", "Profile picture is required");
+        const profileError = validateProfilePicture(
+          values.role,
+          values.profile,
+          isEditMode,
+        );
+        if (profileError) {
+          formik.setFieldError("profile", profileError);
           return;
+        }
+
+        const requiresEmployeeData = isEmployeeDataRequired(values.role);
+
+        if (requiresEmployeeData) {
+          if (currentUserRole === "ADMIN" && !values.outletId) {
+            formik.setFieldError(
+              "outletId",
+              `Outlet is required for ${values.role} role`,
+            );
+            return;
+          }
+
+          if (!values.npwp) {
+            formik.setFieldError(
+              "npwp",
+              `NPWP is required for ${values.role} role`,
+            );
+            return;
+          }
         }
 
         const createUserPayload = {
@@ -82,13 +152,19 @@ export default function CreateUserModal({
           email: values.email,
           password: values.password,
           role: values.role,
-          phoneNumber: values.phoneNumber,
+          currentUserRole,
+          ...(values.phoneNumber && {
+            phoneNumber: values.phoneNumber.toString(),
+          }),
           isVerified: values.isVerified,
           provider: values.provider,
-          profile: values.profile instanceof File ? values.profile : undefined,
-          ...(values.notificationId && {
-            notificationId: values.notificationId,
-          }),
+          profile: values.profile,
+          ...(currentUserRole === "ADMIN" &&
+          requiresEmployeeData &&
+          values.outletId
+            ? { outletId: Number(values.outletId) }
+            : {}),
+          ...(requiresEmployeeData && values.npwp ? { npwp: values.npwp } : {}),
         };
 
         createUserMutation.mutate(createUserPayload, {
@@ -99,6 +175,14 @@ export default function CreateUserModal({
       }
     },
   });
+
+  useEffect(() => {
+    const requiresEmployeeData = isEmployeeDataRequired(formik.values.role);
+    if (!requiresEmployeeData) {
+      formik.setFieldValue("outletId", "");
+      formik.setFieldValue("npwp", "");
+    }
+  }, [formik.values.role]);
 
   const handleClose = () => {
     if (!createUserMutation.isPending) {
@@ -111,18 +195,13 @@ export default function CreateUserModal({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-      if (!validTypes.includes(file.type)) {
-        formik.setFieldError(
-          "profile",
-          "Only JPEG, JPG, and PNG files are allowed",
-        );
-        return;
-      }
-
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        formik.setFieldError("profile", "File size must be less than 5MB");
+      const error = validateProfilePicture(
+        formik.values.role,
+        file,
+        isEditMode,
+      );
+      if (error && error.includes("JPEG")) {
+        formik.setFieldError("profile", error);
         return;
       }
 
@@ -146,6 +225,10 @@ export default function CreateUserModal({
   };
 
   const isLoading = createUserMutation.isPending;
+  const showEmployeeFields = isEmployeeDataRequired(formik.values.role);
+  const showOutletIdField = currentUserRole === "ADMIN" && showEmployeeFields;
+  const requiresProfile = isProfileRequired(formik.values.role);
+  const isCustomerRole = formik.values.role === "CUSTOMER";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -178,11 +261,6 @@ export default function CreateUserModal({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={isLoading}
-              className={
-                formik.touched.email && formik.errors.email
-                  ? "border-red-500 focus-visible:ring-red-500"
-                  : ""
-              }
             />
             {formik.touched.email && formik.errors.email && (
               <p className="mt-1 text-xs text-red-500">{formik.errors.email}</p>
@@ -205,11 +283,6 @@ export default function CreateUserModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 disabled={isLoading}
-                className={
-                  formik.touched.firstName && formik.errors.firstName
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
-                }
               />
               {formik.touched.firstName && formik.errors.firstName && (
                 <p className="mt-1 text-xs text-red-500">
@@ -230,11 +303,6 @@ export default function CreateUserModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 disabled={isLoading}
-                className={
-                  formik.touched.lastName && formik.errors.lastName
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
-                }
               />
               {formik.touched.lastName && formik.errors.lastName && (
                 <p className="mt-1 text-xs text-red-500">
@@ -258,11 +326,6 @@ export default function CreateUserModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 disabled={isLoading}
-                className={
-                  formik.touched.password && formik.errors.password
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
-                }
               />
               {formik.touched.password && formik.errors.password && (
                 <p className="mt-1 text-xs text-red-500">
@@ -284,31 +347,36 @@ export default function CreateUserModal({
               onValueChange={(value) => formik.setFieldValue("role", value)}
               disabled={isLoading}
             >
-              <SelectTrigger
-                className={
-                  formik.touched.role && formik.errors.role
-                    ? "border-red-500 focus:ring-red-500"
-                    : ""
-                }
-              >
+              <SelectTrigger>
                 <SelectValue placeholder="Pilih role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="OUTLET_ADMIN">Admin Outlet</SelectItem>
-                <SelectItem value="CUSTOMER">Customer</SelectItem>
-                <SelectItem value="WORKER">Worker</SelectItem>
-                <SelectItem value="DRIVER">Driver</SelectItem>
+                {getAvailableRoles().map((role) => (
+                  <SelectItem key={role.value} value={role.value}>
+                    {role.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {formik.touched.role && formik.errors.role && (
               <p className="mt-1 text-xs text-red-500">{formik.errors.role}</p>
             )}
+            {currentUserRole === "ADMIN" && (
+              <p className="text-muted-foreground text-xs">
+                Admin dapat membuat semua role kecuali Admin
+              </p>
+            )}
+            {currentUserRole === "OUTLET_ADMIN" && (
+              <p className="text-muted-foreground text-xs">
+                Anda hanya dapat membuat akun Worker dan Driver untuk outlet
+                Anda
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phoneNumber" className="text-sm font-medium">
-              Nomor Telepon *
+              Nomor Telepon
             </Label>
             <Input
               id="phoneNumber"
@@ -318,11 +386,6 @@ export default function CreateUserModal({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={isLoading}
-              className={
-                formik.touched.phoneNumber && formik.errors.phoneNumber
-                  ? "border-red-500 focus-visible:ring-red-500"
-                  : ""
-              }
             />
             {formik.touched.phoneNumber && formik.errors.phoneNumber && (
               <p className="mt-1 text-xs text-red-500">
@@ -334,6 +397,75 @@ export default function CreateUserModal({
             </p>
           </div>
 
+          {showEmployeeFields && (
+            <>
+              {showOutletIdField && (
+                <div className="space-y-2">
+                  <Label htmlFor="outletId" className="text-sm font-medium">
+                    Outlet *
+                  </Label>
+                  <Select
+                    value={formik.values.outletId}
+                    onValueChange={(value) =>
+                      formik.setFieldValue("outletId", value)
+                    }
+                    disabled={isLoading || outletsLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          outletsLoading ? "Loading outlets..." : "Pilih outlet"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {outletsData?.data?.map((outlet) => (
+                        <SelectItem
+                          key={outlet.id}
+                          value={outlet.id.toString()}
+                        >
+                          {outlet.outletName} - {outlet.address}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formik.touched.outletId && formik.errors.outletId && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {formik.errors.outletId}
+                    </p>
+                  )}
+                  <p className="text-muted-foreground text-xs">
+                    Pilih outlet tempat user akan bekerja
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="npwp" className="text-sm font-medium">
+                  NPWP *
+                </Label>
+                <Input
+                  id="npwp"
+                  name="npwp"
+                  placeholder="123456789012345"
+                  value={formik.values.npwp}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={isLoading}
+                  maxLength={15}
+                />
+                {formik.touched.npwp && formik.errors.npwp && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {formik.errors.npwp}
+                  </p>
+                )}
+                <p className="text-muted-foreground text-xs">
+                  NPWP harus 15 digit angka
+                </p>
+              </div>
+            </>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="provider" className="text-sm font-medium">
               Provider Login
@@ -343,13 +475,7 @@ export default function CreateUserModal({
               onValueChange={(value) => formik.setFieldValue("provider", value)}
               disabled={isLoading}
             >
-              <SelectTrigger
-                className={
-                  formik.touched.provider && formik.errors.provider
-                    ? "border-red-500 focus:ring-red-500"
-                    : ""
-                }
-              >
+              <SelectTrigger>
                 <SelectValue placeholder="Pilih provider" />
               </SelectTrigger>
               <SelectContent>
@@ -364,27 +490,11 @@ export default function CreateUserModal({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notificationId" className="text-sm font-medium">
-              Notification ID (Optional)
-            </Label>
-            <Input
-              id="notificationId"
-              name="notificationId"
-              placeholder="Enter notification ID"
-              value={formik.values.notificationId}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              disabled={isLoading}
-            />
-            <p className="text-muted-foreground text-xs">
-              ID untuk push notification (opsional)
-            </p>
-          </div>
-
           {!isEditMode && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Profile Picture *</Label>
+              <Label className="text-sm font-medium">
+                Profile Picture {requiresProfile ? "*" : "(Optional)"}
+              </Label>
               <div className="flex flex-col space-y-3">
                 {profilePreview ? (
                   <div className="relative mx-auto h-24 w-24">
@@ -395,14 +505,14 @@ export default function CreateUserModal({
                       width={96}
                       height={96}
                     />
-                    <button
+                    <Button
                       type="button"
                       onClick={removeProfilePicture}
                       className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
                       disabled={isLoading}
                     >
-                      <X className="h-3 w-3" />
-                    </button>
+                      <TrashIcon className="h-3 w-3" />
+                    </Button>
                   </div>
                 ) : (
                   <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed border-gray-300">
@@ -437,7 +547,7 @@ export default function CreateUserModal({
                 </p>
               )}
               <p className="text-muted-foreground text-center text-xs">
-                Upload JPG, JPEG, atau PNG. Maksimal 5MB
+                Upload JPG, JPEG, atau PNG. Maksimal 2MB
               </p>
             </div>
           )}

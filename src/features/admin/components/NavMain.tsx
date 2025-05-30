@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export function NavMain({
   items,

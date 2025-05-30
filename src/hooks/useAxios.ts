@@ -39,6 +39,8 @@ const useAxios = () => {
       axiosInstance.interceptors.response.eject(responseIntercept);
     };
   }, []);
+
+  return axiosInstance;
 };
 
 export default useAxios;
