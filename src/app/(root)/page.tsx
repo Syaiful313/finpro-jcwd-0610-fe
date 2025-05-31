@@ -1,4 +1,4 @@
-import Homepage from "@/features/home/Homepage";
+import Homepage from "@/features/home";
 
 export default function Home() {
   return <Homepage/>
