@@ -1,4 +1,4 @@
-import LoginPage from "@/features/login/LoginPage"
+import LoginPage from "@/features/login"
 const Login = () => {  
     return <LoginPage/>
 }

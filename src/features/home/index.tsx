@@ -1,4 +1,4 @@
-import HeroSection from "@/components/home/Hero"
+import HeroSection from "@/features/home/_components/Hero"
 import MainSection from "./_components/MainSection"
 import AdditionalSection from "./_components/AdditionalSection"
 import TestimonialsSection from "./_components/TestimonialSection"

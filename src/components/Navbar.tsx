@@ -33,6 +33,9 @@ export const Navbar = () => {
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
+
+    console.log("Navbar: Session data:", session);
+
     return (
         <header>
             <nav
@@ -85,14 +88,44 @@ export const Navbar = () => {
                                     ))}
                                 </ul>
                             </div>
-                            {!!session.data?.user && 
+                            {!!session.data?.user ? (
+                                <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                                    <Button
+                                        onClick={() => signOut({ callbackUrl: '/' })}
+                                        size="sm"
+                                        className={cn(isScrolled && 'lg:hidden', 'rounded-full')}
+                                        variant="outline"
+                                    >
+                                        <span>Logout</span>
+                                    </Button>
+                                </div>
+                            ) : (
                                 <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">                                
                                     <Button
                                         asChild
                                         variant="ghost"
                                         size="sm"
                                         className={cn(isScrolled && 'lg:hidden', 'rounded-full')}>
-                                        <Link href="#">
+                                        <Link href="/login">
+                                            <span>Sign In</span>
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        asChild
+                                        variant="secondary"
+                                        size="sm"
+                                        className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'rounded-full')}>
+                                        <Link href="/login">
+                                            <span>Sign In</span>
+                                        </Link>
+                                    </Button>
+                                    
+                                    <Button
+                                        asChild
+                                        variant="ghost"
+                                        size="sm"
+                                        className={cn(isScrolled && 'lg:hidden', 'rounded-full', 'hover:bg-primary', 'hover:text-muted')}>
+                                        <Link href="/login">
                                             <span>Sign Up</span>
                                         </Link>
                                     </Button>
@@ -100,12 +133,12 @@ export const Navbar = () => {
                                         asChild
                                         size="sm"
                                         className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'rounded-full')}>
-                                        <Link href="#">
+                                        <Link href="/register">
                                             <span>Sign Up</span>
                                         </Link>
                                     </Button>
                                 </div>
-                            }                            
+                            )}                          
                         </div>
                     </div>
                 </div>
