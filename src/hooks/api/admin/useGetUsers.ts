@@ -17,7 +17,10 @@ interface User {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
-  totalOrdersInOutlet?: number;
+  // ❌ REMOVED: notificationId (tidak ada di backend schema)
+
+  // Fields conditional berdasarkan role
+  totalOrdersInOutlet?: number; // ✅ Only for DRIVER & WORKER
   employeeInfo?: {
     id: number;
     npwp: string;
@@ -67,18 +70,27 @@ const useGetUsers = (
     queryKey,
     queryFn: async () => {
       try {
+        console.log("[DEBUG] Fetching users with params:", defaultQueries);
+
+        // ✅ Updated to expect new response format from backend
         const { data } = await axiosInstance.get<GetUsersResponse>(endpoint, {
           params: defaultQueries,
         });
 
+        // ✅ Handle new response format
         if (!data || typeof data !== "object") {
           throw new Error("Invalid response format");
         }
 
         if (!data.success) {
           throw new Error(data.message || "Failed to fetch users");
+          throw new Error(data.message || "Failed to fetch users");
         }
 
+        console.log("[DEBUG] Fetched users count:", data.data?.length || 0);
+        console.log("[DEBUG] Response meta:", data.meta);
+
+        // ✅ Return in PageableResponse format for compatibility
         const response: PageableResponse<User> = {
           data: data.data,
           meta: {
@@ -90,6 +102,7 @@ const useGetUsers = (
 
         return response;
       } catch (error) {
+        console.error("Error fetching users:", error);
         throw error;
       }
     },
