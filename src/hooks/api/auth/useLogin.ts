@@ -18,6 +18,8 @@ export const useLogin = () => {
       toast.success("Login successful");
       if (data.role === "ADMIN" || data.role === "OUTLET_ADMIN") {
         router.push("/admin/dashboard");
+      } else if (data.role === "WORKER" || data.role === "DRIVER") {
+        router.push("/employee");
       } else {
         router.push("/");
       }

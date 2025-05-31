@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-
+import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -21,7 +23,15 @@ import { ChevronDown, User } from "lucide-react";
 import Link from "next/link";
 import NotificationDropdown from "./Notifications";
 
-export function EmployeeHeader() {
+type BreadcrumbItemType = {
+  label: string;
+  href?: string;
+};
+
+interface EmployeeHeaderProps {
+  breadcrumbs: BreadcrumbItemType[];
+}
+export function EmployeeHeader({ breadcrumbs }: EmployeeHeaderProps) {
   return (
     <header className="flex h-15 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-15">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -32,20 +42,25 @@ export function EmployeeHeader() {
         />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem>
-              <Link
-                href="/employee"
-                className="text-muted-foreground hover:text-primary text-base font-medium"
-              >
-                Dashboard
-              </Link>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-primary text-base font-medium">
-                Users
-              </BreadcrumbPage>
-            </BreadcrumbItem>
+            {breadcrumbs.map((item, index) => (
+              <React.Fragment key={index}>
+                <BreadcrumbItem>
+                  {item.href ? (
+                    <Link
+                      href={item.href}
+                      className="text-muted-foreground hover:text-primary text-base font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <BreadcrumbPage className="text-primary text-base font-medium">
+                      {item.label}
+                    </BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+                {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+              </React.Fragment>
+            ))}
           </BreadcrumbList>
         </Breadcrumb>
       </div>

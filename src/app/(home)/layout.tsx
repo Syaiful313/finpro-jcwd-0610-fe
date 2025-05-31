@@ -65,11 +65,11 @@ export default function RootLayout({
         <StoreProvider>
           <ReactQueryProvider>
             {/* <NuqsProvider> */}
-              <NextAuthProvider>
-                <Navbar />
-                {children}
-                <Footer />
-              </NextAuthProvider>
+            <NextAuthProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </NextAuthProvider>
             {/* </NuqsProvider> */}
           </ReactQueryProvider>
         </StoreProvider>

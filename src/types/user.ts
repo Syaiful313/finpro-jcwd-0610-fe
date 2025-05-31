@@ -5,10 +5,10 @@ export interface User {
   email: string;
   password: string;
   role: Role;
-  phoneNumber: number;
-  profilePic: string;
-  isVerified: boolean;
-  provider: Provider;
+  phoneNumber?: number;
+  profilePic?: string;
+  isVerified?: boolean;
+  provider?: Provider;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
@@ -35,4 +35,4 @@ export enum Provider {
   CREDENTIAL = "CREDENTIAL",
 }
 
-// ini commit 
+// ini commit

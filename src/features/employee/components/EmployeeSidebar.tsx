@@ -8,7 +8,9 @@ import {
   FileTextIcon,
   HelpCircleIcon,
   HomeIcon,
+  LayoutDashboardIcon,
   ListIcon,
+  LogOut,
   PackageIcon,
   SearchIcon,
   SettingsIcon,
@@ -32,6 +34,8 @@ import { NavDocuments } from "./NavDocument";
 import { NavMain } from "./NavMain";
 import { NavSecondary } from "./NavSecondary";
 import { NavUser } from "./NavUser";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 // Role types
 type Role = "DRIVER" | "WORKER";
@@ -47,6 +51,18 @@ const getNavDataByRole = (role: Role) => {
       email: "employee@example.com",
       avatar: "/avatars/employee.jpg",
     },
+    reports: [
+      {
+        name: "Job History",
+        url: "/employee/job-history",
+        icon: ClockIcon,
+      },
+      {
+        name: "Attendance",
+        url: "/employee/attendance",
+        icon: CalendarCheckIcon,
+      },
+    ],
     navSecondary: [
       {
         title: "Settings",
@@ -64,18 +80,6 @@ const getNavDataByRole = (role: Role) => {
         icon: SearchIcon,
       },
     ],
-    documents: [
-      {
-        name: "Income Report",
-        url: "#",
-        icon: DatabaseIcon,
-      },
-      {
-        name: "Performance Report",
-        url: "#",
-        icon: BarChartIcon,
-      },
-    ],
   };
 
   if (role === "DRIVER") {
@@ -84,33 +88,23 @@ const getNavDataByRole = (role: Role) => {
       navMain: [
         {
           title: "Home",
-          url: "/dashboard",
+          url: "/employee",
           icon: HomeIcon,
         },
         {
           title: "Order List",
-          url: "/dashboard/orders",
+          url: "/employee/orders",
           icon: ListIcon,
         },
         {
           title: "Pick Up",
-          url: "/dashboard/orders/pick-up",
+          url: "/employee/orders/pick-up",
           icon: PackageIcon,
         },
         {
           title: "Delivery",
-          url: "/dashboard/orders/delivery",
+          url: "/employee/orders/delivery",
           icon: TruckIcon,
-        },
-        {
-          title: "Job History",
-          url: "/dashboard/job-history",
-          icon: ClockIcon,
-        },
-        {
-          title: "Attendance",
-          url: "/dashboard/attendance-history",
-          icon: CalendarCheckIcon,
         },
       ],
     };
@@ -120,34 +114,24 @@ const getNavDataByRole = (role: Role) => {
       ...baseData,
       navMain: [
         {
-          title: "Home",
-          url: "/dashboard",
-          icon: HomeIcon,
+          title: "Dashboard",
+          url: "/employee",
+          icon: LayoutDashboardIcon,
         },
         {
           title: "Order List",
-          url: "/dashboard/orders",
+          url: "/employee/orders",
           icon: ListIcon,
         },
         {
           title: "Queue",
-          url: "/dashboard/orders/queue",
+          url: "/employee/orders/queue",
           icon: UsersIcon,
         },
         {
           title: "Bypass Request",
-          url: "/dashboard/orders/bypass",
+          url: "/employee/orders/bypass",
           icon: FileTextIcon,
-        },
-        {
-          title: "Job History",
-          url: "/dashboard/job-history",
-          icon: ClockIcon,
-        },
-        {
-          title: "Attendance",
-          url: "/dashboard/attendance-history",
-          icon: CalendarCheckIcon,
         },
       ],
     };
@@ -162,29 +146,43 @@ export function EmployeeSidebar({ role, ...props }: EmployeeSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <Link href="#">
-                <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-                  <WashingMachine className="text-primary-foreground h-4 w-4" />
-                </div>
-                <span className="text-xl font-semibold">Bubblify</span>
-              </Link>
-            </SidebarMenuButton>
+            <div className="items-center pl-4">
+              <Image
+                src="/bub-logo.svg"
+                alt="Bubblify"
+                height={100}
+                width={350}
+                className="h-10 w-auto items-center"
+              />
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavDocuments items={data.reports} />
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {/* <NavUser user={data.user} />*/}
+        <div className="mt-6 border-t px-4 py-4">
+          <div className="text-muted-foreground mb-2 text-xs font-semibold">
+            WORKER INFORMATION
+          </div>
+          <div className="mb-4">
+            <div className="text-sm font-medium">Jennie Kim</div>
+            <div className="text-muted-foreground text-xs">Laundry Worker</div>
+            <div className="text-muted-foreground text-xs">
+              Worker ID: WKR001
+            </div>
+          </div>
+          <Button variant="outline" size="sm" className="w-full justify-start">
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

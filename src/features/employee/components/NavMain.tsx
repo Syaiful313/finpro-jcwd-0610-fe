@@ -9,7 +9,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils"; // pastikan kamu punya helper className ini
 
 export function NavMain({
   items,
@@ -20,21 +21,35 @@ export function NavMain({
     icon?: LucideIcon;
   }[];
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
+        <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <Link href={item.url}>
+          {items.map((item) => {
+            const isActive = pathname === item.url;
+
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  onClick={() => router.push(item.url)}
+                  // isActive={isActive}
+                  // className="hover:bg-accent w-full cursor-pointer justify-start transition-colors"
+                  className={cn(
+                    "hover:bg-accent w-full cursor-pointer justify-start transition-colors",
+                    isActive && "bg-primary font-semibold text-white",
+                  )}
+                >
+                  {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                   <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
