@@ -14,7 +14,6 @@ import {
   ShoppingCartIcon,
   StoreIcon,
   UsersIcon,
-  WashingMachine,
 } from "lucide-react";
 import * as React from "react";
 
@@ -27,6 +26,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 import Link from "next/link";
 import { NavDocuments } from "./NavDocument";
 import { NavMain } from "./NavMain";
@@ -158,13 +158,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!h-auto data-[slot=sidebar-menu-button]:!p-2"
             >
-              <Link href="#">
-                <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-                  <WashingMachine className="text-primary-foreground h-4 w-4" />
-                </div>
-                <span className="text-xl font-semibold">Bubblify</span>
+              <Link href="#" className="flex w-full items-center">
+                <Image
+                  src="/logo-text.svg"
+                  alt="Bubblify Logo"
+                  width={180}
+                  height={45}
+                  className="h-11 w-auto max-w-full"
+                />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

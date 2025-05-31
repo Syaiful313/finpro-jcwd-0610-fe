@@ -51,7 +51,6 @@ export default function CreateUserModal({
   const isEditMode = !!user;
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const createUserMutation = useCreateUser();
   const { data: outletsData, isLoading: outletsLoading } = useGetOutlets({
     all: true,
@@ -67,6 +66,7 @@ export default function CreateUserModal({
       ];
     } else if (currentUserRole === "OUTLET_ADMIN") {
       return [
+        { value: "OUTLET_ADMIN", label: "Admin Outlet" },
         { value: "WORKER", label: "Worker" },
         { value: "DRIVER", label: "Driver" },
       ];
@@ -153,9 +153,7 @@ export default function CreateUserModal({
           password: values.password,
           role: values.role,
           currentUserRole,
-          ...(values.phoneNumber && {
-            phoneNumber: values.phoneNumber.toString(),
-          }),
+          phoneNumber: values.phoneNumber.toString(),
           isVerified: values.isVerified,
           provider: values.provider,
           profile: values.profile,
@@ -368,15 +366,15 @@ export default function CreateUserModal({
             )}
             {currentUserRole === "OUTLET_ADMIN" && (
               <p className="text-muted-foreground text-xs">
-                Anda hanya dapat membuat akun Worker dan Driver untuk outlet
-                Anda
+                Anda dapat membuat akun Admin Outlet, Worker dan Driver untuk
+                outlet Anda
               </p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phoneNumber" className="text-sm font-medium">
-              Nomor Telepon
+              Nomor Telepon *
             </Label>
             <Input
               id="phoneNumber"
@@ -386,6 +384,7 @@ export default function CreateUserModal({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={isLoading}
+              maxLength={13}
             />
             {formik.touched.phoneNumber && formik.errors.phoneNumber && (
               <p className="mt-1 text-xs text-red-500">
@@ -393,7 +392,7 @@ export default function CreateUserModal({
               </p>
             )}
             <p className="text-muted-foreground text-xs">
-              Format: 08xxxxxxxxxx (10-13 digit)
+              Format: 08xxxxxxxxxx (10-13 digit) - Wajib diisi
             </p>
           </div>
 

@@ -1,13 +1,11 @@
+import { Toaster } from "@/components/ui/sonner";
+import NextAuthProvider from "@/providers/NextAuthProvider";
+import NuqsProvider from "@/providers/NuqsProvider";
+import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import StoreProvider from "@/providers/StoreProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ReactQueryProvider from "@/providers/ReactQueryProvider";
-import StoreProvider from "@/providers/StoreProvider";
-import { Toaster } from "@/components/ui/sonner";
-import NuqsProvider from "@/providers/NuqsProvider";
-import { Navbar } from "@/components/home/Navbar";
-import Footer from "@/components/home/Footer";
-import NextAuthProvider from "@/providers/NextAuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,9 +63,7 @@ export default function RootLayout({
         <StoreProvider>
           <ReactQueryProvider>
             <NuqsProvider>
-              <NextAuthProvider>
-                {children}
-              </NextAuthProvider>
+              <NextAuthProvider>{children}</NextAuthProvider>
             </NuqsProvider>
           </ReactQueryProvider>
         </StoreProvider>

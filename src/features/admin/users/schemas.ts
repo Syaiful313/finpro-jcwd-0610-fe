@@ -9,6 +9,15 @@ export const createUserValidationSchema = ({
   isEditMode = false,
   currentUserRole = "ADMIN",
 }: CreateUserSchemaOptions = {}) => {
+  const getAvailableRoles = () => {
+    if (currentUserRole === "ADMIN") {
+      return ["OUTLET_ADMIN", "CUSTOMER", "WORKER", "DRIVER"];
+    } else if (currentUserRole === "OUTLET_ADMIN") {
+      return ["OUTLET_ADMIN", "WORKER", "DRIVER"];
+    }
+    return [];
+  };
+
   return Yup.object({
     email: Yup.string()
       .email("Format email tidak valid")
@@ -33,21 +42,15 @@ export const createUserValidationSchema = ({
       : Yup.string().optional(),
 
     role: Yup.string()
-      .oneOf(
-        ["ADMIN", "OUTLET_ADMIN", "CUSTOMER", "WORKER", "DRIVER"],
-        "Role tidak valid",
-      )
+      .oneOf(getAvailableRoles(), "Role tidak valid")
       .required("Role wajib dipilih"),
 
-    phoneNumber: Yup.string().test(
-      "phone-validation",
-      "Format nomor telepon tidak valid (08xxxxxxxxxx)",
-      function (value) {
-        if (!value || value.trim() === "") return true;
-
-        return /^08[0-9]{8,11}$/.test(value);
-      },
-    ),
+    phoneNumber: Yup.string()
+      .required("Nomor telepon wajib diisi")
+      .matches(
+        /^08[0-9]{8,11}$/,
+        "Format nomor telepon tidak valid (08xxxxxxxxxx, 10-13 digit)",
+      ),
 
     provider: Yup.string()
       .oneOf(["CREDENTIAL", "GOOGLE"], "Provider tidak valid")
@@ -63,7 +66,6 @@ export const createUserValidationSchema = ({
         if (currentUserRole === "OUTLET_ADMIN") {
           return schema.optional();
         }
-
         return schema.required("Outlet wajib dipilih untuk role ini");
       },
       otherwise: (schema) => schema.optional(),
@@ -101,7 +103,7 @@ export const validateProfilePicture = (
 
     const maxSize = 2 * 1024 * 1024;
     if (profile.size > maxSize) {
-      return "File size must be less than 5MB";
+      return "File size must be less than 2MB";
     }
   }
 
