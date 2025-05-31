@@ -160,7 +160,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!h-auto data-[slot=sidebar-menu-button]:!p-2"
             >
-              <Link href="#" className="flex w-full items-center">
+              <Link href="/" className="flex w-full items-center">
                 <Image
                   src="/logo-text.svg"
                   alt="Bubblify Logo"
