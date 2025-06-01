@@ -93,7 +93,7 @@ export const Navbar = () => {
                                     <Button
                                         onClick={() => signOut({ callbackUrl: '/' })}
                                         size="sm"
-                                        className={cn(isScrolled && 'lg:hidden', 'rounded-full')}
+                                        className={cn(isScrolled && 'lg:hidden', 'rounded-full', 'hover:cursor-pointer')}
                                         variant="outline"
                                     >
                                         <span>Logout</span>
