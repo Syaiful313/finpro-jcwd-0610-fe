@@ -35,7 +35,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = (user as any).id;
         token.email = (user as any).email;
 
-        if (account?.provider === "github") {
+        if (account?.provider === "github" || account?.provider === "google") {
           token.role = "USER";
         } else if (account?.provider === "credentials") {
           token.role = (user as any).role;

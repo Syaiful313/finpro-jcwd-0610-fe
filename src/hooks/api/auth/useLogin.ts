@@ -1,7 +1,6 @@
 import { axiosInstance } from "@/lib/axios";
 import { User } from "@/types/user";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -22,10 +21,10 @@ export const useLogin = () => {
         router.push("/");
       }
     },
-    onError: (error: AxiosError<any>) => {
-      toast.error("An unexpected error occurred during login.");
-      console.error("Login Error:", error);
-    },
+    onError: (error) => {
+      toast.error(error.message)
+      console.error("Login error", error)
+    }
   });
 };
 
