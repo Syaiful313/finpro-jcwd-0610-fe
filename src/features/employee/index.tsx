@@ -2,7 +2,9 @@
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { isDriver, isWorker } from "@/utils/AuthRole";
 import {
   Calendar,
   CalendarCheck,
@@ -11,23 +13,18 @@ import {
   ListCheck,
   User,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import AttendanceCard from "./components/AttendanceCard";
 import { useBreadcrumb } from "./components/BreadCrumbContext";
 import NotificationDropdown from "./components/Notifications";
 import RecentAttendance from "./components/RecentAttendance";
-import UserGreeting from "./components/UserGreeting";
-import { isDriver, isWorker } from "@/utils/AuthRole";
-import { toast } from "sonner";
 import RecentOrder from "./components/RecentOrder";
-import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
+import UserGreeting from "./components/UserGreeting";
+import { useSession } from "next-auth/react";
 
 const RecentSection: React.FC = () => {
-  const { data: session, status } = useSession();
-  const isAuthenticated = status === "authenticated";
-
   const { data: attendanceData } = useGetAttendance({
     page: 1,
     take: 6,
@@ -41,7 +38,7 @@ const RecentSection: React.FC = () => {
 
   // User sedang dalam jam kerja (sudah clock in tapi belum clock out)
   const isCurrentlyWorking = hasClockedIn && !hasClockedOut;
-  const showRecentOrder = isAuthenticated && isCurrentlyWorking;
+  const showRecentOrder = isCurrentlyWorking;
 
   return showRecentOrder ? <RecentOrder /> : <RecentAttendance />;
 };
@@ -198,26 +195,9 @@ const DesktopLayout: React.FC = () => {
   );
 };
 const EmployeePage: React.FC = () => {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const { setBreadcrumbs } = useBreadcrumb();
   const isMobile: boolean = useMediaQuery("(max-width: 767px)");
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
-
-  useEffect(() => {
-    if (
-      status === "authenticated" &&
-      !(isWorker(session) || isDriver(session))
-    ) {
-      router.push("/admin/dashboard");
-      toast.error("You are not authorized to access this page.");
-    }
-  }, [status, session, router]);
 
   useEffect(() => {
     setBreadcrumbs([{ label: "Dashboard", href: "/employee" }]);

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
 import { Attendance } from "@/types/attendance";
 import { Clock, Ghost, RotateCcw } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function RecentAttendance() {

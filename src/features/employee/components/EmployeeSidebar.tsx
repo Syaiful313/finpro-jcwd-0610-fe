@@ -1,10 +1,8 @@
 "use client";
 
 import {
-  BarChartIcon,
   CalendarCheckIcon,
   ClockIcon,
-  DatabaseIcon,
   FileTextIcon,
   HelpCircleIcon,
   HomeIcon,
@@ -12,32 +10,27 @@ import {
   ListIcon,
   LogOut,
   PackageIcon,
-  SearchIcon,
   SettingsIcon,
   TruckIcon,
   UsersIcon,
-  WashingMachine,
 } from "lucide-react";
 import * as React from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { NavDocuments } from "./NavDocument";
 import { NavMain } from "./NavMain";
 import { NavSecondary } from "./NavSecondary";
-import { NavUser } from "./NavUser";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { signOut, useSession } from "next-auth/react";
-import { isDriver } from "@/utils/AuthRole";
 
 // Role types
 type Role = "DRIVER" | "WORKER";
@@ -134,11 +127,11 @@ const getNavDataByRole = (role: Role) => {
 };
 
 export function EmployeeSidebar({ ...props }: EmployeeSidebarProps) {
-  const { data: userData } = useSession();
-  const user = userData?.user;
+  const session = useSession();
+  const user = session?.data?.user;
 
   // Determine role dynamically from session
-  const role: Role = isDriver(userData) ? "DRIVER" : "WORKER";
+  const role: Role = user?.role ? "DRIVER" : "WORKER";
   const data = getNavDataByRole(role);
 
   const handleLogout = () => {

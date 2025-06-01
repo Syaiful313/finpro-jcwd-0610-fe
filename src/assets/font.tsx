@@ -6,7 +6,6 @@ import {
   Lexend,
   Manrope,
   Montserrat,
-  Poppins,
   Raleway,
   Roboto,
   Rubik,
@@ -23,10 +22,6 @@ export const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600"],
-});
 export const lexend = Lexend({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600"],
