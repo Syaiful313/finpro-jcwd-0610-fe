@@ -1,13 +1,17 @@
 "use client";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useBreadcrumb } from "../components/BreadCrumbContext";
-import Desktop from "./components/Desktop";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Mobile from "./components/Mobile";
+import Desktop from "./components/Desktop";
 
 const AttendancePage = () => {
+  const { data: session, status } = useSession();
   const { setBreadcrumbs } = useBreadcrumb();
+  const router = useRouter();
   const isMobile: boolean = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
@@ -16,6 +20,12 @@ const AttendancePage = () => {
       { label: "Attendance" },
     ]);
   }, [setBreadcrumbs]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   return isMobile ? <Mobile /> : <Desktop />;
 };

@@ -10,14 +10,14 @@ interface UserGreetingProps {
   isMobile: boolean;
 }
 const UserGreeting: FC<UserGreetingProps> = ({ isMobile }) => {
-  const session = useSession();
-  const isWorkerRole = isWorker(session.data);
+  const { data } = useSession();
+  const isWorkerRole = isWorker(data);
   return (
     <div className={`space-y-2 ${isMobile ? "mt-4" : ""}`}>
       <h1
         className={`font-bold text-white ${isMobile ? "text-3xl" : "text-5xl"}`}
       >
-        Hallo, {session.data?.user.firstName}!
+        Hallo, {data?.user.firstName}!
       </h1>
       <div className="flex items-center gap-4">
         <Badge

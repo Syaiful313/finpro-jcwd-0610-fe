@@ -41,12 +41,10 @@ import { isDriver, isWorker } from "@/utils/AuthRole";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import Image from "next/image";
-import { auth } from "@/lib/auth";
 
-const AttendanceList = async () => {
-  const session = await auth();
-  const role = session?.user.role;
-  const isLimitedUser = role !== "WORKER" && role !== "DRIVER";
+const AttendanceList = () => {
+  const { data: session } = useSession();
+  const isLimitedUser = isWorker(session) || isDriver(session);
 
   const [page, setPage] = useState(1);
   const [take] = useState(10);
