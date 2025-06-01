@@ -2,6 +2,8 @@ export interface PaginationMeta {
   page: number;
   take: number;
   total: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 export interface PageableResponse<T> {

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect } from "react";
 import { useBreadcrumb } from "../components/BreadCrumbContext";
 import { useSession } from "next-auth/react";
@@ -8,16 +7,15 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Mobile from "./components/Mobile";
 import Desktop from "./components/Desktop";
 
-const AttendancePage = () => {
+const OrderPage = () => {
   const { data: session, status } = useSession();
   const { setBreadcrumbs } = useBreadcrumb();
   const router = useRouter();
   const isMobile: boolean = useMediaQuery("(max-width: 767px)");
-
   useEffect(() => {
     setBreadcrumbs([
       { label: "Dashboard", href: "/employee" },
-      { label: "Attendance" },
+      { label: "Orders" },
     ]);
   }, [setBreadcrumbs]);
 
@@ -26,8 +24,7 @@ const AttendancePage = () => {
       router.push("/");
     }
   }, [status, router]);
-
   return isMobile ? <Mobile /> : <Desktop />;
 };
 
-export default AttendancePage;
+export default OrderPage;

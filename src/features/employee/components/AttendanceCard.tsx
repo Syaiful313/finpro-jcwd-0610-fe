@@ -6,6 +6,8 @@ import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
 import useClockIn from "@/hooks/api/employee/attendance/useClockIn";
 import useClockOut from "@/hooks/api/employee/attendance/useClockOut";
 import { toast } from "sonner"; // optional, pakai apapun untuk notif
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 interface AttendanceCardProps {
   isMobile: boolean;
@@ -15,7 +17,7 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({ isMobile }) => {
   const { data: attendanceData, isLoading, refetch } = useGetAttendance();
   const { mutate: clockIn, isPending: isClockingIn } = useClockIn();
   const { mutate: clockOut, isPending: isClockingOut } = useClockOut();
-
+  const router = useRouter();
   const attendance = attendanceData?.data?.[0];
 
   const hasClockedIn = !!attendance?.clockInAt;
@@ -26,6 +28,7 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({ isMobile }) => {
       onSuccess: () => {
         toast.success("Clock In successful");
         refetch();
+        router.push("/employee");
       },
       onError: () => toast.error("Failed to Clock In"),
     });
@@ -40,6 +43,24 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({ isMobile }) => {
       onError: () => toast.error("Failed to Clock Out"),
     });
   };
+
+  const getLastTimeInfo = () => {
+    if (hasClockedIn && !hasClockedOut) {
+      // Sudah clock in tapi belum clock out
+      return {
+        label: "Last Clock In",
+        time: attendance?.clockInAt,
+      };
+    } else {
+      // Belum clock in atau sudah clock out
+      return {
+        label: "Last Clock Out",
+        time: attendance?.clockOutAt,
+      };
+    }
+  };
+
+  const lastTimeInfo = getLastTimeInfo();
 
   const actionButton =
     hasClockedIn && !hasClockedOut ? (
@@ -69,7 +90,11 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({ isMobile }) => {
           <div>
             <p className="font-semibold">Take Attendance Today</p>
             <p className="text-sm">
-              Last Clock Out: {attendance?.clockOutAt || "-"}
+              {lastTimeInfo.label}:
+              <br />
+              {lastTimeInfo.time
+                ? format(new Date(lastTimeInfo.time), " dd MMMM yyyy • HH:mm")
+                : "-"}
             </p>
           </div>
           {actionButton}
@@ -81,8 +106,8 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({ isMobile }) => {
   return (
     <div className="rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
       <div className="pb-4">
-        <div className="flex items-center text-xl">
-          <Clock className="mr-2 h-5 w-5 text-[#0080FF]" />
+        <div className="flex items-center gap-2 text-2xl font-semibold">
+          <Clock />
           Attendance Today
         </div>
       </div>
@@ -93,8 +118,14 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({ isMobile }) => {
               ? "Ready to Clock Out?"
               : "Ready to Clock In?"}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            Last Clock Out: {attendance?.clockOutAt || "-"}
+          <p className="text-sm">
+            {lastTimeInfo.label}:{" "}
+            {lastTimeInfo.time
+              ? format(
+                  new Date(lastTimeInfo.time),
+                  "eeee, dd MMMM yyyy • HH:mm",
+                )
+              : "-"}
           </p>
           <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
             <Calendar className="mr-1 h-4 w-4" />

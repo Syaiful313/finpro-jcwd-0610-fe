@@ -36,13 +36,13 @@ import { NavSecondary } from "./NavSecondary";
 import { NavUser } from "./NavUser";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { signOut, useSession } from "next-auth/react";
+import { isDriver } from "@/utils/AuthRole";
 
 // Role types
 type Role = "DRIVER" | "WORKER";
 
-interface EmployeeSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  role: Role;
-}
+interface EmployeeSidebarProps extends React.ComponentProps<typeof Sidebar> {}
 
 const getNavDataByRole = (role: Role) => {
   const baseData = {
@@ -71,13 +71,8 @@ const getNavDataByRole = (role: Role) => {
       },
       {
         title: "Get Help",
-        url: "#",
+        url: "mailto:bubbilfyofficial@gmail.com",
         icon: HelpCircleIcon,
-      },
-      {
-        title: "Search",
-        url: "#",
-        icon: SearchIcon,
       },
     ],
   };
@@ -138,8 +133,19 @@ const getNavDataByRole = (role: Role) => {
   }
 };
 
-export function EmployeeSidebar({ role, ...props }: EmployeeSidebarProps) {
+export function EmployeeSidebar({ ...props }: EmployeeSidebarProps) {
+  const { data: userData } = useSession();
+  const user = userData?.user;
+
+  // Determine role dynamically from session
+  const role: Role = isDriver(userData) ? "DRIVER" : "WORKER";
   const data = getNavDataByRole(role);
+
+  const handleLogout = () => {
+    signOut({
+      redirectTo: "/",
+    });
+  };
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -147,13 +153,15 @@ export function EmployeeSidebar({ role, ...props }: EmployeeSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="items-center pl-4">
-              <Image
-                src="/bub-logo.svg"
-                alt="Bubblify"
-                height={100}
-                width={350}
-                className="h-10 w-auto items-center"
-              />
+              <Link href="/">
+                <Image
+                  src="/bub-logo.svg"
+                  alt="Bubblify"
+                  height={100}
+                  width={350}
+                  className="h-10 w-auto items-center"
+                />
+              </Link>
             </div>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -162,23 +170,32 @@ export function EmployeeSidebar({ role, ...props }: EmployeeSidebarProps) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.reports} />
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
 
       <SidebarFooter>
-        {/* <NavUser user={data.user} />*/}
-        <div className="mt-6 border-t px-4 py-4">
+        <div className="border-t px-4 py-2">
           <div className="text-muted-foreground mb-2 text-xs font-semibold">
-            WORKER INFORMATION
+            {role === "DRIVER" ? "DRIVER INFORMATION" : "WORKER INFORMATION"}
           </div>
           <div className="mb-4">
-            <div className="text-sm font-medium">Jennie Kim</div>
-            <div className="text-muted-foreground text-xs">Laundry Worker</div>
+            <div className="text-sm font-medium">
+              {user?.firstName} {user?.lastName}
+            </div>
             <div className="text-muted-foreground text-xs">
-              Worker ID: WKR001
+              Bubblify {user?.role}
+            </div>
+            <div className="text-muted-foreground text-xs">
+              {role === "DRIVER" ? "Driver ID" : "Worker ID"}:{" "}
+              {role === "DRIVER" ? "DRV001" : "WKR001"}
             </div>
           </div>
-          <Button variant="outline" size="sm" className="w-full justify-start">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="w-full justify-start"
+          >
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>

@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
 import { Attendance } from "@/types/attendance";
 import { Clock, Ghost, RotateCcw } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function RecentAttendance() {
   const router = useRouter();
-  // const { data: session, status: sessionStatus } = useSession();
 
   const {
     data: attendanceData,
@@ -23,7 +22,8 @@ export default function RecentAttendance() {
   });
 
   const attendance = attendanceData?.data || [];
-
+  const hasClockedIn = !!attendanceData?.data?.[0]?.clockInAt;
+  const hasClockedOut = !!attendanceData?.data?.[0]?.clockOutAt;
   const handleClick = () => {
     router.push("/employee/attendance");
   };

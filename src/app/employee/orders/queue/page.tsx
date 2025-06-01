@@ -1,7 +1,12 @@
+import QueuePage from "@/features/employee/worker/queue";
 import React from "react";
 
 const Queue = () => {
-  return <div>Queue</div>;
+  return (
+    <div>
+      <QueuePage />
+    </div>
+  );
 };
 
 export default Queue;

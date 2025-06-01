@@ -1,7 +1,12 @@
+import AttendancePage from "@/features/employee/attendance";
 import React from "react";
 
 const Attendance = () => {
-  return <div>Attendance</div>;
+  return (
+    <div>
+      <AttendancePage />
+    </div>
+  );
 };
 
 export default Attendance;
