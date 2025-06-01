@@ -24,7 +24,6 @@ import useUpdateUser from "@/hooks/api/admin/useUpdateUser";
 import useGetOutlets from "@/hooks/api/outlet/useGetOutlets";
 import { useFormik } from "formik";
 import { Loader2, TrashIcon, Upload } from "lucide-react";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -41,6 +40,14 @@ interface EditUserModalProps {
   onSuccess: () => void;
 }
 
+const AVAILABLE_ROLES = [
+  { value: "ADMIN", label: "Admin" },
+  { value: "OUTLET_ADMIN", label: "Admin Outlet" },
+  { value: "CUSTOMER", label: "Customer" },
+  { value: "WORKER", label: "Worker" },
+  { value: "DRIVER", label: "Driver" },
+];
+
 export default function EditUserModal({
   open,
   user,
@@ -55,32 +62,11 @@ export default function EditUserModal({
     all: true,
   });
 
-  const { data: session } = useSession();
-  const currentUserRole = session?.user?.role || "ADMIN";
-
-  const getAvailableRoles = () => {
-    if (currentUserRole === "ADMIN") {
-      return [
-        { value: "OUTLET_ADMIN", label: "Admin Outlet" },
-        { value: "CUSTOMER", label: "Customer" },
-        { value: "WORKER", label: "Worker" },
-        { value: "DRIVER", label: "Driver" },
-      ];
-    } else if (currentUserRole === "OUTLET_ADMIN") {
-      return [
-        { value: "WORKER", label: "Worker" },
-        { value: "DRIVER", label: "Driver" },
-      ];
-    }
-    return [];
-  };
-
   const validationSchema = useMemo(() => {
     return createUserValidationSchema({
       isEditMode: true,
-      currentUserRole,
     });
-  }, [currentUserRole]);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -93,7 +79,7 @@ export default function EditUserModal({
       provider: user?.provider || "CREDENTIAL",
       isVerified: user?.isVerified || false,
       profile: null as File | null,
-      outletId: "",
+      outletId: user?.outletId?.toString() || "",
       npwp: user?.employeeInfo?.npwp || "",
     },
     validationSchema: validationSchema,
@@ -112,39 +98,30 @@ export default function EditUserModal({
       const requiresEmployeeData = isEmployeeDataRequired(values.role);
 
       if (requiresEmployeeData) {
-        if (currentUserRole === "ADMIN" && !values.outletId) {
+        if (!values.outletId) {
           formik.setFieldError(
             "outletId",
-            `Outlet is required for ${values.role} role`,
+            `Outlet wajib untuk role ${values.role}`,
           );
           return;
         }
 
         if (!values.npwp) {
-          formik.setFieldError(
-            "npwp",
-            `NPWP is required for ${values.role} role`,
-          );
+          formik.setFieldError("npwp", `NPWP wajib untuk role ${values.role}`);
           return;
         }
       }
 
       const updateUserPayload = {
-        id: user.id,
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         role: values.role,
-        currentUserRole,
-        ...(values.phoneNumber && {
-          phoneNumber: values.phoneNumber.toString(),
-        }),
+        phoneNumber: values.phoneNumber,
         isVerified: values.isVerified,
         provider: values.provider,
         ...(values.profile && { profile: values.profile }),
-        ...(currentUserRole === "ADMIN" &&
-        requiresEmployeeData &&
-        values.outletId
+        ...(requiresEmployeeData && values.outletId
           ? { outletId: values.outletId }
           : {}),
         ...(requiresEmployeeData && values.npwp ? { npwp: values.npwp } : {}),
@@ -203,7 +180,7 @@ export default function EditUserModal({
 
   const removeProfilePicture = () => {
     formik.setFieldValue("profile", null);
-    setProfilePreview(null);
+    setProfilePreview(user?.profilePic || null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -211,7 +188,6 @@ export default function EditUserModal({
 
   const isLoading = updateUserMutation.isPending;
   const showEmployeeFields = isEmployeeDataRequired(formik.values.role);
-  const showOutletIdField = currentUserRole === "ADMIN" && showEmployeeFields;
   const requiresProfile = isProfileRequired(formik.values.role);
 
   return (
@@ -228,6 +204,7 @@ export default function EditUserModal({
         </DialogHeader>
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
+          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email *
@@ -250,6 +227,7 @@ export default function EditUserModal({
             </p>
           </div>
 
+          {/* Name Fields */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-sm font-medium">
@@ -292,6 +270,7 @@ export default function EditUserModal({
             </div>
           </div>
 
+          {/* Role */}
           <div className="space-y-2">
             <Label htmlFor="role" className="text-sm font-medium">
               Role *
@@ -305,7 +284,7 @@ export default function EditUserModal({
                 <SelectValue placeholder="Pilih role" />
               </SelectTrigger>
               <SelectContent>
-                {getAvailableRoles().map((role) => (
+                {AVAILABLE_ROLES.map((role) => (
                   <SelectItem key={role.value} value={role.value}>
                     {role.label}
                   </SelectItem>
@@ -315,18 +294,13 @@ export default function EditUserModal({
             {formik.touched.role && formik.errors.role && (
               <p className="mt-1 text-xs text-red-500">{formik.errors.role}</p>
             )}
-            {currentUserRole === "ADMIN" && (
-              <p className="text-muted-foreground text-xs">
-                Admin dapat mengubah semua role kecuali Admin
-              </p>
-            )}
-            {currentUserRole === "OUTLET_ADMIN" && (
-              <p className="text-muted-foreground text-xs">
-                Anda hanya dapat mengubah role ke Worker dan Driver
-              </p>
-            )}
+            {/* ✅ SIMPLIFIED: Single consistent message */}
+            <p className="text-muted-foreground text-xs">
+              Admin dapat mengubah semua jenis role termasuk admin lainnya
+            </p>
           </div>
 
+          {/* Phone Number */}
           <div className="space-y-2">
             <Label htmlFor="phoneNumber" className="text-sm font-medium">
               Nomor Telepon
@@ -351,48 +325,45 @@ export default function EditUserModal({
             </p>
           </div>
 
+          {/* Employee Fields */}
           {showEmployeeFields && (
             <>
-              {showOutletIdField && (
-                <div className="space-y-2">
-                  <Label htmlFor="outletId" className="text-sm font-medium">
-                    Outlet *
-                  </Label>
-                  <Select
-                    value={formik.values.outletId}
-                    onValueChange={(value) =>
-                      formik.setFieldValue("outletId", value)
-                    }
-                    disabled={isLoading || outletsLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          outletsLoading ? "Loading outlets..." : "Pilih outlet"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {outletsData?.data?.map((outlet) => (
-                        <SelectItem
-                          key={outlet.id}
-                          value={outlet.id.toString()}
-                        >
-                          {outlet.outletName} - {outlet.address}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {formik.touched.outletId && formik.errors.outletId && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {formik.errors.outletId}
-                    </p>
-                  )}
-                  <p className="text-muted-foreground text-xs">
-                    Pilih outlet tempat user akan bekerja
+              {/* ✅ SIMPLIFIED: Always show outlet for employee roles */}
+              <div className="space-y-2">
+                <Label htmlFor="outletId" className="text-sm font-medium">
+                  Outlet *
+                </Label>
+                <Select
+                  value={formik.values.outletId}
+                  onValueChange={(value) =>
+                    formik.setFieldValue("outletId", value)
+                  }
+                  disabled={isLoading || outletsLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        outletsLoading ? "Loading outlets..." : "Pilih outlet"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {outletsData?.data?.map((outlet) => (
+                      <SelectItem key={outlet.id} value={outlet.id.toString()}>
+                        {outlet.outletName} - {outlet.address}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formik.touched.outletId && formik.errors.outletId && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {formik.errors.outletId}
                   </p>
-                </div>
-              )}
+                )}
+                <p className="text-muted-foreground text-xs">
+                  Pilih outlet tempat user akan bekerja
+                </p>
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="npwp" className="text-sm font-medium">
@@ -420,6 +391,7 @@ export default function EditUserModal({
             </>
           )}
 
+          {/* Provider */}
           <div className="space-y-2">
             <Label htmlFor="provider" className="text-sm font-medium">
               Provider Login
@@ -444,6 +416,7 @@ export default function EditUserModal({
             )}
           </div>
 
+          {/* Profile Picture */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">
               Profile Picture {requiresProfile ? "*" : "(Optional)"}
@@ -504,6 +477,7 @@ export default function EditUserModal({
             </p>
           </div>
 
+          {/* Verified Status */}
           <div className="space-y-3">
             <div className="flex flex-row items-center justify-between space-x-4 rounded-lg border p-4">
               <div className="flex-1 space-y-1">

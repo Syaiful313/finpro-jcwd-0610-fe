@@ -18,7 +18,6 @@ interface CreateUserPayload {
   outletId?: number;
   npwp?: string;
   profile?: File | null;
-  currentUserRole?: string;
 }
 
 const useCreateUser = () => {
