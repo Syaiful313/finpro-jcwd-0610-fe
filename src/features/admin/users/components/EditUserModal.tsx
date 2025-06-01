@@ -294,13 +294,11 @@ export default function EditUserModal({
             {formik.touched.role && formik.errors.role && (
               <p className="mt-1 text-xs text-red-500">{formik.errors.role}</p>
             )}
-            {/* ✅ SIMPLIFIED: Single consistent message */}
             <p className="text-muted-foreground text-xs">
               Admin dapat mengubah semua jenis role termasuk admin lainnya
             </p>
           </div>
 
-          {/* Phone Number */}
           <div className="space-y-2">
             <Label htmlFor="phoneNumber" className="text-sm font-medium">
               Nomor Telepon
@@ -325,10 +323,8 @@ export default function EditUserModal({
             </p>
           </div>
 
-          {/* Employee Fields */}
           {showEmployeeFields && (
             <>
-              {/* ✅ SIMPLIFIED: Always show outlet for employee roles */}
               <div className="space-y-2">
                 <Label htmlFor="outletId" className="text-sm font-medium">
                   Outlet *
@@ -391,7 +387,6 @@ export default function EditUserModal({
             </>
           )}
 
-          {/* Provider */}
           <div className="space-y-2">
             <Label htmlFor="provider" className="text-sm font-medium">
               Provider Login
@@ -416,7 +411,6 @@ export default function EditUserModal({
             )}
           </div>
 
-          {/* Profile Picture */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">
               Profile Picture {requiresProfile ? "*" : "(Optional)"}
@@ -477,7 +471,6 @@ export default function EditUserModal({
             </p>
           </div>
 
-          {/* Verified Status */}
           <div className="space-y-3">
             <div className="flex flex-row items-center justify-between space-x-4 rounded-lg border p-4">
               <div className="flex-1 space-y-1">

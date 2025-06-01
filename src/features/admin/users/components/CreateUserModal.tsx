@@ -40,7 +40,6 @@ interface CreateUserModalProps {
   onSave?: (userData: any) => void;
 }
 
-// ✅ SIMPLIFIED: Available roles for admin
 const AVAILABLE_ROLES = [
   { value: "ADMIN", label: "Admin" },
   { value: "OUTLET_ADMIN", label: "Admin Outlet" },
@@ -108,12 +107,18 @@ export default function CreateUserModal({
 
         if (requiresEmployeeData) {
           if (!values.outletId) {
-            formik.setFieldError("outletId", `Outlet wajib untuk role ${values.role}`);
+            formik.setFieldError(
+              "outletId",
+              `Outlet wajib untuk role ${values.role}`,
+            );
             return;
           }
 
           if (!values.npwp) {
-            formik.setFieldError("npwp", `NPWP wajib untuk role ${values.role}`);
+            formik.setFieldError(
+              "npwp",
+              `NPWP wajib untuk role ${values.role}`,
+            );
             return;
           }
         }
@@ -143,7 +148,6 @@ export default function CreateUserModal({
     },
   });
 
-  // ✅ Auto-clear employee fields when role changes
   useEffect(() => {
     const requiresEmployeeData = isEmployeeDataRequired(formik.values.role);
     if (!requiresEmployeeData) {
@@ -164,7 +168,11 @@ export default function CreateUserModal({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const error = validateProfilePicture(formik.values.role, file, isEditMode);
+      const error = validateProfilePicture(
+        formik.values.role,
+        file,
+        isEditMode,
+      );
       if (error && error.includes("JPEG")) {
         formik.setFieldError("profile", error);
         return;
@@ -303,7 +311,7 @@ export default function CreateUserModal({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={togglePasswordVisibility}
                   disabled={isLoading}
                 >
@@ -405,10 +413,7 @@ export default function CreateUserModal({
                   </SelectTrigger>
                   <SelectContent>
                     {outletsData?.data?.map((outlet) => (
-                      <SelectItem
-                        key={outlet.id}
-                        value={outlet.id.toString()}
-                      >
+                      <SelectItem key={outlet.id} value={outlet.id.toString()}>
                         {outlet.outletName} - {outlet.address}
                       </SelectItem>
                     ))}
