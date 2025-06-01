@@ -2,22 +2,19 @@ import * as Yup from "yup";
 
 interface CreateUserSchemaOptions {
   isEditMode?: boolean;
-  currentUserRole?: string;
 }
+
+const AVAILABLE_ROLES = [
+  "ADMIN",
+  "OUTLET_ADMIN",
+  "CUSTOMER",
+  "WORKER",
+  "DRIVER",
+];
 
 export const createUserValidationSchema = ({
   isEditMode = false,
-  currentUserRole = "ADMIN",
 }: CreateUserSchemaOptions = {}) => {
-  const getAvailableRoles = () => {
-    if (currentUserRole === "ADMIN") {
-      return ["OUTLET_ADMIN", "CUSTOMER", "WORKER", "DRIVER"];
-    } else if (currentUserRole === "OUTLET_ADMIN") {
-      return ["OUTLET_ADMIN", "WORKER", "DRIVER"];
-    }
-    return [];
-  };
-
   return Yup.object({
     email: Yup.string()
       .email("Format email tidak valid")
@@ -42,7 +39,7 @@ export const createUserValidationSchema = ({
       : Yup.string().optional(),
 
     role: Yup.string()
-      .oneOf(getAvailableRoles(), "Role tidak valid")
+      .oneOf(AVAILABLE_ROLES, "Role tidak valid")
       .required("Role wajib dipilih"),
 
     phoneNumber: Yup.string()
@@ -58,16 +55,9 @@ export const createUserValidationSchema = ({
 
     isVerified: Yup.boolean(),
 
-    notificationId: Yup.string().optional(),
-
     outletId: Yup.string().when("role", {
       is: (role: string) => ["OUTLET_ADMIN", "WORKER", "DRIVER"].includes(role),
-      then: (schema) => {
-        if (currentUserRole === "OUTLET_ADMIN") {
-          return schema.optional();
-        }
-        return schema.required("Outlet wajib dipilih untuk role ini");
-      },
+      then: (schema) => schema.required("Outlet wajib dipilih untuk role ini"),
       otherwise: (schema) => schema.optional(),
     }),
 
@@ -98,12 +88,12 @@ export const validateProfilePicture = (
   if (profile) {
     const validTypes = ["image/jpeg", "image/jpg", "image/png"];
     if (!validTypes.includes(profile.type)) {
-      return "Only JPEG, JPG, and PNG files are allowed";
+      return "Hanya file JPEG, JPG, dan PNG yang diperbolehkan";
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (profile.size > maxSize) {
-      return "File size must be less than 2MB";
+      return "Ukuran file harus kurang dari 2MB";
     }
   }
 

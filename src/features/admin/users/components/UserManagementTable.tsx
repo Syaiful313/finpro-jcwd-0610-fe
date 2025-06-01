@@ -1,10 +1,10 @@
 "use client";
+
 import PaginationSection from "@/components/PaginationSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -21,35 +21,8 @@ import {
 import useDeleteUser from "@/hooks/api/admin/useDeleteUser";
 import useGetUsers, { User as ApiUser } from "@/hooks/api/admin/useGetUsers";
 import { ROLE_CONFIG } from "@/lib/config";
-import {
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type UniqueIdentifier,
-} from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  ColumnDef,
-  Row,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  ArrowUpDown,
   ChevronDownIcon,
   Edit,
   FilterIcon,
@@ -61,103 +34,193 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryStates,
+} from "nuqs";
+import { useEffect, useState } from "react";
 import CreateUserModal from "./CreateUserModal";
 import DeleteUserAlert from "./DeleteUserAlert";
 import EditUserModal from "./EditUserModal";
 
-function DraggableRow({ row }: { row: Row<ApiUser> }) {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
-  });
+const PAGE_SIZE = 10;
+const DEBOUNCE_DELAY = 300;
+
+const getCellClass = (columnId: string) => {
+  const baseClass = "py-3 px-2 sm:px-4";
+  const styles: Record<string, string> = {
+    index: "w-16 text-center text-sm",
+    name: "min-w-[200px] text-sm font-medium",
+    phone: "min-w-[120px] text-sm",
+    role: "w-32 text-center",
+    status: "w-24 text-center",
+    actions: "w-32 text-center",
+  };
+  return `${baseClass} ${styles[columnId] || "text-sm"}`;
+};
+
+const RoleBadge = ({ role }: { role: string }) => {
+  const config = ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] || {
+    color: "bg-gray-50 text-gray-700 border-gray-200",
+    label: role,
+  };
 
   return (
-    <TableRow
-      data-state={row.getIsSelected() && "selected"}
-      data-dragging={isDragging}
-      ref={setNodeRef}
-      className="relative border-b data-[dragging=true]:z-10 data-[dragging=true]:opacity-90"
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition: transition,
-      }}
+    <Badge
+      variant="outline"
+      className={`px-2 py-1 text-xs font-medium ${config.color}`}
     >
-      {row.getVisibleCells().map((cell) => {
-        let cellClass = "py-3 sm:py-3 px-2 sm:px-4";
-
-        if (cell.column.id === "index")
-          cellClass += " w-10 sm:w-16 text-sm sm:text-sm text-center";
-        else if (cell.column.id === "name")
-          cellClass +=
-            " min-w-[120px] sm:w-auto text-sm sm:text-sm font-medium";
-        else if (cell.column.id === "email")
-          cellClass += " min-w-[150px] sm:w-auto text-sm sm:text-sm";
-        else if (cell.column.id === "phoneNumber")
-          cellClass += " min-w-[120px] sm:w-auto text-sm sm:text-sm";
-        else if (cell.column.id === "role")
-          cellClass += " min-w-[100px] sm:w-32 text-center";
-        else if (cell.column.id === "provider")
-          cellClass += " min-w-[80px] sm:w-24 text-center";
-        else if (cell.column.id === "status")
-          cellClass += " min-w-[80px] sm:w-24 text-center";
-        else if (cell.column.id === "createdAt")
-          cellClass += " min-w-[100px] sm:w-32 text-sm sm:text-sm";
-        else if (cell.column.id === "actions")
-          cellClass += " w-16 sm:w-32 text-center";
-
-        return (
-          <TableCell key={cell.id} className={cellClass}>
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-          </TableCell>
-        );
-      })}
-    </TableRow>
+      {config.label}
+    </Badge>
   );
-}
+};
+
+const StatusBadge = ({ isVerified }: { isVerified: boolean }) => (
+  <Badge
+    variant="outline"
+    className={`px-2 py-1 text-xs font-medium ${
+      isVerified
+        ? "border-green-200 bg-green-50 text-green-700"
+        : "border-yellow-200 bg-yellow-50 text-yellow-700"
+    }`}
+  >
+    {isVerified ? "Verified" : "Unverified"}
+  </Badge>
+);
+
+const UserRow = ({
+  user,
+  index,
+  isAdmin,
+  isOutletAdmin,
+  onEdit,
+  onDelete,
+  isDeleting,
+}: {
+  user: ApiUser;
+  index: number;
+  isAdmin: boolean;
+  isOutletAdmin: boolean;
+  onEdit: (user: ApiUser) => void;
+  onDelete: (id: number, name: string) => void;
+  isDeleting: boolean;
+}) => (
+  <TableRow className="border-b hover:bg-gray-50">
+    <TableCell className={getCellClass("index")}>{index}</TableCell>
+
+    <TableCell className={getCellClass("name")}>
+      <div className="flex flex-col">
+        <div className="font-medium">
+          {user.firstName} {user.lastName}
+        </div>
+        <div className="mt-1 flex items-center text-xs text-gray-500">
+          <Mail className="mr-1 h-3 w-3" />
+          {user.email}
+        </div>
+        {isOutletAdmin && user.employeeInfo && (
+          <div className="mt-1 text-xs text-green-600">
+            NPWP: {user.employeeInfo.npwp}
+          </div>
+        )}
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("phone")}>
+      <div className="flex items-center">
+        <Phone className="mr-1 h-3 w-3 text-gray-400" />
+        {user.phoneNumber || "-"}
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("role")}>
+      <div className="flex justify-center">
+        <RoleBadge role={user.role} />
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("status")}>
+      <div className="flex justify-center">
+        <StatusBadge isVerified={user.isVerified} />
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("date")}>
+      {new Date(user.createdAt).toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })}
+    </TableCell>
+
+    {isAdmin && (
+      <TableCell className={getCellClass("actions")}>
+        <div className="flex justify-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-green-600 hover:bg-green-50"
+            onClick={() => onEdit(user)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-red-600 hover:bg-red-50"
+            onClick={() =>
+              onDelete(user.id, `${user.firstName} ${user.lastName}`)
+            }
+            disabled={isDeleting}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </TableCell>
+    )}
+  </TableRow>
+);
 
 export function UserManagementTable() {
   const { data: session } = useSession();
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [role, setRole] = useState("");
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [pageSize] = useState(10);
-  const [rowSelection, setRowSelection] = useState({});
-  const [columnVisibility, setColumnVisibility] = useState({});
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<ApiUser | null>(null);
-  const [data, setData] = useState<ApiUser[]>([]);
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
-
   const queryClient = useQueryClient();
   const deleteUserMutation = useDeleteUser();
 
-  const sortableId = React.useId();
-  const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {}),
-  );
+  const [filters, setFilters] = useQueryStates({
+    page: parseAsInteger.withDefault(1),
+    search: parseAsString.withDefault(""),
+    role: parseAsString.withDefault(""),
+    sortBy: parseAsString.withDefault("createdAt"),
+    sortOrder: parseAsStringEnum(["asc", "desc"]).withDefault("desc"),
+  });
 
-  const userRole = session?.user?.role;
-  const outletId = session?.user?.outletId;
-  const isOutletAdmin = userRole === "OUTLET_ADMIN";
-  const isSuperAdmin = userRole === "ADMIN";
+  const [modals, setModals] = useState({
+    showCreate: false,
+    showEdit: false,
+    showDelete: false,
+  });
+
+  const [selected, setSelected] = useState({
+    editingUser: null as ApiUser | null,
+    userToDelete: null as { id: number; name: string } | null,
+  });
+
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+
+  const isAdmin = session?.user?.role === "ADMIN";
+  const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-      setPage(1);
-    }, 300);
+      setDebouncedSearch(filters.search);
+
+      if (filters.page !== 1 && filters.search !== debouncedSearch) {
+        setFilters({ page: 1 });
+      }
+    }, DEBOUNCE_DELAY);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [filters.search, filters.page, debouncedSearch, setFilters]);
 
   const {
     data: usersData,
@@ -165,348 +228,76 @@ export function UserManagementTable() {
     error,
   } = useGetUsers(
     {
-      page: page,
-      take: pageSize,
+      page: filters.page,
+      take: PAGE_SIZE,
       search: debouncedSearch,
-      role: role as any,
-      sortBy: sortBy,
-      sortOrder: sortOrder,
+      role: filters.role as any,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
     },
     {
-      enabled: !!session && (isSuperAdmin || isOutletAdmin),
+      enabled: !!session && (isAdmin || isOutletAdmin),
     },
   );
 
-  useEffect(() => {
-    if (usersData?.data) {
-      setData(usersData.data);
-    }
-  }, [usersData]);
+  const availableRoles = isAdmin
+    ? ROLE_CONFIG
+    : isOutletAdmin
+      ? { DRIVER: ROLE_CONFIG.DRIVER, WORKER: ROLE_CONFIG.WORKER }
+      : {};
 
-  const dataIds = useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
-    [data],
-  );
+  const updateFilters = (updates: Partial<typeof filters>) => {
+    setFilters(updates);
+  };
 
-  const handleSearch = useCallback((searchValue: string) => {
-    setSearch(searchValue);
-  }, []);
+  const updateModals = (updates: Partial<typeof modals>) => {
+    setModals((prev) => ({ ...prev, ...updates }));
+  };
 
-  const handleDeleteUser = useCallback((userId: number, name: string) => {
-    setUserToDelete({ id: userId, name });
-    setShowDeleteAlert(true);
-  }, []);
+  const handleCreateUser = () => {
+    if (!isAdmin) return;
+    updateModals({ showCreate: true });
+  };
 
-  const confirmDeleteUser = useCallback(() => {
-    if (userToDelete) {
-      deleteUserMutation.mutate(userToDelete.id, {
-        onSuccess: () => {
-          setShowDeleteAlert(false);
-          setUserToDelete(null);
+  const handleEditUser = (user: ApiUser) => {
+    if (!isAdmin) return;
+    setSelected({ ...selected, editingUser: user });
+    updateModals({ showEdit: true });
+  };
 
-          queryClient.invalidateQueries({
-            queryKey: ["users"],
-          });
-        },
-        onError: () => {},
-      });
-    }
-  }, [userToDelete, deleteUserMutation, queryClient]);
+  const handleDeleteUser = (userId: number, name: string) => {
+    if (!isAdmin) return;
+    setSelected({ ...selected, userToDelete: { id: userId, name } });
+    updateModals({ showDelete: true });
+  };
 
-  const handlePageChange = useCallback((newPage: number) => {
-    setPage(newPage);
-  }, []);
+  const confirmDelete = () => {
+    if (!selected.userToDelete || !isAdmin) return;
 
-  const handleRoleFilter = useCallback((newRole: string) => {
-    setRole(newRole);
-    setPage(1);
-  }, []);
-
-  const handleSort = useCallback(
-    (column: string) => {
-      const newSortOrder =
-        sortBy === column && sortOrder === "asc" ? "desc" : "asc";
-      setSortBy(column);
-      setSortOrder(newSortOrder);
-    },
-    [sortBy, sortOrder],
-  );
-
-  const handleCreateUser = useCallback(() => {
-    setShowCreateModal(true);
-  }, []);
-
-  const handleEditUser = useCallback((user: ApiUser) => {
-    setEditingUser(user);
-    setShowEditModal(true);
-  }, []);
-
-  const handleCloseCreateModal = useCallback(() => {
-    setShowCreateModal(false);
-  }, []);
-
-  const handleCloseEditModal = useCallback(() => {
-    setShowEditModal(false);
-    setEditingUser(null);
-  }, []);
-
-  const handleEditSuccess = useCallback(() => {
-    queryClient.invalidateQueries({
-      queryKey: ["users"],
+    deleteUserMutation.mutate(selected.userToDelete.id, {
+      onSuccess: () => {
+        updateModals({ showDelete: false });
+        setSelected({ ...selected, userToDelete: null });
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+      },
     });
-  }, [queryClient]);
+  };
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (active && over && active.id !== over.id) {
-        setData((data) => {
-          const oldIndex = dataIds.indexOf(active.id);
-          const newIndex = dataIds.indexOf(over.id);
-          return arrayMove(data, oldIndex, newIndex);
-        });
-      }
-    },
-    [dataIds],
-  );
-
-  const RoleBadge = useCallback(({ role }: { role: string }) => {
-    const config = ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] || {
-      color: "bg-gray-50 text-gray-700 border-gray-200",
-      label: role,
-    };
-
-    return (
-      <Badge
-        variant="outline"
-        className={`px-2 py-1 text-xs font-medium whitespace-nowrap sm:px-3 sm:py-1 sm:text-xs ${config.color}`}
-      >
-        {config.label}
-      </Badge>
-    );
-  }, []);
-
-  const StatusBadge = useCallback(({ isVerified }: { isVerified: boolean }) => {
-    return (
-      <Badge
-        variant="outline"
-        className={`px-2 py-1 text-xs font-medium whitespace-nowrap sm:px-2 sm:py-1 sm:text-xs ${
-          isVerified
-            ? "border-green-200 bg-green-50 text-green-700"
-            : "border-yellow-200 bg-yellow-50 text-yellow-700"
-        }`}
-      >
-        {isVerified ? "Verified" : "Unverified"}
-      </Badge>
-    );
-  }, []);
-
-  const availableRoles = useMemo(() => {
-    if (isOutletAdmin) {
-      return {
-        DRIVER: ROLE_CONFIG.DRIVER,
-        WORKER: ROLE_CONFIG.WORKER,
-      };
-    } else if (isSuperAdmin) {
-      return ROLE_CONFIG;
-    }
-    return {};
-  }, [isOutletAdmin, isSuperAdmin]);
-
-  const columns: ColumnDef<ApiUser>[] = useMemo(
-    () => [
-      {
-        accessorKey: "index",
-        header: () => (
-          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-            No
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="text-center text-sm sm:text-sm">
-            {(page - 1) * pageSize + row.index + 1}
-          </div>
-        ),
-        enableHiding: false,
-        size: 40,
-      },
-      {
-        accessorKey: "name",
-        header: () => (
-          <Button
-            variant="ghost"
-            onClick={() => handleSort("firstName")}
-            className="p-0 text-xs font-semibold tracking-wider uppercase hover:bg-transparent sm:text-xs"
-          >
-            Nama
-            <ArrowUpDown className="ml-1 h-3 w-3" />
-          </Button>
-        ),
-        cell: ({ row }) => (
-          <div className="flex flex-col">
-            <div className="text-sm font-medium sm:text-sm">
-              {row.original.firstName} {row.original.lastName}
-            </div>
-            <div className="mt-1 flex items-center text-xs text-gray-500">
-              <Mail className="mr-1 h-3 w-3" />
-              {row.original.email}
-            </div>
-            {isOutletAdmin && row.original.employeeInfo && (
-              <div className="mt-1 text-xs text-green-600">
-                NPWP: {row.original.employeeInfo.npwp}
-              </div>
-            )}
-          </div>
-        ),
-        size: 200,
-      },
-      {
-        accessorKey: "phoneNumber",
-        header: () => (
-          <div className="text-left text-xs font-semibold tracking-wider uppercase sm:text-xs">
-            Telepon
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="flex items-center text-sm sm:text-sm">
-            <Phone className="mr-1 h-3 w-3 text-gray-400" />
-            {row.original.phoneNumber || "-"}
-          </div>
-        ),
-        size: 120,
-      },
-      {
-        accessorKey: "role",
-        header: () => (
-          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-            Role
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="flex justify-center">
-            <RoleBadge role={row.original.role} />
-          </div>
-        ),
-        size: 100,
-      },
-      {
-        accessorKey: "status",
-        header: () => (
-          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-            Status
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="flex justify-center">
-            <StatusBadge isVerified={row.original.isVerified} />
-          </div>
-        ),
-        size: 80,
-      },
-      {
-        accessorKey: "createdAt",
-        header: () => (
-          <Button
-            variant="ghost"
-            onClick={() => handleSort("createdAt")}
-            className="p-0 text-xs font-semibold tracking-wider uppercase hover:bg-transparent sm:text-xs"
-          >
-            Dibuat
-            <ArrowUpDown className="ml-1 h-3 w-3" />
-          </Button>
-        ),
-        cell: ({ row }) => {
-          const date = new Date(row.original.createdAt);
-          return (
-            <div className="text-sm sm:text-sm">
-              {date.toLocaleDateString("id-ID", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
-            </div>
-          );
-        },
-        size: 100,
-      },
-      {
-        id: "actions",
-        header: () => (
-          <div className="text-center text-xs font-semibold tracking-wider uppercase sm:text-xs">
-            Aksi
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="flex justify-center gap-1 sm:gap-1">
-            <Button
-              variant="ghost"
-              className="h-8 w-8 rounded-full p-1 text-green-600 hover:bg-green-50 hover:text-green-800 sm:h-8 sm:w-8 sm:p-1"
-              size="icon"
-              onClick={() => handleEditUser(row.original)}
-            >
-              <Edit className="h-4 w-4 sm:h-4 sm:w-4" />
-              <span className="sr-only">Edit pengguna</span>
-            </Button>
-            <Button
-              variant="ghost"
-              className="h-8 w-8 rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800 sm:h-8 sm:w-8 sm:p-1"
-              size="icon"
-              onClick={() =>
-                handleDeleteUser(
-                  row.original.id,
-                  `${row.original.firstName} ${row.original.lastName}`,
-                )
-              }
-              disabled={deleteUserMutation.isPending}
-            >
-              <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
-              <span className="sr-only">Hapus pengguna</span>
-            </Button>
-          </div>
-        ),
-        enableHiding: false,
-        size: 120,
-      },
-    ],
-    [
-      page,
-      pageSize,
-      handleSort,
-      isOutletAdmin,
-      RoleBadge,
-      StatusBadge,
-      handleEditUser,
-      handleDeleteUser,
-      deleteUserMutation.isPending,
-    ],
-  );
-
-  const table = useReactTable({
-    data: data || [],
-    columns,
-    state: {
-      columnVisibility,
-      rowSelection,
-    },
-    getRowId: (row) => row.id.toString(),
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  const closeModals = () => {
+    updateModals({ showCreate: false, showEdit: false, showDelete: false });
+    setSelected({ editingUser: null, userToDelete: null });
+  };
 
   if (!session) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="flex items-center">
-          <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-          <span className="ml-2 text-sm">Loading session...</span>
-        </div>
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2">Loading session...</span>
       </div>
     );
   }
 
-  if (!isSuperAdmin && !isOutletAdmin) {
+  if (!isAdmin && !isOutletAdmin) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
@@ -521,271 +312,180 @@ export function UserManagementTable() {
 
   return (
     <>
-      <div className="max-w-full space-y-4 sm:space-y-4">
-        <div className="mb-6">
+      <div className="space-y-6">
+        <div>
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600">
-            Kelola pengguna aplikasi dan permission mereka
-            {isOutletAdmin && " (Driver & Worker di outlet Anda)"}
-            {isSuperAdmin && " (Global Access - Semua User)"}
+            {isAdmin
+              ? "Kelola pengguna aplikasi dan permission mereka"
+              : "Lihat pengguna di outlet Anda"}
           </p>
         </div>
 
-        <div className="flex flex-col justify-between gap-3 sm:gap-3 lg:flex-row lg:items-center">
-          <div className="max-w-md flex-1">
-            <div className="relative">
-              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-              <Input
-                placeholder="Cari berdasarkan nama atau email..."
-                value={search}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative max-w-md flex-1">
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Input
+              placeholder="Cari berdasarkan nama atau email..."
+              value={filters.search}
+              onChange={(e) => updateFilters({ search: e.target.value })}
+              className="pl-10"
+            />
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button onClick={handleCreateUser}>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Tambah User
-            </Button>
+          <div className="flex gap-2">
+            {isAdmin && (
+              <Button onClick={handleCreateUser}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Tambah User
+              </Button>
+            )}
 
-            <div className="flex flex-1 gap-2 sm:flex-initial">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex h-10 flex-1 items-center justify-center px-3 text-sm sm:h-9 sm:flex-initial sm:justify-start sm:px-3 md:text-sm"
-                  >
-                    <FilterIcon className="mr-1.5 h-4 w-4" />
-                    <span className="truncate">
-                      {role
-                        ? availableRoles[role as keyof typeof availableRoles]
-                            ?.label || role
-                        : "Semua Role"}
-                    </span>
-                    <ChevronDownIcon className="ml-1.5 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-40">
+                  <FilterIcon className="mr-2 h-4 w-4" />
+                  <span className="truncate">
+                    {filters.role
+                      ? availableRoles[
+                          filters.role as keyof typeof availableRoles
+                        ]?.label
+                      : "Semua Role"}
+                  </span>
+                  <ChevronDownIcon className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => updateFilters({ role: "" })}>
+                  Semua Role
+                </DropdownMenuItem>
+                {Object.entries(availableRoles).map(([role, config]) => (
                   <DropdownMenuItem
-                    onClick={() => handleRoleFilter("")}
-                    className="cursor-pointer text-sm"
+                    key={role}
+                    onClick={() => updateFilters({ role })}
                   >
-                    Semua Role
+                    {config.label}
                   </DropdownMenuItem>
-                  {Object.entries(availableRoles).map(([role, config]) => (
-                    <DropdownMenuItem
-                      key={role}
-                      onClick={() => handleRoleFilter(role)}
-                      className="flex cursor-pointer items-center text-sm"
-                    >
-                      <div
-                        className={`mr-2 h-2 w-2 rounded-full ${
-                          config.color.split(" ")[1]
-                        }`}
-                      ></div>
-                      {config.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex h-10 flex-1 items-center justify-center px-3 text-sm sm:h-9 sm:flex-initial sm:justify-start sm:px-3 md:text-sm"
-                  >
-                    <span>Kolom</span>
-                    <ChevronDownIcon className="ml-1.5 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  {table
-                    .getAllColumns()
-                    .filter(
-                      (column) =>
-                        typeof column.accessorFn !== "undefined" &&
-                        column.getCanHide(),
-                    )
-                    .map((column) => (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="cursor-pointer text-sm capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(!!value)
-                        }
-                      >
-                        {column.id === "name"
-                          ? "Nama"
-                          : column.id === "phoneNumber"
-                            ? "Telepon"
-                            : column.id === "role"
-                              ? "Role"
-                              : column.id === "provider"
-                                ? "Provider"
-                                : column.id === "status"
-                                  ? "Status"
-                                  : column.id === "createdAt"
-                                    ? "Dibuat"
-                                    : column.id}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
-        <div className="w-full overflow-hidden rounded-lg border shadow-sm">
-          <DndContext
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-            id={sortableId}
-          >
-            <div
-              className="w-full overflow-x-auto"
-              style={{ minHeight: "400px" }}
-            >
-              <Table className="w-full min-w-[800px]">
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="border-b">
-                      {headerGroup.headers.map((header) => {
-                        let headerClass = "h-10 sm:h-10 px-2 sm:px-4";
-
-                        if (header.id === "index")
-                          headerClass += " w-10 sm:w-16";
-                        else if (header.id === "name")
-                          headerClass += " min-w-[200px] sm:w-auto";
-                        else if (header.id === "phoneNumber")
-                          headerClass += " min-w-[120px] sm:w-auto";
-                        else if (header.id === "role")
-                          headerClass += " min-w-[100px] sm:w-32";
-                        else if (header.id === "provider")
-                          headerClass += " min-w-[80px] sm:w-24";
-                        else if (header.id === "status")
-                          headerClass += " min-w-[80px] sm:w-24";
-                        else if (header.id === "createdAt")
-                          headerClass += " min-w-[100px] sm:w-32";
-                        else if (header.id === "actions")
-                          headerClass += " w-16 sm:w-32";
-
-                        return (
-                          <TableHead
-                            key={header.id}
-                            colSpan={header.colSpan}
-                            className={headerClass}
-                          >
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                      >
-                        <div className="flex items-center justify-center">
-                          <Loader2 className="h-6 w-6 animate-spin text-blue-500 sm:h-6 sm:w-6" />
-                          <span className="ml-2 text-sm sm:text-sm">
-                            Memuat...
-                          </span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : error ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center text-red-500"
-                      >
-                        <div className="flex flex-col items-center gap-2">
-                          <span className="text-sm">Kesalahan memuat data</span>
-                          <span className="text-sm text-red-400 sm:text-sm">
-                            {error.message || "Kesalahan tidak diketahui"}
-                          </span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : table.getRowModel().rows?.length ? (
-                    <SortableContext
-                      items={dataIds}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {table.getRowModel().rows.map((row) => (
-                        <DraggableRow key={row.id} row={row} />
-                      ))}
-                    </SortableContext>
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                      >
-                        <span className="text-sm">
-                          {isOutletAdmin
-                            ? "Tidak ada driver atau worker ditemukan di outlet Anda"
-                            : "Tidak ada data pengguna ditemukan"}
-                        </span>
-                      </TableCell>
-                    </TableRow>
+        <div className="rounded-lg border shadow-sm">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b">
+                  <TableHead className="w-16 text-center">No</TableHead>
+                  <TableHead className="min-w-[200px]">Nama</TableHead>
+                  <TableHead className="min-w-[120px]">Telepon</TableHead>
+                  <TableHead className="w-32 text-center">Role</TableHead>
+                  <TableHead className="w-24 text-center">Status</TableHead>
+                  <TableHead className="w-32">Dibuat</TableHead>
+                  {isAdmin && (
+                    <TableHead className="w-32 text-center">Aksi</TableHead>
                   )}
-                </TableBody>
-              </Table>
-            </div>
-          </DndContext>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={isAdmin ? 7 : 6}
+                      className="h-32 text-center"
+                    >
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                        Memuat...
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={isAdmin ? 7 : 6}
+                      className="h-32 text-center text-red-500"
+                    >
+                      <div>
+                        <div>Kesalahan memuat data</div>
+                        <div className="mt-1 text-sm text-red-400">
+                          {error.message || "Kesalahan tidak diketahui"}
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : usersData?.data?.length ? (
+                  usersData.data.map((user, index) => (
+                    <UserRow
+                      key={user.id}
+                      user={user}
+                      index={(filters.page - 1) * PAGE_SIZE + index + 1}
+                      isAdmin={isAdmin}
+                      isOutletAdmin={isOutletAdmin}
+                      onEdit={handleEditUser}
+                      onDelete={handleDeleteUser}
+                      isDeleting={deleteUserMutation.isPending}
+                    />
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={isAdmin ? 7 : 6}
+                      className="h-32 text-center"
+                    >
+                      <span className="text-gray-500">
+                        {isOutletAdmin
+                          ? "Tidak ada driver atau worker ditemukan di outlet Anda"
+                          : "Tidak ada data pengguna ditemukan"}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
           {usersData?.meta && (
-            <div className="border-t px-3 py-3 sm:px-4 sm:py-3">
+            <div className="border-t px-4 py-3">
               <PaginationSection
                 page={usersData.meta.page}
                 take={usersData.meta.take}
                 total={usersData.meta.total}
-                onChangePage={handlePageChange}
+                onChangePage={(newPage) => updateFilters({ page: newPage })}
               />
             </div>
           )}
         </div>
       </div>
 
-      <DeleteUserAlert
-        open={showDeleteAlert}
-        onOpenChange={setShowDeleteAlert}
-        userToDelete={userToDelete}
-        onConfirm={confirmDeleteUser}
-        isDeleting={deleteUserMutation.isPending}
-      />
+      {isAdmin && (
+        <>
+          <DeleteUserAlert
+            open={modals.showDelete}
+            onOpenChange={(open) => updateModals({ showDelete: open })}
+            userToDelete={selected.userToDelete}
+            onConfirm={confirmDelete}
+            isDeleting={deleteUserMutation.isPending}
+          />
 
-      <CreateUserModal
-        open={showCreateModal}
-        onClose={handleCloseCreateModal}
-        currentUserRole={userRole}
-      />
+          <CreateUserModal
+            open={modals.showCreate}
+            onClose={() => updateModals({ showCreate: false })}
+          />
 
-      {editingUser && (
-        <EditUserModal
-          open={showEditModal}
-          user={editingUser}
-          onClose={handleCloseEditModal}
-          onSuccess={handleEditSuccess}
-        />
+          {selected.editingUser && (
+            <EditUserModal
+              open={modals.showEdit}
+              user={selected.editingUser}
+              onClose={closeModals}
+              onSuccess={() => {
+                closeModals();
+                queryClient.invalidateQueries({ queryKey: ["users"] });
+              }}
+            />
+          )}
+        </>
       )}
     </>
   );
