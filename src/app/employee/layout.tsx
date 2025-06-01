@@ -69,18 +69,3 @@ function EmployeeHeaderWithBreadcrumb() {
   console.log("Breadcrumbs:", breadcrumbs);
   return <EmployeeHeader breadcrumbs={breadcrumbs} />;
 }
-
-// Opsional: Jika ingin breadcrumb di mobile juga
-// function MobileHeaderWithBreadcrumb() {
-//   const { breadcrumbs } = useBreadcrumb();
-//   return (
-//     <div className="bg-white p-4 shadow-sm">
-//       {breadcrumbs.map((item, index) => (
-//         <span key={index} className="text-sm text-gray-600">
-//           {item.label}
-//           {index < breadcrumbs.length - 1 && " > "}
-//         </span>
-//       ))}
-//     </div>
-//   );
-// }

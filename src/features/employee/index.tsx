@@ -1,151 +1,50 @@
 "use client";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, User } from "lucide-react";
-import NotificationDropdown from "./components/Notifications";
-import RecentAttendance from "./components/RecentAttendance";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
-import useClockIn from "@/hooks/api/employee/attendance/useClockIn";
-import { toast } from "sonner";
+import {
+  Calendar,
+  CalendarCheck,
+  Clock,
+  ClockFading,
+  ListCheck,
+  User,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import AttendanceCard from "./components/AttendanceCard";
 import { useBreadcrumb } from "./components/BreadCrumbContext";
-import { useEffect } from "react";
+import NotificationDropdown from "./components/Notifications";
+import RecentAttendance from "./components/RecentAttendance";
+import UserGreeting from "./components/UserGreeting";
+import { isDriver, isWorker } from "@/utils/AuthRole";
+import { toast } from "sonner";
+import RecentOrder from "./components/RecentOrder";
+import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
 
-// Type definitions
-interface UserGreetingProps {
-  isMobile: boolean;
-}
+const RecentSection: React.FC = () => {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated";
 
-interface AttendanceCardProps {
-  isMobile: boolean;
-}
+  const { data: attendanceData } = useGetAttendance({
+    page: 1,
+    take: 6,
+    sortBy: "clockOutAt",
+  });
 
-const UserGreeting: React.FC<UserGreetingProps> = ({ isMobile }) => (
-  <div className={`space-y-2 ${isMobile ? "mt-4" : ""}`}>
-    <h1
-      className={`font-bold text-white ${isMobile ? "text-3xl" : "text-5xl"}`}
-    >
-      Hallo, Jennie!
-    </h1>
-    <div className="flex items-center gap-4">
-      <Badge
-        className={`bg-white text-[#0080FF] hover:bg-white/90 ${
-          isMobile ? "max-w-20 px-1.5 text-sm" : "text-lg"
-        }`}
-      >
-        <User className={`mr-1 ${isMobile ? "h-5 w-8" : "h-3 w-3"}`} />
-        Worker
-      </Badge>
-      <div
-        className={`flex items-center text-white/90 ${
-          isMobile ? "text-md" : "text-lg"
-        }`}
-      >
-        <MapPin className="mr-1 h-4 w-4" />
-        Outlet Yogyakarta
-      </div>
-    </div>
-  </div>
-);
+  // Cek attendance record terbaru (hari ini)
+  const latestAttendance = attendanceData?.data?.[0];
+  const hasClockedIn = !!latestAttendance?.clockInAt;
+  const hasClockedOut = !!latestAttendance?.clockOutAt;
 
-// const AttendanceCard: React.FC<AttendanceCardProps> = ({ isMobile }) => {
-//   const { data: attendanceData, isLoading, refetch } = useGetAttendance();
-//   const clockInMutation = useClockIn();
-//   const attendance = attendanceData?.data || [];
+  // User sedang dalam jam kerja (sudah clock in tapi belum clock out)
+  const isCurrentlyWorking = hasClockedIn && !hasClockedOut;
+  const showRecentOrder = isAuthenticated && isCurrentlyWorking;
 
-//   // Cari clockOut terakhir
-//   const lastClockOutEntry = attendance
-//     .filter((item) => item.clockOutAt)
-//     .sort(
-//       (a, b) =>
-//         new Date(b.clockOutAt!).getTime() - new Date(a.clockOutAt!).getTime(),
-//     )[0];
-
-//   const formattedClockOut = lastClockOutEntry
-//     ? format(new Date(lastClockOutEntry.clockOutAt!), "HH:mm 'WIB'", {
-//         locale: id,
-//       })
-//     : "Belum ada";
-
-//   const handleClockIn = async () => {
-//     try {
-//       await clockInMutation.mutateAsync();
-//       toast.success("Clock in Success!");
-//       refetch();
-//     } catch (error) {
-//       toast.error("Clock in failed. Please try again.");
-//       console.error("Clock in error:", error);
-//     }
-//   };
-
-//   if (isLoading) {
-//     return (
-//       <div className="p-4">
-//         <div className="animate-pulse text-gray-400">Loading attendance...</div>
-//       </div>
-//     );
-//   }
-
-//   if (isMobile) {
-//     return (
-//       <div className="mx-2 p-4">
-//         <div className="mt-4 flex items-center justify-between rounded-lg p-4 shadow-sm">
-//           <div>
-//             <p className="font-semibold">Take Attendance Today</p>
-//             <p className="text-sm">Last Clock Out: {formattedClockOut}</p>
-//           </div>
-//           <Button onClick={handleClockIn} disabled={clockInMutation.isPending}>
-//             {clockInMutation.isPending ? "Loading..." : "Clock In"}
-//           </Button>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
-//       <div className="pb-4">
-//         <div className="flex items-center text-xl">
-//           <Clock className="mr-2 h-5 w-5 text-[#0080FF]" />
-//           Attendance Today
-//         </div>
-//       </div>
-//       <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 dark:from-blue-900/20 dark:to-indigo-900/20">
-//         <div className="space-y-2">
-//           <p className="text-lg font-semibold text-gray-800 dark:text-white">
-//             Ready to Clock In?
-//           </p>
-//           <p className="text-sm text-gray-600 dark:text-gray-300">
-//             Last Clock Out: {formattedClockOut}
-//           </p>
-//           <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-//             <Calendar className="mr-1 h-4 w-4" />
-//             {new Date().toLocaleDateString("id-ID", {
-//               weekday: "long",
-//               year: "numeric",
-//               month: "long",
-//               day: "numeric",
-//             })}
-//           </div>
-//         </div>
-//         <Button
-//           size="lg"
-//           className="bg-[#0080FF] px-8 py-3 hover:bg-[#0051b3]"
-//           onClick={handleClockIn}
-//           disabled={clockInMutation.isPending}
-//         >
-//           <Clock className="mr-2 h-4 w-4" />
-//           {clockInMutation.isPending ? "Loading..." : "Clock In"}
-//         </Button>
-//       </div>
-//     </div>
-//   );
-// };
+  return showRecentOrder ? <RecentOrder /> : <RecentAttendance />;
+};
 
 const MobileLayout: React.FC = () => (
   <div>
@@ -170,126 +69,159 @@ const MobileLayout: React.FC = () => (
     <div className="relative z-10 -mt-6 min-h-[75vh] rounded-t-4xl bg-white">
       <AttendanceCard isMobile={true} />
       <div className="mx-2 p-4">
-        <RecentAttendance />
+        <RecentSection />
       </div>
     </div>
   </div>
 );
 
-const DesktopLayout: React.FC = () => (
-  <div className="min-h-screen p-6 dark:bg-gray-900">
-    <div className="relative h-50 rounded-lg bg-gradient-to-br from-[#0051b3] to-[#0080FF]">
-      <div
-        className="absolute inset-0 rounded-lg bg-cover bg-center bg-no-repeat opacity-15"
-        style={{ backgroundImage: "url(/banner.svg)" }}
-      />
-      <div className="relative z-10 px-6 py-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mt-4 flex items-center justify-between space-x-2 px-6">
-            <UserGreeting isMobile={false} />
-            <Avatar className="h-25 w-25 border-4 border-white/20">
-              <AvatarFallback className="bg-white text-xl font-bold text-[#0080FF]">
-                J
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className="mx-auto max-w-7xl py-8">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <AttendanceCard isMobile={false} />
-          <RecentAttendance />
-        </div>
-
-        <div className="space-y-6">
-          <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
-            <div className="text-xl">This Week</div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Days Present
-                </span>
-                <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                  4/5
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Hours Worked
-                </span>
-                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                  32h
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-yellow-50 p-3 dark:bg-yellow-900/20">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Overtime
-                </span>
-                <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-                  2h
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
-            <div className="text-xl">Today's Schedule</div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-gray-100 py-2 dark:border-gray-700">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Shift Start
-                </span>
-                <span className="font-semibold">08:00 WIB</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-gray-100 py-2 dark:border-gray-700">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Shift End
-                </span>
-                <span className="font-semibold">17:00 WIB</span>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Break Time
-                </span>
-                <span className="font-semibold">12:00 - 13:00</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
-            <div className="text-xl">Quick Actions</div>
-            <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <Calendar className="mr-2 h-4 w-4" />
-                View Schedule
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Clock className="mr-2 h-4 w-4" />
-                Attendance History
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <User className="mr-2 h-4 w-4" />
-                Profile Settings
-              </Button>
+const DesktopLayout: React.FC = () => {
+  const router = useRouter();
+  return (
+    <div className="min-h-screen p-6 dark:bg-gray-900">
+      <div className="relative h-50 rounded-lg bg-gradient-to-br from-[#0051b3] to-[#0080FF]">
+        <div
+          className="absolute inset-0 rounded-lg bg-cover bg-center bg-no-repeat opacity-15"
+          style={{ backgroundImage: "url(/banner.svg)" }}
+        />
+        <div className="relative z-10 px-6 py-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mt-4 flex items-center justify-between space-x-2 px-6">
+              <UserGreeting isMobile={false} />
+              <Avatar className="h-25 w-25 border-4 border-white/20">
+                <AvatarFallback className="bg-white text-xl font-bold text-[#0080FF]">
+                  J
+                </AvatarFallback>
+              </Avatar>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-);
 
+      <div className="mx-auto max-w-7xl py-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <AttendanceCard isMobile={false} />
+            <RecentSection />
+          </div>
+
+          <div className="space-y-6">
+            <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
+              <div className="flex items-center gap-2 text-2xl font-semibold">
+                <CalendarCheck /> This Week
+              </div>
+              <div className="space-y-4">
+                <div className="bg-primary/10 dark:bg-primary/20 flex items-center justify-between rounded-lg p-3">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Days Present
+                  </span>
+                  <span className="text-primary dark:text-primary text-lg font-bold">
+                    4/5
+                  </span>
+                </div>
+                <div className="bg-primary/10 dark:bg-primary/20 flex items-center justify-between rounded-lg p-3">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Hours Worked
+                  </span>
+                  <span className="text-primary dark:text-primary text-lg font-bold">
+                    32h
+                  </span>
+                </div>
+                <div className="bg-primary/10 dark:bg-primary/20 flex items-center justify-between rounded-lg p-3">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Total Order
+                  </span>
+                  <span className="text-primary dark:text-primary text-lg font-bold">
+                    78
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
+              <div className="flex items-center gap-2 text-2xl font-semibold">
+                <ListCheck /> Today's Schedule
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-gray-100 py-2 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Shift Start
+                  </span>
+                  <span className="font-semibold">08:00 WIB</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-gray-100 py-2 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Shift End
+                  </span>
+                  <span className="font-semibold">17:00 WIB</span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Break Time
+                  </span>
+                  <span className="font-semibold">12:00 - 13:00</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
+              <div className="flex items-center gap-2 text-2xl font-semibold">
+                <ClockFading /> Quick Actions
+              </div>
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => router.push("/employee/job-history")}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Job History
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => router.push("/employee/attendance")}
+                >
+                  <Clock className="mr-2 h-4 w-4" />
+                  Attendance History
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile Settings
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 const EmployeePage: React.FC = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const { setBreadcrumbs } = useBreadcrumb();
+  const isMobile: boolean = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
-    // Set breadcrumbs untuk halaman ini
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      !(isWorker(session) || isDriver(session))
+    ) {
+      router.push("/admin/dashboard");
+      toast.error("You are not authorized to access this page.");
+    }
+  }, [status, session, router]);
+
+  useEffect(() => {
     setBreadcrumbs([{ label: "Dashboard", href: "/employee" }]);
   }, [setBreadcrumbs]);
-  const isMobile: boolean = useMediaQuery("(max-width: 767px)");
 
   return isMobile ? <MobileLayout /> : <DesktopLayout />;
 };

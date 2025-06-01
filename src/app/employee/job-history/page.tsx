@@ -1,7 +1,12 @@
+import JobHistoryPage from "@/features/employee/job-history";
 import React from "react";
 
 const JobHistory = () => {
-  return <div>JobHistory</div>;
+  return (
+    <div>
+      <JobHistoryPage />
+    </div>
+  );
 };
 
 export default JobHistory;

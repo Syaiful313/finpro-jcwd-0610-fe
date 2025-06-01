@@ -34,27 +34,24 @@ import { PageableResponse, PaginationQueries } from "@/types/pagination";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
-interface GetAttendanceProps extends PaginationQueries {}
-const useGetAttendance = (params?: GetAttendanceProps) => {
+interface GetAttendanceProps extends PaginationQueries {
+  search?: string;
+  employeeId?: number;
+  perPage?: number;
+}
+const useGetAttendance = (queries?: GetAttendanceProps) => {
   const axiosInstance = useAxios();
   const { data: session, status: sessionStatus } = useSession();
 
   return useQuery({
-    queryKey: ["attendance", params],
-    // Ganti kondisi enabled: tunggu sampai session selesai loading dan authenticated
+    queryKey: ["attendance", queries],
     enabled: sessionStatus === "authenticated" && !!session,
     queryFn: async () => {
-      try {
-        const { data } = await axiosInstance.get<PageableResponse<Attendance>>(
-          "/attendance",
-          { params },
-        );
-
-        return data;
-      } catch (error) {
-        console.error("API Error:", error);
-        throw error;
-      }
+      const { data } = await axiosInstance.get<PageableResponse<Attendance>>(
+        "/attendance",
+        { params: queries },
+      );
+      return data;
     },
   });
 };

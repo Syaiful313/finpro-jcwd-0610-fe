@@ -52,29 +52,13 @@ export const metadata: Metadata = {
   category: "business",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const HomeLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <StoreProvider>
-          <ReactQueryProvider>
-            {/* <NuqsProvider> */}
-            <NextAuthProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </NextAuthProvider>
-            {/* </NuqsProvider> */}
-          </ReactQueryProvider>
-        </StoreProvider>
-        <Toaster position="top-right" duration={1000} />
-      </body>
-    </html>
+    <div>
+      <Navbar />
+      {children}
+      <Footer />
+    </div>
   );
-}
+};
+export default HomeLayout;
