@@ -1,6 +1,8 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
- 
+import GithubProvider from "next-auth/providers/github"
+import GoogleProvider from "next-auth/providers/google"
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
         Credentials({
@@ -8,7 +10,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (user) return user;
                 return null;
             }
-        })
+        }),
+        GoogleProvider({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        }),
+        GithubProvider({
+          clientId: process.env.AUTH_GITHUB_ID,
+          clientSecret: process.env.AUTH_GITHUB_SECRET,
+        }),
   ],
   session: {
     strategy: "jwt",
@@ -20,13 +30,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async signIn() { return true },
-    async jwt({ token, user }) {
-        if (user) token.user = user;
-        return token;
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = (user as any).id;
+        token.email = (user as any).email;
+
+        if (account?.provider === "github") {
+          token.role = "USER";
+        } else if (account?.provider === "credentials") {
+          token.role = (user as any).role;
+        }
+      }
+      return token;
     },
+
     async session({ session, token }: any) {
-        if (token.user) session.user = token.user;
-        return session;
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.role = token.role;
+      }
+      return session;
     },
+    
+    // async jwt({ token, user }) {
+    //     if (user) token.user = user;
+    //     return token;
+    // },
+    // async session({ session, token }: any) {
+    //     if (token.user) session.user = token.user;
+    //     return session;
+    // },
   }
 })
