@@ -73,7 +73,6 @@ const AttendanceList = () => {
 
   const attendance = attendanceData?.data || [];
   const meta = attendanceData?.meta;
-  console.log("Attendance Data:", attendanceData);
 
   const handleFilter = () => {
     if (startDate && endDate && endDate < startDate) {

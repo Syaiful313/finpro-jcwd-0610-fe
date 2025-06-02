@@ -66,6 +66,5 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
 
 function EmployeeHeaderWithBreadcrumb() {
   const { breadcrumbs } = useBreadcrumb();
-  console.log("Breadcrumbs:", breadcrumbs);
   return <EmployeeHeader breadcrumbs={breadcrumbs} />;
 }

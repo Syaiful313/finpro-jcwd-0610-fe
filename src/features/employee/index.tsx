@@ -39,7 +39,6 @@ const RecentSection: React.FC = () => {
   const hasClockedIn = !!latestAttendance?.clockInAt;
   const hasClockedOut = !!latestAttendance?.clockOutAt;
 
-  // User sedang dalam jam kerja (sudah clock in tapi belum clock out)
   const isCurrentlyWorking = hasClockedIn && !hasClockedOut;
   const showRecentOrder = isAuthenticated && isCurrentlyWorking;
 
@@ -203,21 +202,10 @@ const EmployeePage: React.FC = () => {
   const { setBreadcrumbs } = useBreadcrumb();
   const isMobile: boolean = useMediaQuery("(max-width: 767px)");
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
-
-  useEffect(() => {
-    if (
-      status === "authenticated" &&
-      !(isWorker(session) || isDriver(session))
-    ) {
-      router.push("/admin/dashboard");
-      toast.error("You are not authorized to access this page.");
-    }
-  }, [status, session, router]);
+  if (status === "authenticated" && !(isWorker(session) || isDriver(session))) {
+    router.push("/admin/dashboard");
+    toast.error("You are not authorized to access this page.");
+  }
 
   useEffect(() => {
     setBreadcrumbs([{ label: "Dashboard", href: "/employee" }]);

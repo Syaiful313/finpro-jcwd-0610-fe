@@ -21,7 +21,6 @@ export const useLogin = () => {
       } else if (data.role === "WORKER" || data.role === "DRIVER") {
         router.push("/employee");
       } else {
-        console.log("ini role", data.role);
         router.push("/");
       }
     },
