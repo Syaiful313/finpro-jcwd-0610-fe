@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 export const useLogin = () => {
   const router = useRouter();
+
   return useMutation({
     mutationFn: async (payload: Pick<User, "email" | "password">) => {
       const { data } = await axiosInstance.post("/auth/login", payload);
@@ -17,14 +18,17 @@ export const useLogin = () => {
       toast.success("Login successful");
       if (data.role === "ADMIN" || data.role === "OUTLET_ADMIN") {
         router.push("/admin/dashboard");
+      } else if (data.role === "WORKER" || data.role === "DRIVER") {
+        router.push("/employee");
       } else {
+        console.log("ini role", data.role);
         router.push("/");
       }
     },
     onError: (error) => {
-      toast.error(error.message)
-      console.error("Login error", error)
-    }
+      toast.error(error.message);
+      console.error("Login error", error);
+    },
   });
 };
 

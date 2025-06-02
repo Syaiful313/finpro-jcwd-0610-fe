@@ -1,21 +1,11 @@
+import { manrope } from "@/assets/font";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/providers/NextAuthProvider";
 import NuqsProvider from "@/providers/NuqsProvider";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import StoreProvider from "@/providers/StoreProvider";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Bubblify Laundry - Layanan Laundry Terpercaya",
@@ -57,9 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${manrope.className} antialiased`}>
         <StoreProvider>
           <ReactQueryProvider>
             <NuqsProvider>
@@ -67,7 +55,7 @@ export default function RootLayout({
             </NuqsProvider>
           </ReactQueryProvider>
         </StoreProvider>
-        <Toaster position="top-right" duration={1000} />
+        <Toaster position="top-right" richColors duration={2000} />
       </body>
     </html>
   );

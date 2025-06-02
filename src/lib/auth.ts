@@ -1,24 +1,24 @@
-import NextAuth from "next-auth"
-import Credentials from "next-auth/providers/credentials"
-import GithubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import GithubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-        Credentials({
-            async authorize(user) {
-                if (user) return user;
-                return null;
-            }
-        }),
-        GoogleProvider({
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        }),
-        GithubProvider({
-          clientId: process.env.AUTH_GITHUB_ID,
-          clientSecret: process.env.AUTH_GITHUB_SECRET,
-        }),
+    Credentials({
+      async authorize(user) {
+        if (user) return user;
+        return null;
+      },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    GithubProvider({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -29,8 +29,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/error",
   },
   callbacks: {
-    async signIn() { return true },
+    async signIn() {
+      return true;
+    },
     async jwt({ token, user, account }) {
+      // console.log("=== JWT CALLBACK DEBUG ===");
+      // console.log("Account provider:", account?.provider);
+      // console.log("User data:", user);
+      // console.log("Token before:", token);
       if (user) {
         token.id = (user as any).id;
         token.email = (user as any).email;
@@ -52,7 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
-    
+
     // async jwt({ token, user }) {
     //     if (user) token.user = user;
     //     return token;
@@ -61,5 +67,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     //     if (token.user) session.user = token.user;
     //     return session;
     // },
-  }
-})
+  },
+});
