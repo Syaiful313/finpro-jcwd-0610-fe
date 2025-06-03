@@ -3,45 +3,45 @@ import useAxios from "@/hooks/useAxios";
 import { PageableResponse, PaginationQueries } from "@/types/pagination";
 import { useQuery } from "@tanstack/react-query";
 
-interface Outlet {
+interface LaundryItem {
   id: number;
-  outletName: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  serviceRadius: number;
+  name: string;
+  category: string;
+  basePrice: number;
+  pricingType: "PER_PIECE" | "PER_KG";
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   _count: {
-    employees: number;
-    orders: number;
+    orderItems: number;
   };
 }
 
-interface GetOutletsQueries extends PaginationQueries {
+interface GetLaundryItemsQueries extends PaginationQueries {
   search?: string;
   isActive?: boolean;
+  category?: string;
+  pricingType?: "PER_PIECE" | "PER_KG";
   all?: boolean;
 }
 
-interface UseGetOutletsOptions {
+interface UseGetLaundryItemsOptions {
   enabled?: boolean;
   refetchInterval?: number;
   staleTime?: number;
 }
 
-const useGetOutlets = (
-  queries?: GetOutletsQueries,
-  options?: UseGetOutletsOptions,
+const useGetLaundryItems = (
+  queries?: GetLaundryItemsQueries,
+  options?: UseGetLaundryItemsOptions,
 ) => {
   const axiosInstance = useAxios();
-  const endpoint = `/outlet`;
-  const queryKey = ["outlets", queries];
+  const endpoint = `/laundry-item`;
+  const queryKey = ["laundryItems", queries];
   const defaultQueries = {
     take: 10,
     page: 1,
-    sortBy: "outletName",
+    sortBy: "name",
     sortOrder: "asc" as const,
     isActive: true,
     ...queries,
@@ -51,7 +51,7 @@ const useGetOutlets = (
     queryKey,
     queryFn: async () => {
       try {
-        const { data } = await axiosInstance.get<PageableResponse<Outlet>>(
+        const { data } = await axiosInstance.get<PageableResponse<LaundryItem>>(
           endpoint,
           {
             params: defaultQueries,
@@ -75,5 +75,5 @@ const useGetOutlets = (
   });
 };
 
-export default useGetOutlets;
-export type { GetOutletsQueries, UseGetOutletsOptions, Outlet };
+export default useGetLaundryItems;
+export type { GetLaundryItemsQueries, UseGetLaundryItemsOptions, LaundryItem };

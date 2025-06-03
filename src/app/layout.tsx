@@ -55,7 +55,7 @@ export default function RootLayout({
             </NuqsProvider>
           </ReactQueryProvider>
         </StoreProvider>
-        <Toaster position="top-right" richColors duration={2000} />
+        <Toaster position="top-right" duration={2000} />
       </body>
     </html>
   );
