@@ -4,14 +4,16 @@ import { FC, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Image from 'next/image';
+import InvalidToken from './components/InvalidToken';
+import Link from 'next/link';
 import useSetPassword from '@/hooks/api/auth/useSetPassword';
 
 interface SetPasswordPageProps {
-  token: string | null,
+  token: string,
 }
 
 const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
-    const { mutate: setPassword } = useSetPassword();
+    const { mutate: setPassword } = useSetPassword(token);
     const [showPasswords, setShowPasswords] = useState(false);
     const PasswordSchema = Yup.object().shape({
       password: Yup.string()
@@ -22,6 +24,8 @@ const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
         .required('Confirm password is required'),
     });
 
+    console.log("TOKEN SET PASSWORD", token);
+
     const formik = useFormik({
       initialValues: {
         password: '',
@@ -31,7 +35,8 @@ const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
       onSubmit: async (values) => {
         const { password } = values;
         if (!token) return;
-        setPassword({token, password});
+        setPassword(password);
+        console.log("SEND SET PASSWORD", password)
       },
     });
 
@@ -41,36 +46,22 @@ const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
 
     if (!token) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-md w-full space-y-8 text-center">
-            <h2 className="mt-6 text-2xl font-bold text-gray-900">Invalid or missing verification link.</h2>
-            <p className="mt-2 text-sm text-gray-600">Please check your email for the correct verification link.</p>
-          </div>
-        </div>
+        <InvalidToken/>
       );
     }
 
     return (
       <>
-        <div
-          className="fixed top-0 left-0 w-screen h-screen z-[-1] animated-gradient-background"
-          style={{
-            background: 'linear-gradient(to right, #6dd5ed, #2193b0, #74ebd5, #acb6e5)',
-            backgroundSize: '400% 400%',
-          }}
-        ></div>
-        <div className="relative z-10 flex justify-center items-center min-h-screen p-10 px-4" style={{ fontFamily: '"Inter", sans-serif' }}>
-          <div className="bg-white p-10 rounded-md shadow-md max-w-md w-full mx-auto space-y-8">
-            <div className="text-center">
-              <Image
-                className="mx-auto h-12 w-auto mb-8"
-                src="/logo-text.svg"
-                alt="Bubblify Logo"
-                width="12"
-                height="12"
-              />
-              <h2 className="text-3xl font-extrabold text-gray-900">Set Your New Password</h2>
-              <p className="mt-2 text-sm text-gray-600">Enter a new password for your account.</p>
+        <div className="relative z-10 flex justify-center items-center p-10 px-4 bg-white">
+          <div className="p-10 max-w-xl w-full mx-auto space-y-8">
+            <div className="text-start">
+              <div className="w-full max-w-lg h-18 mb-20 text-center relative">
+                <Link href="/">
+                  <Image src="/logo-text.svg" alt="logo-bubblify" className="object-contain mx-auto" fill/>
+                </Link>
+              </div>
+              <h2 className="text-4xl font-extrabold text-gray-900">Set Your New Password</h2>
+              <p className="mt-2 text-md text-gray-600">Enter a new password for your account.</p>
             </div>
             <form className="mt-8 space-y-8" onSubmit={formik.handleSubmit}>
               <div className="relative"> 
@@ -107,16 +98,16 @@ const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
                 <button
                   type="button"
                   onClick={handlePasswordVisibility}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-md font-medium rounded-md text-primary bg-secondary hover:cursor-pointer hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary mb-4" 
+                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-lg font-medium rounded-md text-primary bg-secondary hover:cursor-pointer hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary mb-4" 
                 >
                   {showPasswords ? 'Hide Passwords' : 'Show Passwords'}
                 </button>
                 <button
                   type="submit"
                   disabled={!formik.isValid || formik.isSubmitting}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-md font-medium rounded-md text-white bg-primary hover:cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-lg font-medium rounded-md text-white bg-primary hover:cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {formik.isSubmitting ? 'Setting Password...' : 'Set Password'}
+                  {formik.isSubmitting ? 'Setting Password...' : 'Submit'}
                 </button>
               </div>
             </form>

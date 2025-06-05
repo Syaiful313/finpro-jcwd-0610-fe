@@ -1,8 +1,8 @@
-import HeroSection from "@/features/home/_components/Hero"
-import MainSection from "./_components/MainSection"
-import AdditionalSection from "./_components/AdditionalSection"
-import TestimonialsSection from "./_components/TestimonialSection"
-import DiscountBanner from "./_components/DiscountBanner"
+import HeroSection from "@/features/home/components/Hero"
+import MainSection from "./components/MainSection"
+import AdditionalSection from "./components/AdditionalSection"
+import TestimonialsSection from "./components/TestimonialSection"
+import DiscountBanner from "./components/DiscountBanner"
 
 const Homepage = () => {
   return (

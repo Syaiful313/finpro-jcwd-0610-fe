@@ -3,16 +3,24 @@ import { axiosInstance } from '@/lib/axios';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
-interface SetPasswordPayload {
-  token: string;
-  password: string;
-}
-
-export const useSetPassword = () => {
+export const useSetPassword = (token: string) => {
   const router = useRouter();
   return useMutation({
-    mutationFn: async (payload: SetPasswordPayload) => {
-      const { data } = await axiosInstance.post("/auth/verify-email-and-set-password", payload);
+    mutationFn: async (password: string) => {
+      console.log("🔐 SENDING DATA");
+      console.log("Password:", password);
+      console.log("Token:", token);
+      console.log("Authorization Header:", `Bearer ${token}`);
+      const { data } = await axiosInstance.post(
+        "/auth/verify-email-and-set-password",
+        { password },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log(`Sending Bearer ${token}`)
       return data;
     },
     onSuccess: () => {
