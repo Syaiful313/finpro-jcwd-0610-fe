@@ -39,8 +39,8 @@ const LoginPage = () => {
     return (
         <>
             <NavbarLogin/>
-            <div className="min-h-screen bg-white flex justify-center px-4 sm:px-6 lg:px-8 pt-10 md:pt-20">
-                <div className="max-w-md w-full space-y-8 bg-white px-10 rounded-lg">
+            <div className="min-h-screen bg-white flex justify-center px-4 sm:px-6 lg:px-8 pt-4 md:pt-10">
+                <div className="max-w-xl w-full space-y-8 bg-white px-10 rounded-lg">
                     <div className="text-center">
                         <h2 className="text-4xl font-extrabold text-gray-900">Welcome back!</h2>
                     </div>
@@ -96,7 +96,7 @@ const LoginPage = () => {
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="text-sm">
-                                <Link href="#" className="font-medium text-md text-primary hover:text-blue-500">I forgot my password</Link>
+                                <Link href="/forgot-password" className="font-medium text-md text-primary hover:text-blue-500">I forgot my password</Link>
                             </div>
                         </div>
                         <div>
@@ -107,7 +107,7 @@ const LoginPage = () => {
                             >Log in</button>
                         </div>
                     </form>
-                    <div className="text-center text-sm text-gray-600">Don't have an account?{' '}
+                    <div className="text-center text-md text-gray-600">Don't have an account?{' '}
                         <Link href="/register" className="font-medium text-primary hover:text-blue-500">Sign up.</Link>
                     </div>
                     <div className="relative">
@@ -121,12 +121,12 @@ const LoginPage = () => {
                     <div className="mt-6 space-y-3">
                         <button
                             type="button"
-                            className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-sm font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
+                            className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
                             onClick={() => signIn('google', { callbackUrl: '/' })}
                         >Continue with Google</button>
                         <button
                             type="button"
-                            className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-sm font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
+                            className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
                             onClick={() => signIn('github', { callbackUrl: '/' })}
                         >Continue with Github</button>
                     </div>
