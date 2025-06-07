@@ -452,6 +452,8 @@ export function UserManagementTable() {
                 page={usersData.meta.page}
                 take={usersData.meta.take}
                 total={usersData.meta.total}
+                hasNext={usersData.meta.hasNext}
+                hasPrevious={usersData.meta.hasPrevious}
                 onChangePage={(newPage) => updateFilters({ page: newPage })}
               />
             </div>

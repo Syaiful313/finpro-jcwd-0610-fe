@@ -19,7 +19,7 @@ import { useBreadcrumb } from "./components/BreadCrumbContext";
 import NotificationDropdown from "./components/Notifications";
 import RecentAttendance from "./components/RecentAttendance";
 import UserGreeting from "./components/UserGreeting";
-import { isDriver, isWorker } from "@/utils/AuthRole";
+import { isAdmin, isDriver, isOutletAdmin, isWorker } from "@/utils/AuthRole";
 import { toast } from "sonner";
 import RecentOrder from "./components/RecentOrder";
 import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
@@ -34,7 +34,6 @@ const RecentSection: React.FC = () => {
     sortBy: "clockOutAt",
   });
 
-  // Cek attendance record terbaru (hari ini)
   const latestAttendance = attendanceData?.data?.[0];
   const hasClockedIn = !!latestAttendance?.clockInAt;
   const hasClockedOut = !!latestAttendance?.clockOutAt;

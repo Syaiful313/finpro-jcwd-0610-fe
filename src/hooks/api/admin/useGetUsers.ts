@@ -97,6 +97,8 @@ const useGetUsers = (
             page: data.meta.page,
             take: data.meta.take,
             total: data.meta.count,
+            hasNext: data.meta.page < data.meta.totalPages,
+            hasPrevious: data.meta.page > 1,
           },
         };
 
