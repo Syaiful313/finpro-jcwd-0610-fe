@@ -166,7 +166,6 @@ const UserCard = ({
       )}
 
       <div className="flex items-center justify-end pt-1">
-        
         <StatusBadge isVerified={user.isVerified} />
       </div>
     </div>
@@ -633,7 +632,9 @@ export function UserManagementTable() {
               page={usersData.meta.page}
               take={usersData.meta.take}
               total={usersData.meta.total}
-              hasNext={usersData.meta.page * usersData.meta.take < usersData.meta.total}
+              hasNext={
+                usersData.meta.page * usersData.meta.take < usersData.meta.total
+              }
               hasPrevious={usersData.meta.page > 1}
               onChangePage={(newPage) => updateFilters({ page: newPage })}
             />

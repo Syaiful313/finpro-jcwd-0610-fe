@@ -10,140 +10,200 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import React, { useState } from "react";
-import { Bell, X } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Bell, Package, Truck, CheckCircle, AlertCircle } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
+import { id } from "date-fns/locale";
+import { DriverNotification, NotifType } from "@/types/DriverNotification";
+import useGetNotifications from "@/hooks/api/employee/driver/useGetNotification";
 
-// Types
-interface User {
-  name: string;
-  avatar: string;
-  isOnline: boolean;
-}
+// Helper function to get notification icon
+const getNotificationIcon = (notifType: NotifType) => {
+  switch (notifType) {
+    case NotifType.NEW_PICKUP_REQUEST:
+      return <Package className="h-4 w-4 text-blue-500" />;
+    case NotifType.NEW_DELIVERY_REQUEST:
+      return <Truck className="h-4 w-4 text-green-500" />;
+    case NotifType.PICKUP_COMPLETED:
+    case NotifType.DELIVERY_COMPLETED:
+    case NotifType.ORDER_COMPLETED:
+      return <CheckCircle className="h-4 w-4 text-emerald-500" />;
+    case NotifType.BYPASS_APPROVED:
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    case NotifType.BYPASS_REJECTED:
+    case NotifType.BYPASS_REQUEST:
+      return <AlertCircle className="h-4 w-4 text-orange-500" />;
+    default:
+      return <Bell className="h-4 w-4 text-gray-500" />;
+  }
+};
 
-interface Notification {
-  id: number;
-  user: User;
-  message: string;
-  project: string;
-  category: string;
-  timeAgo: string;
-}
+// Helper function to get customer initials
+const getCustomerInitials = (firstName: string, lastName: string) => {
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+};
 
-// Notification data
-const notifications: Notification[] = [
-  {
-    id: 1,
-    user: {
-      name: "Terry Franci",
-      avatar: "/images/user/user-02.jpg",
-      isOnline: true,
-    },
-    message: "requests permission to change",
-    project: "Project - Nganter App",
-    category: "Project",
-    timeAgo: "5 min ago",
-  },
-  {
-    id: 2,
-    user: {
-      name: "Alena Franci",
-      avatar: "/images/user/user-03.jpg",
-      isOnline: true,
-    },
-    message: "requests permission to change",
-    project: "Project - Nganter App",
-    category: "Project",
-    timeAgo: "8 min ago",
-  },
-  {
-    id: 3,
-    user: {
-      name: "Jocelyn Kenter",
-      avatar: "/images/user/user-04.jpg",
-      isOnline: true,
-    },
-    message: "requests permission to change",
-    project: "Project - Nganter App",
-    category: "Project",
-    timeAgo: "15 min ago",
-  },
-  {
-    id: 4,
-    user: {
-      name: "Jocelyn Kenter",
-      avatar: "/images/user/user-04.jpg",
-      isOnline: true,
-    },
-    message: "requests permission to change",
-    project: "Project - Nganter App",
-    category: "Project",
-    timeAgo: "15 min ago",
-  },
-];
+// Helper function to format notification message
+const formatNotificationMessage = (notification: DriverNotification) => {
+  const customerName = notification.order?.user.firstName
+    ? `${notification.order.user.firstName} ${notification.order.user.lastName}`
+    : "Customer";
+
+  const orderNumber = notification.orderUuid || "N/A";
+
+  switch (notification.notifType) {
+    case NotifType.NEW_PICKUP_REQUEST:
+      return `New pickup request from ${customerName} (${orderNumber})`;
+    case NotifType.NEW_DELIVERY_REQUEST:
+      return `New delivery request for ${customerName} (${orderNumber})`;
+    case NotifType.PICKUP_COMPLETED:
+      return `Pickup completed for order ${orderNumber}`;
+    case NotifType.DELIVERY_COMPLETED:
+      return `Delivery completed for order ${orderNumber}`;
+    case NotifType.ORDER_COMPLETED:
+      return `Order ${orderNumber} has been completed`;
+    default:
+      return notification.message;
+  }
+};
+
+// Helper function to get notification category
+const getNotificationCategory = (notifType: NotifType) => {
+  switch (notifType) {
+    case NotifType.NEW_PICKUP_REQUEST:
+    case NotifType.PICKUP_COMPLETED:
+      return "Pickup";
+    case NotifType.NEW_DELIVERY_REQUEST:
+    case NotifType.DELIVERY_COMPLETED:
+      return "Delivery";
+    case NotifType.ORDER_COMPLETED:
+      return "Order";
+    case NotifType.BYPASS_REQUEST:
+    case NotifType.BYPASS_APPROVED:
+    case NotifType.BYPASS_REJECTED:
+      return "Bypass";
+    default:
+      return "System";
+  }
+};
 
 // User Avatar Component
-const UserAvatar = ({ user }: { user: User }) => {
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+const CustomerAvatar = ({
+  notification,
+}: {
+  notification: DriverNotification;
+}) => {
+  if (!notification.order?.user) {
+    return (
+      <div className="relative flex-shrink-0">
+        <Avatar className="h-12 w-12">
+          <AvatarFallback className="bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+            SY
+          </AvatarFallback>
+        </Avatar>
+      </div>
+    );
+  }
+
+  const { firstName, lastName } = notification.order.user;
 
   return (
     <div className="relative flex-shrink-0">
-      <Avatar className="h-15 w-15">
-        {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
+      <Avatar className="h-12 w-12">
         <AvatarFallback className="bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-          {getInitials(user.name)}
+          {getCustomerInitials(firstName, lastName)}
         </AvatarFallback>
       </Avatar>
+      <div className="absolute -right-1 -bottom-1 rounded-full bg-white p-1 dark:bg-gray-800">
+        {getNotificationIcon(notification.notifType)}
+      </div>
     </div>
   );
 };
 
 // Notification Item Component
-const NotificationItem = ({ notification }: { notification: Notification }) => (
-  <DropdownMenuItem className="cursor-pointer p-3">
-    <div className="flex w-full gap-3">
-      <UserAvatar user={notification.user} />
+const NotificationItem = ({
+  notification,
+}: {
+  notification: DriverNotification;
+}) => {
+  const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
+    addSuffix: true,
+    locale: id,
+  });
 
-      <div className="flex-1 space-y-1">
-        <div className="text-muted-foreground text-sm">
-          <span className="text-foreground font-medium">
-            {notification.user.name}
-          </span>
-          {" " + notification.message + " "}
-          <span className="text-foreground font-medium">
-            {notification.project}
-          </span>
-        </div>
+  const address = notification.order
+    ? `${notification.order.district}, ${notification.order.city}`
+    : "";
 
-        <div className="text-muted-foreground flex items-center gap-2 text-xs">
-          <span>{notification.category}</span>
-          <span className="bg-muted-foreground/50 h-1 w-1 rounded-full" />
-          <span>{notification.timeAgo}</span>
+  return (
+    <DropdownMenuItem
+      className={`cursor-pointer p-3 ${!notification.isRead ? "bg-blue-50 dark:bg-blue-950/20" : ""}`}
+    >
+      <div className="flex w-full gap-3">
+        <CustomerAvatar notification={notification} />
+
+        <div className="flex-1 space-y-1">
+          <div className="text-sm">
+            <p className="text-foreground leading-5 font-medium">
+              {formatNotificationMessage(notification)}
+            </p>
+            {address && (
+              <p className="text-muted-foreground mt-1 text-xs">📍 {address}</p>
+            )}
+          </div>
+
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
+            <span>{getNotificationCategory(notification.notifType)}</span>
+            <span className="bg-muted-foreground/50 h-1 w-1 rounded-full" />
+            <span>{timeAgo}</span>
+            {!notification.isRead && (
+              <>
+                <span className="bg-muted-foreground/50 h-1 w-1 rounded-full" />
+                <span className="font-medium text-blue-600">New</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
+    </DropdownMenuItem>
+  );
+};
+
+// Loading Skeleton Component
+const NotificationSkeleton = () => (
+  <div className="p-3">
+    <div className="flex gap-3">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-3 w-1/2" />
+      </div>
     </div>
-  </DropdownMenuItem>
+  </div>
 );
 
 // Main NotificationDropdown Component
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasUnread, setHasUnread] = useState(true);
+
+  const { data, isLoading, error } = useGetNotifications({
+    page: 1,
+    take: 5,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+  console.log("data", data);
+
+  const unreadCount =
+    data?.data?.filter((notif: DriverNotification) => !notif.isRead).length ||
+    0;
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (open && hasUnread) {
-      setHasUnread(false);
-    }
   };
 
   return (
@@ -151,9 +211,9 @@ export default function NotificationDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
           <Bell className="h-5 w-5" />
-          {hasUnread && (
-            <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center p-0">
-              {notifications.length}
+          {unreadCount > 0 && (
+            <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center p-0 text-xs">
+              {unreadCount > 99 ? "99+" : unreadCount}
             </Badge>
           )}
           <span className="sr-only">Notifications</span>
@@ -166,19 +226,50 @@ export default function NotificationDropdown() {
           <DropdownMenuLabel className="p-0 text-lg font-semibold">
             Notifications
           </DropdownMenuLabel>
+          {unreadCount > 0 && (
+            <Badge variant="secondary" className="text-xs">
+              {unreadCount} new
+            </Badge>
+          )}
         </div>
 
         {/* Notifications List */}
         <ScrollArea className="h-80">
           <div className="p-1">
-            {notifications.map((notification, index) => (
-              <div key={notification.id}>
-                <NotificationItem notification={notification} />
-                {index < notifications.length - 1 && (
-                  <DropdownMenuSeparator className="mx-3" />
-                )}
+            {isLoading ? (
+              // Loading state
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={index}>
+                  <NotificationSkeleton />
+                  {index < 2 && <DropdownMenuSeparator className="mx-3" />}
+                </div>
+              ))
+            ) : error ? (
+              // Error state
+              <div className="p-4 text-center">
+                <p className="text-muted-foreground text-sm">
+                  Failed to load notifications
+                </p>
               </div>
-            ))}
+            ) : !data?.data || data.data.length === 0 ? (
+              // Empty state
+              <div className="p-4 text-center">
+                <Bell className="text-muted-foreground/50 mx-auto mb-2 h-8 w-8" />
+                <p className="text-muted-foreground text-sm">
+                  No notifications yet
+                </p>
+              </div>
+            ) : (
+              // Notifications list
+              data.data.map((notification, index) => (
+                <div key={notification.id}>
+                  <NotificationItem notification={notification} />
+                  {index < data.data.length - 1 && (
+                    <DropdownMenuSeparator className="mx-3" />
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </ScrollArea>
 

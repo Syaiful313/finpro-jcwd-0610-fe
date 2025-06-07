@@ -19,11 +19,9 @@ const OrderPage = () => {
     ]);
   }, [setBreadcrumbs]);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
+  if (status === "unauthenticated") {
+    router.push("/");
+  }
   return isMobile ? <Mobile /> : <Desktop />;
 };
 

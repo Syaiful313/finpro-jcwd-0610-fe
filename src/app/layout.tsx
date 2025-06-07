@@ -1,3 +1,4 @@
+
 import { manrope } from "@/assets/font";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/providers/NextAuthProvider";
@@ -47,6 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <body className={`${manrope.className} antialiased`}>
       <body className={`${manrope.className} antialiased`}>
         <StoreProvider>
           <ReactQueryProvider>
