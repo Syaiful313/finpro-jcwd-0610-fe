@@ -1,3 +1,4 @@
+
 import { manrope } from "@/assets/font";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/providers/NextAuthProvider";
@@ -48,6 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.className} antialiased`}>
+      <body className={`${manrope.className} antialiased`}>
         <StoreProvider>
           <ReactQueryProvider>
             <NuqsProvider>
@@ -55,7 +57,7 @@ export default function RootLayout({
             </NuqsProvider>
           </ReactQueryProvider>
         </StoreProvider>
-        <Toaster position="top-right" richColors duration={2000} />
+        <Toaster position="top-right" duration={2000} />
       </body>
     </html>
   );

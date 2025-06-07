@@ -6,6 +6,11 @@ export interface Outlet {
   longitude: number;
   serviceRadius: number;
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  _count: {
+    employees: number;
+    orders: number;
+    users: number;
+  };
 }

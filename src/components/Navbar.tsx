@@ -9,10 +9,10 @@ import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 const menuItems = [
-    { name: 'Services', href: '#link' },
-    { name: 'Locations', href: '#link' },
-    { name: 'Pricing', href: '#link' },
-    { name: 'About', href: '#link' },
+    { name: 'Services', href: '/services' },
+    { name: 'Locations', href: '/locations' },
+    { name: 'Pricing', href: '/services#pricing' },
+    { name: 'About', href: '/about' },
 ]
 
 export const Navbar = () => {
@@ -107,7 +107,7 @@ export const Navbar = () => {
                                         size="sm"
                                         className={cn(isScrolled && 'lg:hidden', 'rounded-full')}>
                                         <Link href="/login">
-                                            <span>Sign In</span>
+                                            <span>Login</span>
                                         </Link>
                                     </Button>
                                     <Button
@@ -116,7 +116,7 @@ export const Navbar = () => {
                                         size="sm"
                                         className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'rounded-full')}>
                                         <Link href="/login">
-                                            <span>Sign In</span>
+                                            <span>Login</span>
                                         </Link>
                                     </Button>
                                     
@@ -125,7 +125,7 @@ export const Navbar = () => {
                                         variant="ghost"
                                         size="sm"
                                         className={cn(isScrolled && 'lg:hidden', 'rounded-full', 'hover:bg-primary', 'hover:text-muted')}>
-                                        <Link href="/login">
+                                        <Link href="/register">
                                             <span>Sign Up</span>
                                         </Link>
                                     </Button>

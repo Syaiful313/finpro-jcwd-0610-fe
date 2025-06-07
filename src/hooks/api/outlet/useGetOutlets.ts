@@ -36,11 +36,8 @@ const useGetOutlets = (
   options?: UseGetOutletsOptions,
 ) => {
   const axiosInstance = useAxios();
-
   const endpoint = `/outlet`;
-
   const queryKey = ["outlets", queries];
-
   const defaultQueries = {
     take: 10,
     page: 1,

@@ -22,7 +22,7 @@ export function SiteHeaderUsers() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <Link
-                href="/admin/super/dashboard"
+                href="/admin/dashboard"
                 className="text-muted-foreground hover:text-primary text-base font-medium"
               >
                 Dashboard

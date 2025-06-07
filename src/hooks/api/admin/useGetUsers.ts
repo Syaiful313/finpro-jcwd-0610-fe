@@ -17,10 +17,8 @@ interface User {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
-  // ❌ REMOVED: notificationId (tidak ada di backend schema)
 
-  // Fields conditional berdasarkan role
-  totalOrdersInOutlet?: number; // ✅ Only for DRIVER & WORKER
+  totalOrdersInOutlet?: number;
   employeeInfo?: {
     id: number;
     npwp: string;
