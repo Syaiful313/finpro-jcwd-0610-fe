@@ -20,9 +20,9 @@ export interface Order {
   actualPickupTime?: Date;
   scheduledDeliveryTime?: Date;
   actualDeliveryTime?: Date;
-  totalDeliveryFee: number;
-  totalWeight: number;
-  totalPrice: number;
+  totalDeliveryFee?: number;
+  totalWeight?: number;
+  totalPrice?: number;
   paymentStatus: PaymentStatus;
   createdAt: Date;
   updatedAt: Date;

@@ -11,5 +11,5 @@ export interface PickUpJob {
   notes?: string;
   status: DriverTaskStatus;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
