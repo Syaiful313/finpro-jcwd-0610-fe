@@ -1,3 +1,4 @@
+import useAxios from "@/hooks/useAxios";
 import { axiosInstance } from "@/lib/axios";
 import { User } from "@/types/user";
 import { useMutation } from "@tanstack/react-query";
@@ -5,18 +6,13 @@ import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 
 export const useUpdateUser = (userId: number) => {
+  const axiosInstance = useAxios();
   return useMutation({
     mutationFn: async (payload: Partial<Pick<User, 'firstName' | 'lastName' | 'email' | 'phoneNumber'>>) => {
         const session = await getSession();
         const token = session?.user.accessToken;
         if (!token) throw new Error("No auth token found");
-        const { data } = await axiosInstance.patch(`/user/${userId}`, 
-            payload,
-            {
-            headers: {
-            Authorization: `Bearer ${token}`,
-            },
-        });
+        const { data } = await axiosInstance.patch(`/user/${userId}`, payload);
         return data;
     },
     onSuccess: async (data) => {

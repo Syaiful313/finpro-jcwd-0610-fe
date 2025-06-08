@@ -5,25 +5,25 @@ import { useMutation } from "@tanstack/react-query";
 import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 
-export const useGetUser = (userId: number) => {
+export const useUploadProfilePic = (userId: number) => {
   const axiosInstance = useAxios();
-  return useMutation<User, Error, number>({
-    mutationFn: async () => {
+  return useMutation({
+    mutationFn: async (payload: FormData) => {
         const session = await getSession();
         const token = session?.user.accessToken;
         if (!token) throw new Error("No auth token found");
-        const { data } = await axiosInstance.get(`/user/${userId}`);
+        const { data } = await axiosInstance.patch(`/user/photo/${userId}`, payload);
         return data;
     },
     onSuccess: async (data) => {
-      toast.success("User data fetched successfully!");
-      console.log("Fetched user data:", data);
+      toast.success("User data updated successfully!");
+      console.log("Updated user data:", data);
     },
     onError: (error) => {
       toast.error(error.message);
-      console.error("Get user error", error);
+      console.error("Update user error", error);
     },
   });
 };
 
-export default useGetUser;
+export default useUploadProfilePic;

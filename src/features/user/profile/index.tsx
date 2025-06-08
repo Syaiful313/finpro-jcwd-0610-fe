@@ -2,22 +2,45 @@
 import useGetUser from "@/hooks/api/user/useGetUser";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import HeadSection from "./components/HeadSection";
 import { arrowRightIcon } from "./components/icon";
 import ProfileSidebar from "./components/ProfileSidebar";
 import { EditForm } from "./components/EditForm";
 import useUpdateUser from "@/hooks/api/user/useUpdateUser";
 import useForgotPassword from "@/hooks/api/auth/useForgotPassword";
+import useUploadProfilePic from "@/hooks/api/user/useUploadProfilePic";
+import { Address } from "@/types/address";
+import { AddressesForm } from "./components/AddressForm";
+import { Form, Formik } from "formik";
+import useCreateAddress from "@/hooks/api/user/useCreateAddress";
+
+interface PayloadCreateAddress {
+    addressName: string;
+    addressLine: string;
+    district: string;
+    city: string;
+    province: string;
+    postalCode: string;
+    isPrimary: boolean;
+}
+
+interface PayloadCreateAddressList {
+  addresses: PayloadCreateAddress[];
+}
 
 const ProfilePage = () => {
     const [showEditForm, setShowEditForm] = useState(false);
+    const [showAddressForm, setShowAddressForm] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const session = useSession();
     const router = useRouter();
     const userId = session?.data?.user.id;
     const { data: user, mutate: getUser } = useGetUser(userId!);
     const { mutate: updateUser } = useUpdateUser(userId!);
     const { mutate: forgotPassword } = useForgotPassword();
+    const { mutate: uploadProfilePic } = useUploadProfilePic(userId!);
+    const { mutate: createAddress } = useCreateAddress(userId!)
     const defaultProfileImgUrl = "/logo.svg";
 
     useEffect(() => {
@@ -40,6 +63,53 @@ const ProfilePage = () => {
         updateUser(values);
     };
 
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("profilePic", file); 
+
+        uploadProfilePic(formData);
+    };
+
+    const handleOpenAddressForm = () => {
+        setShowAddressForm(true);
+    };
+
+    const handleCloseAddressForm = () => {
+        setShowAddressForm(false);
+    };
+
+    const handleSaveAddresses = (values: { addresses: Address[] }) => {
+        
+    };
+
+    const initialValues = {
+        addresses: [
+            {
+            addressName: '',
+            addressLine: '',
+            district: '',
+            city: '',
+            province: '',
+            postalCode: '',
+            isPrimary: false,
+            }
+        ]
+    };
+
+
+    const handleSubmit = (values: PayloadCreateAddressList) => {
+        console.log("sending data address", values);
+        values.addresses.forEach(address => createAddress(address));
+        setShowAddressForm(false);
+    };
+
     if (session.status === "loading") return <div>Loading...</div>;
     if (!user) return <div>User not found</div>;
 
@@ -54,6 +124,21 @@ const ProfilePage = () => {
                     initialPhoneNumber={user.phoneNumber}
                     onSave={handleSave}
                 />
+            )}
+
+            {showAddressForm && (
+                <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+                <Form>
+                    <AddressesForm name="addresses" onClose={() => setShowAddressForm(false)} />
+
+                    <button
+                    type="submit"
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                    Submit
+                    </button>
+                </Form>
+                </Formik>
             )}
 
             <div className="min-h-screen flex bg-secondary text-gray-800 overflow-hidden">
@@ -80,12 +165,25 @@ const ProfilePage = () => {
                                     A profile picture helps personalise your account
                                 </span>
                             </div>
-                            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+
+                            {/* Profile picture with edit */}
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 group cursor-pointer"
+                                onClick={triggerFileInput}>
                                 <img
                                     src={user.profilePic || defaultProfileImgUrl}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
                                 />
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleProfilePicChange}
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-white text-xs">Edit</span>
+                                </div>
                             </div>
                         </div>
 
@@ -148,7 +246,7 @@ const ProfilePage = () => {
                         </div>
 
                         {/* Phone */}
-                        <div className="flex items-center justify-between px-6 py-4">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                             <span className="text-gray-600 font-semibold">Phone</span>
                             <div className="flex items-center">
                                 <span className="text-gray-800 mr-2">{user.phoneNumber}</span>
@@ -180,34 +278,58 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-                    {/* Addresses */}
+                    {/* Addresses section */}
                     <div id="address" className="bg-white rounded-lg shadow-md w-full max-w-4xl mt-8 mb-8">
                         <div className="px-6 py-5 border-b border-gray-200">
-                            <h2 className="font-semibold text-primary text-xl">Addresses</h2>
-                            <p className="text-md text-gray-600 mt-1">
-                                Manage addresses associated with your Bubblify Account.{" "}
-                            </p>
+                        <h2 className="font-semibold text-primary text-xl">Addresses</h2>
+                        <p className="text-md text-gray-600 mt-1">
+                            Manage addresses associated with your Bubblify Account.{" "}
+                        </p>
                         </div>
+
+                        {/* Home */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                            <span className="text-gray-600 font-semibold">Home</span>
-                            <div className="flex items-center">
-                                <span className="text-gray-800 mr-2">Not set</span>
-                                {arrowRightIcon}
-                            </div>
+                        <span className="text-gray-600 font-semibold">Home</span>
+                        <div
+                            className="flex items-center cursor-pointer"
+                            onClick={handleOpenAddressForm}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === "Enter" && handleOpenAddressForm()}
+                        >
+                            <span className="text-gray-800 mr-2">Not set</span>
+                            {arrowRightIcon}
                         </div>
+                        </div>
+
+                        {/* Work */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                            <span className="text-gray-600 font-semibold">Work</span>
-                            <div className="flex items-center">
-                                <span className="text-gray-800 mr-2">Not set</span>
-                                {arrowRightIcon}
-                            </div>
+                        <span className="text-gray-600 font-semibold">Work</span>
+                        <div
+                            className="flex items-center cursor-pointer"
+                            onClick={handleOpenAddressForm}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === "Enter" && handleOpenAddressForm()}
+                        >
+                            <span className="text-gray-800 mr-2">Not set</span>
+                            {arrowRightIcon}
                         </div>
+                        </div>
+
+                        {/* Other */}
                         <div className="flex items-center justify-between px-6 py-4">
-                            <span className="text-gray-600 font-semibold">Other</span>
-                            <div className="flex items-center">
-                                <span className="text-gray-800 mr-2">Other addresses that you added</span>
-                                {arrowRightIcon}
-                            </div>
+                        <span className="text-gray-600 font-semibold">Other</span>
+                        <div
+                            className="flex items-center cursor-pointer"
+                            onClick={handleOpenAddressForm}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === "Enter" && handleOpenAddressForm()}
+                        >
+                            <span className="text-gray-800 mr-2">Other addresses that you added</span>
+                            {arrowRightIcon}
+                        </div>
                         </div>
                     </div>
                 </div>
