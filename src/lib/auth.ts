@@ -37,18 +37,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/error",
   },
   callbacks: {
-    async signIn({ account, profile, user }) {
+    async signIn({ account, profile }) {
       if (account?.provider === "google") {
         try {
-          const response = await axiosInstance.post("/auth/google-login", {
+          const response = await axiosInstance.post("/auth/google", {
             token: account.access_token,
+            tokenId: account.id_token,
           });
           if (response.data) {
             profile!.backendData = response.data;
             return true;
           }
         } catch (error) {
-          return false;
+          console.error("Google login failed:", error);
         }
       }
       return true;
@@ -66,13 +67,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }: any) {
       if (token) {
         session.accessToken = token.accessToken;
-        if (token.backendData) {
-          session.user = token.backendData;
-        } else {
-          session.user = token.user;
-        }
+        session.user = token.backendData?.user || token.user;
+        session.backendToken = token.backendData?.token;
       }
       return session;
     },
   },
+  debug: true,
 });

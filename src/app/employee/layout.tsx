@@ -9,6 +9,7 @@ import {
 import { EmployeeHeader } from "@/features/employee/components/EmployeeHeader";
 import { EmployeeSidebar } from "@/features/employee/components/EmployeeSidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePathname } from "next/navigation";
 
 import type React from "react";
 import { useEffect, useState } from "react";
@@ -18,8 +19,16 @@ interface WorkerLayoutProps {
 }
 
 export default function EmployeeLayout({ children }: WorkerLayoutProps) {
+  const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const pathsWithoutBottomNav = [
+    "/employee/order-detail",
+    "/employee/profile/edit",
+    // tambahkan path lain sesuai kebutuhan
+  ];
+  const shouldShowBottomNav = !pathsWithoutBottomNav.includes(pathname);
 
   useEffect(() => {
     if (isMobile) {
@@ -34,15 +43,15 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
     <BreadcrumbProvider>
       {isMobile ? (
         // Mobile layout - sekarang sudah ada BreadcrumbProvider
-        <main className="min-h-screen bg-[#fafafa] pb-20">
+        <main
+          className={`min-h-screen bg-[#fafafa] ${shouldShowBottomNav ? "pb-20" : "pb-0"}`}
+        >
           <div className="flex-1">
-            {/* Opsional: Tambahkan header mobile dengan breadcrumb */}
-            {/* <MobileHeaderWithBreadcrumb /> */}
             <div className="mx-auto max-w-(--breakpoint-xl) bg-[#fafafa]">
               {children}
             </div>
           </div>
-          <BottomNav />
+          {shouldShowBottomNav && <BottomNav />}
         </main>
       ) : (
         // Desktop layout
@@ -66,6 +75,5 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
 
 function EmployeeHeaderWithBreadcrumb() {
   const { breadcrumbs } = useBreadcrumb();
-  console.log("Breadcrumbs:", breadcrumbs);
   return <EmployeeHeader breadcrumbs={breadcrumbs} />;
 }
