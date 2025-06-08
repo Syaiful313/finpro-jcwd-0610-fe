@@ -89,14 +89,35 @@ export const Navbar = () => {
                                 </ul>
                             </div>
                             {!!session.data?.user ? (
-                                <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                                <div className="flex items-center space-x-4">
+                                    {/* User Picture */}
+                                    {session.data.user.profilePic ? (
+                                    <Link href='/user/profile'>
+                                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                                    <Image
+                                        src={session.data.user.profilePic || '/logo.svg'}
+                                        alt="User Profile Picture"
+                                        width={40}
+                                        height={40}
+                                        className="object-cover"
+                                    />
+                                    </div>
+                                    </Link>
+                                    ) : (
+                                    // Optional fallback avatar if no profile picture
+                                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                                        {session.data.user.firstName?.[0] || 'U'}
+                                    </div>
+                                    )}
+
+                                    {/* Logout Button */}
                                     <Button
-                                        onClick={() => signOut({ callbackUrl: '/' })}
-                                        size="sm"
-                                        className={cn(isScrolled && 'lg:hidden', 'rounded-full', 'hover:cursor-pointer')}
-                                        variant="outline"
+                                    onClick={() => signOut({ callbackUrl: '/' })}
+                                    size="sm"
+                                    className={cn(isScrolled && 'lg:hidden', 'rounded-full', 'hover:cursor-pointer')}
+                                    variant="outline"
                                     >
-                                        <span>Logout</span>
+                                    Logout
                                     </Button>
                                 </div>
                             ) : (
