@@ -5,9 +5,13 @@ import { redirect } from "next/navigation";
 const Employee = async () => {
   const session = await auth();
 
-  console.log("Session:", session);
   if (!session) return redirect("/login");
-  if (session?.user.role !== "WORKER" && session?.user.role !== "DRIVER")
+  if (
+    session?.user.role !== "WORKER" &&
+    session?.user.role !== "DRIVER" &&
+    session?.user.role !== "ADMIN" &&
+    session?.user.role !== "OUTLET_ADMIN"
+  )
     redirect("/");
 
   return (

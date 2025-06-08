@@ -82,9 +82,9 @@ const getNavDataByRole = (role: Role) => {
       ...baseData,
       navMain: [
         {
-          title: "Home",
+          title: "Dashboard",
           url: "/employee",
-          icon: HomeIcon,
+          icon: LayoutDashboardIcon,
         },
         {
           title: "Order List",
@@ -187,7 +187,9 @@ export function EmployeeSidebar({ ...props }: EmployeeSidebarProps) {
             </div>
             <div className="text-muted-foreground text-xs">
               {role === "DRIVER" ? "Driver ID" : "Worker ID"}:{" "}
-              {role === "DRIVER" ? "DRV001" : "WKR001"}
+              {role === "DRIVER"
+                ? `DRV${user?.id.toString().padStart(3, "0")}`
+                : `WKR${user?.id.toString().padStart(3, "0")}`}
             </div>
           </div>
           <Button
