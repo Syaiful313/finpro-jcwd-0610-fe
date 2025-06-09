@@ -1,3 +1,5 @@
+import { Address } from "./address";
+
 export interface User {
   id: number;
   firstName: string;
@@ -18,6 +20,7 @@ export interface User {
     npwp: string;
     createdAt: string;
   } | null;
+  addresses?: Address[];
 }
 
 export enum Role {
