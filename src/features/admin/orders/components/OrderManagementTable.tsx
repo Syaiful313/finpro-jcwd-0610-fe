@@ -19,8 +19,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useGetEmployees from "@/hooks/api/employee/useGetEmployees";
-import useGetOrders, { OrderSummary } from "@/hooks/api/order/useGetOrders";
+import useGetOrders from "@/hooks/api/order/useGetOrders";
 import useGetOutlets from "@/hooks/api/outlet/useGetOutlets";
+import { OrderSummary } from "@/types/order-management";
 import {
   Activity,
   ChevronDownIcon,

@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 interface Employee {
   id: number;
   npwp: string;
-  role: string; // Role from User table (OUTLET_ADMIN, WORKER, DRIVER)
+  role: string;
   user: {
     id: number;
     firstName: string;
@@ -20,8 +20,8 @@ interface Employee {
 }
 
 interface GetEmployeesQueries extends PaginationQueries {
-  outletId?: string; // Only for Admin - filter by outlet
-  all?: boolean; // Get all without pagination
+  outletId?: string;
+  all?: boolean;
 }
 
 interface UseGetEmployeesOptions {
@@ -67,11 +67,11 @@ const useGetEmployees = (
     },
     enabled: options?.enabled !== false,
     refetchInterval: options?.refetchInterval,
-    staleTime: options?.staleTime || 10 * 60 * 1000, // 10 minutes for employee data
+    staleTime: options?.staleTime || 10 * 60 * 1000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };
 
 export default useGetEmployees;
-export type { GetEmployeesQueries, UseGetEmployeesOptions, Employee };
+export type { Employee, GetEmployeesQueries, UseGetEmployeesOptions };
