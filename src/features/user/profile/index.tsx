@@ -11,9 +11,10 @@ import useUpdateUser from "@/hooks/api/user/useUpdateUser";
 import useForgotPassword from "@/hooks/api/auth/useForgotPassword";
 import useUploadProfilePic from "@/hooks/api/user/useUploadProfilePic";
 import { Address } from "@/types/address";
-import { AddressesForm } from "./components/AddressForm";
+import { AddressesForm } from "./components/AddressForm"; // Assuming this is your AddressesForm
 import { Form, Formik } from "formik";
 import useCreateAddress from "@/hooks/api/user/useCreateAddress";
+import { motion } from 'framer-motion'; // Import motion
 
 interface PayloadCreateAddress {
     addressName: string;
@@ -22,6 +23,8 @@ interface PayloadCreateAddress {
     city: string;
     province: string;
     postalCode: string;
+    latitude: number;
+    longitude: number;
     isPrimary: boolean;
 }
 
@@ -72,7 +75,7 @@ const ProfilePage = () => {
         if (!file) return;
 
         const formData = new FormData();
-        formData.append("profilePic", file); 
+        formData.append("profilePic", file);
 
         uploadProfilePic(formData);
     };
@@ -86,7 +89,7 @@ const ProfilePage = () => {
     };
 
     const handleSaveAddresses = (values: { addresses: Address[] }) => {
-        
+        // This function doesn't seem to be used, handleSubmit is the one that calls createAddress
     };
 
     const initialValues = {
@@ -98,6 +101,8 @@ const ProfilePage = () => {
             city: '',
             province: '',
             postalCode: '',
+            latitude: -7.797068,
+            longitude: 110.370529,
             isPrimary: false,
             }
         ]
@@ -127,18 +132,38 @@ const ProfilePage = () => {
             )}
 
             {showAddressForm && (
-                <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-                <Form>
-                    <AddressesForm name="addresses" onClose={() => setShowAddressForm(false)} />
-
-                    <button
-                    type="submit"
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                <motion.section
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="fixed inset-0 bg-opacity-100 flex items-center justify-center z-50 p-4 font-sans"
+                >
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 40 }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                        className="bg-white rounded-xl shadow-lg p-8 max-w-4xl w-full overflow-y-auto max-h-[90vh]"
                     >
-                    Submit
-                    </button>
-                </Form>
-                </Formik>
+                        <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+                            {() => (
+                                <Form>
+                                    <AddressesForm name="addresses" onClose={() => setShowAddressForm(false)} />
+
+                                    <div className="flex justify-end mt-8">
+                                        <button
+                                            type="submit"
+                                            className="px-6 py-2 bg-primary text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </Form>
+                            )}
+                        </Formik>
+                    </motion.div>
+                </motion.section>
             )}
 
             <div className="min-h-screen flex bg-secondary text-gray-800 overflow-hidden">
@@ -280,58 +305,56 @@ const ProfilePage = () => {
 
                     {/* Addresses section */}
                     <div id="address" className="bg-white rounded-lg shadow-md w-full max-w-4xl mt-8 mb-8">
-                        <div className="px-6 py-5 border-b border-gray-200">
+                    <div className="px-6 py-5 border-b border-gray-200">
                         <h2 className="font-semibold text-primary text-xl">Addresses</h2>
                         <p className="text-md text-gray-600 mt-1">
-                            Manage addresses associated with your Bubblify Account.{" "}
+                        Manage addresses associated with your Bubblify Account.
                         </p>
-                        </div>
+                    </div>
 
-                        {/* Home */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                        <span className="text-gray-600 font-semibold">Home</span>
-                        <div
+                    {["Home", "Work"].map((type) => {
+                        const address = user.addresses?.find((addr) => addr.addressName === type);
+                        return (
+                        <div key={type} className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                            <span className="text-gray-600 font-semibold">{type}</span>
+                            <div
                             className="flex items-center cursor-pointer"
                             onClick={handleOpenAddressForm}
                             role="button"
                             tabIndex={0}
                             onKeyDown={(e) => e.key === "Enter" && handleOpenAddressForm()}
-                        >
-                            <span className="text-gray-800 mr-2">Not set</span>
+                            >
+                            <span className="text-gray-800 mr-2">
+                                {address ? `${address.addressLine}, ${address.city}` : "Not set"}
+                            </span>
                             {arrowRightIcon}
+                            </div>
                         </div>
-                        </div>
+                        );
+                    })}
 
-                        {/* Work */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                        <span className="text-gray-600 font-semibold">Work</span>
-                        <div
-                            className="flex items-center cursor-pointer"
-                            onClick={handleOpenAddressForm}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => e.key === "Enter" && handleOpenAddressForm()}
-                        >
-                            <span className="text-gray-800 mr-2">Not set</span>
-                            {arrowRightIcon}
-                        </div>
-                        </div>
-
-                        {/* Other */}
-                        <div className="flex items-center justify-between px-6 py-4">
+                    {/* Other */}
+                    <div className="flex items-center justify-between px-6 py-4">
                         <span className="text-gray-600 font-semibold">Other</span>
                         <div
-                            className="flex items-center cursor-pointer"
-                            onClick={handleOpenAddressForm}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => e.key === "Enter" && handleOpenAddressForm()}
+                        className="flex items-center cursor-pointer"
+                        onClick={handleOpenAddressForm}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === "Enter" && handleOpenAddressForm()}
                         >
-                            <span className="text-gray-800 mr-2">Other addresses that you added</span>
-                            {arrowRightIcon}
-                        </div>
+                        <span className="text-gray-800 mr-2">
+                        {(user.addresses ?? []).filter(
+                            (addr) => addr.addressName !== "Home" && addr.addressName !== "Work"
+                        ).length > 0
+                            ? "Other addresses that you added"
+                            : "Not set"}
+                        </span>
+                        {arrowRightIcon}
                         </div>
                     </div>
+                    </div>
+
                 </div>
             </div>
         </>
