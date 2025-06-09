@@ -1,0 +1,902 @@
+"use client";
+
+import PaginationSection from "@/components/PaginationSection";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import useGetEmployees from "@/hooks/api/employee/useGetEmployees";
+import useGetOrders from "@/hooks/api/order/useGetOrders";
+import useGetOutlets from "@/hooks/api/outlet/useGetOutlets";
+import { OrderSummary } from "@/types/order-management";
+import {
+  Activity,
+  ChevronDownIcon,
+  Clock,
+  Eye,
+  FilterIcon,
+  Loader2,
+  MapPin,
+  Package,
+  Search,
+  Timer,
+  User,
+  UserCheck,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryStates,
+} from "nuqs";
+import { useEffect, useState } from "react";
+
+const PAGE_SIZE = 10;
+const DEBOUNCE_DELAY = 300;
+
+const getCellClass = (columnId: string) => {
+  const baseClass = "py-2 px-2 sm:py-3 sm:px-4";
+  const styles: Record<string, string> = {
+    orderNumber:
+      "min-w-[120px] sm:min-w-[150px] text-xs sm:text-sm font-medium",
+    customer:
+      "min-w-[150px] sm:min-w-[200px] text-xs sm:text-sm hidden md:table-cell",
+    outlet:
+      "min-w-[120px] sm:min-w-[150px] text-xs sm:text-sm hidden lg:table-cell",
+    status: "w-24 sm:w-32 text-center",
+    total: "w-20 sm:w-28 text-center text-xs sm:text-sm",
+    tracking:
+      "w-32 sm:w-40 text-center text-xs sm:text-sm hidden xl:table-cell",
+    date: "w-24 sm:w-32 text-center text-xs sm:text-sm hidden sm:table-cell",
+    actions: "w-16 sm:w-20 text-center",
+  };
+  return `${baseClass} ${styles[columnId] || "text-xs sm:text-sm"}`;
+};
+
+const getStatusColor = (status: string) => {
+  const statusColors: Record<string, string> = {
+    WAITING_FOR_PICKUP: "border-gray-200 bg-gray-50 text-gray-700",
+    DRIVER_ON_THE_WAY_TO_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700",
+    ARRIVED_AT_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700",
+    DRIVER_ON_THE_WAY_TO_OUTLET: "border-blue-200 bg-blue-50 text-blue-700",
+    ARRIVED_AT_OUTLET: "border-orange-200 bg-orange-50 text-orange-700",
+    BEING_WASHED: "border-yellow-200 bg-yellow-50 text-yellow-700",
+    BEING_IRONED: "border-yellow-200 bg-yellow-50 text-yellow-700",
+    BEING_PACKED: "border-yellow-200 bg-yellow-50 text-yellow-700",
+    WAITING_PAYMENT: "border-red-200 bg-red-50 text-red-700",
+    READY_FOR_DELIVERY: "border-green-200 bg-green-50 text-green-700",
+    BEING_DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700",
+    DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700",
+    COMPLETED: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    IN_RESOLUTION: "border-purple-200 bg-purple-50 text-purple-700",
+  };
+  return statusColors[status] || "border-gray-200 bg-gray-50 text-gray-700";
+};
+
+const getStatusText = (status: string) => {
+  const statusTexts: Record<string, string> = {
+    WAITING_FOR_PICKUP: "Menunggu Pickup",
+    DRIVER_ON_THE_WAY_TO_CUSTOMER: "Driver Menuju Customer",
+    ARRIVED_AT_CUSTOMER: "Driver Sampai",
+    DRIVER_ON_THE_WAY_TO_OUTLET: "Menuju Outlet",
+    ARRIVED_AT_OUTLET: "Sampai Outlet",
+    BEING_WASHED: "Sedang Dicuci",
+    BEING_IRONED: "Sedang Disetrika",
+    BEING_PACKED: "Sedang Dikemas",
+    WAITING_PAYMENT: "Menunggu Pembayaran",
+    READY_FOR_DELIVERY: "Siap Diantar",
+    BEING_DELIVERED_TO_CUSTOMER: "Sedang Diantar",
+    DELIVERED_TO_CUSTOMER: "Terkirim",
+    COMPLETED: "Selesai",
+    IN_RESOLUTION: "Dalam Penyelesaian",
+  };
+  return statusTexts[status] || status;
+};
+
+const StatusBadge = ({ status }: { status: string }) => (
+  <Badge
+    variant="outline"
+    className={`px-1.5 py-0.5 text-xs font-medium sm:px-2 sm:py-1 ${getStatusColor(status)}`}
+  >
+    {getStatusText(status)}
+  </Badge>
+);
+
+const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
+  <div className="flex flex-col">
+    <div className="flex items-center text-xs text-gray-900">
+      <User className="mr-1 h-3 w-3" />
+      <span className="truncate font-medium">{name}</span>
+    </div>
+    <div className="truncate text-xs text-gray-500">{email}</div>
+  </div>
+);
+
+const OutletInfo = ({ outletName }: { outletName: string }) => (
+  <div className="flex flex-col">
+    <div className="flex items-center text-xs text-gray-900">
+      <MapPin className="mr-1 h-3 w-3" />
+      <span className="truncate font-medium">{outletName}</span>
+    </div>
+  </div>
+);
+
+const TrackingInfo = ({
+  tracking,
+  orderStatus,
+}: {
+  tracking: OrderSummary["tracking"];
+  orderStatus: string;
+}) => {
+  const { currentWorker, pickup, delivery, processHistory } = tracking;
+
+  if (currentWorker) {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center text-xs text-blue-600">
+          <Package className="mr-1 h-3 w-3" />
+          <span className="truncate font-medium">{currentWorker.name}</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs text-gray-500">
+          <Activity className="h-2 w-2" />
+          <span>{currentWorker.station}</span>
+        </div>
+        {currentWorker.hasBypass && (
+          <div className="text-xs font-medium text-orange-600">
+            ⚠ Bypass Request
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (pickup && orderStatus.includes("DRIVER")) {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center text-xs text-green-600">
+          <User className="mr-1 h-3 w-3" />
+          <span className="truncate font-medium">{pickup.driver}</span>
+        </div>
+        <div className="text-xs text-gray-500">Pickup Driver</div>
+      </div>
+    );
+  }
+
+  if (delivery && orderStatus.includes("DELIVERY")) {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center text-xs text-green-600">
+          <User className="mr-1 h-3 w-3" />
+          <span className="truncate font-medium">{delivery.driver}</span>
+        </div>
+        <div className="text-xs text-gray-500">Delivery Driver</div>
+      </div>
+    );
+  }
+
+  if (processHistory.length > 0) {
+    const lastProcess = processHistory[processHistory.length - 1];
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center text-xs text-gray-600">
+          <Timer className="mr-1 h-3 w-3" />
+          <span className="truncate font-medium">{lastProcess.worker}</span>
+        </div>
+        <div className="text-xs text-gray-500">
+          {lastProcess.station} ({lastProcess.duration})
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-xs text-gray-500">
+      {orderStatus.includes("DRIVER") ? "Awaiting Assignment" : "No Worker"}
+    </div>
+  );
+};
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const OrderCard = ({
+  order,
+  onViewDetail,
+}: {
+  order: OrderSummary;
+  onViewDetail: (order: OrderSummary) => void;
+}) => (
+  <div className="rounded-lg border bg-white p-2.5 shadow-sm">
+    <div className="mb-2 flex items-start justify-between">
+      <div className="min-w-0 flex-1">
+        <div className="mb-1 flex items-center gap-2">
+          <StatusBadge status={order.orderStatus} />
+        </div>
+        <h3 className="truncate pr-1 text-sm font-medium text-gray-900">
+          {order.orderNumber}
+        </h3>
+      </div>
+      <div className="flex flex-shrink-0">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onViewDetail(order)}
+          className="h-7 w-7 p-0"
+          title="Lihat Detail"
+        >
+          <Eye className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
+
+    <div className="space-y-1.5 text-xs text-gray-600">
+      <div>
+        <span className="font-medium text-gray-800">Customer:</span>
+        <div className="mt-0.5 leading-relaxed text-gray-600">
+          {order.customer.name} - {order.customer.email}
+        </div>
+      </div>
+
+      <div>
+        <span className="font-medium text-gray-800">Outlet:</span>
+        <div className="mt-0.5 leading-relaxed text-gray-600">
+          {order.outlet.outletName}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center">
+          <Clock className="mr-1 h-3 w-3 flex-shrink-0" />
+          <span className="truncate text-xs">
+            {formatDate(order.createdAt)}
+          </span>
+        </div>
+        <div className="flex-shrink-0 text-right">
+          <span className="font-medium text-gray-800">
+            {formatCurrency(order.totalPrice)}
+          </span>
+        </div>
+      </div>
+
+      {/* Enhanced tracking info in mobile card */}
+      {order.tracking.currentWorker && (
+        <div className="flex items-center gap-2 pt-1">
+          <div className="flex flex-1 items-center text-blue-600">
+            <Package className="mr-1 h-3 w-3" />
+            <span className="truncate">
+              {order.tracking.currentWorker.name}
+            </span>
+          </div>
+          <div className="text-xs text-gray-500">
+            {order.tracking.currentWorker.station}
+          </div>
+        </div>
+      )}
+
+      {/* Timeline summary for mobile */}
+      <div className="pt-1">
+        <div className="text-xs text-gray-500">
+          Progress: {order.tracking.processHistory.length} of 3 stations
+          completed
+        </div>
+        {order.tracking.timeline.length > 0 && (
+          <div className="text-xs text-blue-600">
+            Last:{" "}
+            {order.tracking.timeline[order.tracking.timeline.length - 1]?.event}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+const OrderRow = ({
+  order,
+  onViewDetail,
+}: {
+  order: OrderSummary;
+  onViewDetail: (order: OrderSummary) => void;
+}) => (
+  <TableRow className="border-b hover:bg-gray-50">
+    <TableCell className={getCellClass("orderNumber")}>
+      <div className="flex flex-col">
+        <div className="font-medium break-words text-gray-900">
+          {order.orderNumber}
+        </div>
+        <div className="mt-1 text-xs break-words text-gray-500 md:hidden">
+          {order.customer.name}
+        </div>
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("customer")}>
+      <CustomerInfo name={order.customer.name} email={order.customer.email} />
+    </TableCell>
+
+    <TableCell className={getCellClass("outlet")}>
+      <OutletInfo outletName={order.outlet.outletName} />
+    </TableCell>
+
+    <TableCell className={getCellClass("status")}>
+      <div className="flex justify-center">
+        <StatusBadge status={order.orderStatus} />
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("total")}>
+      <div className="text-center">
+        <span className="text-sm font-medium">
+          {formatCurrency(order.totalPrice)}
+        </span>
+        <div className="text-xs text-gray-500">{order.totalWeight}kg</div>
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("tracking")}>
+      <TrackingInfo tracking={order.tracking} orderStatus={order.orderStatus} />
+    </TableCell>
+
+    <TableCell className={getCellClass("date")}>
+      <div className="text-center">
+        <span className="text-sm">{formatDate(order.createdAt)}</span>
+      </div>
+    </TableCell>
+
+    <TableCell className={getCellClass("actions")}>
+      <div className="flex justify-center">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onViewDetail(order)}
+          className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+          title="Lihat Detail"
+        >
+          <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+        </Button>
+      </div>
+    </TableCell>
+  </TableRow>
+);
+
+export function OrderManagementTable() {
+  const { data: session } = useSession();
+
+  const [filters, setFilters] = useQueryStates({
+    page: parseAsInteger.withDefault(1),
+    search: parseAsString.withDefault(""),
+    status: parseAsString,
+    outletId: parseAsString,
+    employeeId: parseAsString,
+    startDate: parseAsString,
+    endDate: parseAsString,
+    sortBy: parseAsString.withDefault("createdAt"),
+    sortOrder: parseAsStringEnum(["asc", "desc"]).withDefault("desc"),
+  });
+
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const isAdmin = session?.user?.role === "ADMIN";
+  const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
+  const hasAccess = isAdmin || isOutletAdmin;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+
+      if (filters.page !== 1 && filters.search !== debouncedSearch) {
+        setFilters({ page: 1 });
+      }
+    }, DEBOUNCE_DELAY);
+    return () => clearTimeout(timer);
+  }, [filters.search, filters.page, debouncedSearch, setFilters]);
+
+  const {
+    data: ordersData,
+    isLoading,
+    error,
+  } = useGetOrders(
+    {
+      page: filters.page,
+      take: PAGE_SIZE,
+      search: debouncedSearch,
+      status: filters.status ?? undefined,
+      outletId: filters.outletId ?? undefined,
+      employeeId: filters.employeeId ?? undefined,
+      startDate: filters.startDate ?? undefined,
+      endDate: filters.endDate ?? undefined,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
+    },
+    {
+      enabled: !!session && hasAccess,
+    },
+  );
+
+  const { data: outletsData, isLoading: isLoadingOutlets } = useGetOutlets(
+    {
+      all: true,
+    },
+    {
+      enabled: !!session && isAdmin,
+      staleTime: 10 * 60 * 1000,
+    },
+  );
+
+  const { data: employeesData, isLoading: isLoadingEmployees } =
+    useGetEmployees(
+      {
+        all: true,
+        outletId: isAdmin ? (filters.outletId ?? undefined) : undefined,
+      },
+      {
+        enabled: !!session && hasAccess,
+        staleTime: 10 * 60 * 1000,
+      },
+    );
+
+  const updateFilters = (updates: Partial<typeof filters>) => {
+    setFilters(updates);
+  };
+
+  const handleViewDetail = (order: OrderSummary) => {
+    setSelectedOrderId(order.uuid);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedOrderId(null);
+  };
+
+  if (!session) {
+    return (
+      <div className="flex h-64 items-center justify-center px-1">
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2 text-sm sm:text-base">Loading session...</span>
+      </div>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className="flex h-64 items-center justify-center px-1">
+        <div className="text-center">
+          <span className="text-sm text-red-500 sm:text-base">
+            Access Denied
+          </span>
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+            You don't have permission to view this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 px-1 sm:space-y-6 sm:px-4 lg:px-0">
+      <div className="px-1 sm:px-0">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+          Order Management
+        </h1>
+        <p className="text-sm text-gray-600 sm:text-base">
+          {isAdmin
+            ? "Lihat dan kelola semua pesanan dengan tracking lengkap"
+            : "Lihat dan kelola pesanan outlet Anda dengan tracking real-time"}
+        </p>
+      </div>
+
+      {/* Search Section - Separated */}
+      <div className="mx-1 sm:mx-0">
+        <div className="relative w-full">
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Cari berdasarkan nomor order atau customer..."
+            value={filters.search}
+            onChange={(e) => updateFilters({ search: e.target.value })}
+            className="h-10 pl-10 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Filter Section */}
+      <div className="mx-1 flex flex-col gap-3 rounded-lg border p-2 shadow-sm sm:mx-0 sm:gap-4 sm:p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3 lg:items-center">
+          {/* Outlet Filter - Only for Admin */}
+          {isAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="h-9 min-w-0 text-sm sm:h-10 lg:min-w-[140px]"
+                  disabled={isLoadingOutlets}
+                >
+                  <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate text-xs sm:text-sm">
+                    {filters.outletId
+                      ? outletsData?.data?.find(
+                          (outlet) => outlet.id.toString() === filters.outletId,
+                        )?.outletName || "Outlet Dipilih"
+                      : "Semua Outlet"}
+                  </span>
+                  <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="max-h-64 w-56 overflow-y-auto"
+              >
+                <DropdownMenuItem
+                  onClick={() =>
+                    updateFilters({ outletId: undefined, page: 1 })
+                  }
+                >
+                  <MapPin className="mr-2 h-4 w-4" />
+                  Semua Outlet
+                </DropdownMenuItem>
+                {outletsData?.data?.map((outlet) => (
+                  <DropdownMenuItem
+                    key={outlet.id}
+                    onClick={() =>
+                      updateFilters({ outletId: outlet.id.toString(), page: 1 })
+                    }
+                  >
+                    <div className="flex min-w-0 flex-1 items-center justify-between">
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate font-medium">
+                            {outlet.outletName}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className={`px-1 py-0.5 text-xs ${
+                              outlet.isActive
+                                ? "border-green-200 bg-green-50 text-green-700"
+                                : "border-red-200 bg-red-50 text-red-700"
+                            }`}
+                          >
+                            {outlet.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <span className="truncate text-xs text-gray-500">
+                          {outlet.address}
+                        </span>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {/* Status Filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-9 min-w-0 text-sm sm:h-10 lg:min-w-[140px]"
+              >
+                <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate text-xs sm:text-sm">
+                  {filters.status
+                    ? getStatusText(filters.status)
+                    : "Semua Status"}
+                </span>
+                <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-64 w-56 overflow-y-auto"
+            >
+              <DropdownMenuItem
+                onClick={() => updateFilters({ status: undefined })}
+              >
+                Semua Status
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => updateFilters({ status: "WAITING_FOR_PICKUP" })}
+              >
+                Menunggu Pickup
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => updateFilters({ status: "BEING_WASHED" })}
+              >
+                Sedang Dicuci
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => updateFilters({ status: "BEING_IRONED" })}
+              >
+                Sedang Disetrika
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => updateFilters({ status: "BEING_PACKED" })}
+              >
+                Sedang Dikemas
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => updateFilters({ status: "WAITING_PAYMENT" })}
+              >
+                Menunggu Pembayaran
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => updateFilters({ status: "COMPLETED" })}
+              >
+                Selesai
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Employee Filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-9 min-w-0 text-sm sm:h-10 lg:min-w-[140px]"
+                disabled={isLoadingEmployees}
+              >
+                <UserCheck className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate text-xs sm:text-sm">
+                  {filters.employeeId
+                    ? employeesData?.data?.find(
+                        (emp) => emp.id.toString() === filters.employeeId,
+                      )?.user?.firstName || "Karyawan Dipilih"
+                    : "Semua Karyawan"}
+                </span>
+                <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-64 w-56 overflow-y-auto"
+            >
+              <DropdownMenuItem
+                onClick={() =>
+                  updateFilters({ employeeId: undefined, page: 1 })
+                }
+              >
+                <UserCheck className="mr-2 h-4 w-4" />
+                Semua Karyawan
+              </DropdownMenuItem>
+              {employeesData?.data?.map((employee) => (
+                <DropdownMenuItem
+                  key={employee.id}
+                  onClick={() =>
+                    updateFilters({
+                      employeeId: employee.id.toString(),
+                      page: 1,
+                    })
+                  }
+                >
+                  <div className="flex min-w-0 flex-1 items-center justify-between">
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate font-medium">
+                        {employee.user?.firstName} {employee.user?.lastName}
+                      </span>
+                      <span className="truncate text-xs text-gray-500">
+                        {employee.role} - {employee.outlet?.outletName}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Date Range Filters */}
+          <div className="flex gap-2">
+            <Input
+              type="date"
+              placeholder="Tanggal Mulai"
+              value={filters.startDate || ""}
+              onChange={(e) =>
+                updateFilters({
+                  startDate: e.target.value || undefined,
+                  page: 1,
+                })
+              }
+              className="h-9 w-32 text-xs sm:h-10 sm:w-36 sm:text-sm"
+            />
+            <Input
+              type="date"
+              placeholder="Tanggal Akhir"
+              value={filters.endDate || ""}
+              onChange={(e) =>
+                updateFilters({ endDate: e.target.value || undefined, page: 1 })
+              }
+              className="h-9 w-32 text-xs sm:h-10 sm:w-36 sm:text-sm"
+            />
+          </div>
+
+          {/* Reset Button */}
+          <Button
+            variant="outline"
+            onClick={() =>
+              updateFilters({
+                search: "",
+                status: undefined,
+                outletId: undefined,
+                employeeId: undefined,
+                startDate: undefined,
+                endDate: undefined,
+                page: 1,
+              })
+            }
+            disabled={
+              !filters.search &&
+              !filters.status &&
+              !filters.outletId &&
+              !filters.employeeId &&
+              !filters.startDate &&
+              !filters.endDate
+            }
+            className="h-9 text-sm sm:h-10"
+          >
+            Reset
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="block px-1 sm:hidden sm:px-0">
+        {isLoading ? (
+          <div className="flex h-32 items-center justify-center">
+            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+            <span className="text-sm">Memuat data pesanan...</span>
+          </div>
+        ) : error ? (
+          <div className="p-4 text-center text-red-500">
+            <div className="text-sm">Kesalahan memuat data pesanan</div>
+            <div className="mt-1 text-xs text-red-400">
+              {error.message || "Kesalahan tidak diketahui"}
+            </div>
+          </div>
+        ) : ordersData?.data?.length ? (
+          <div className="space-y-2">
+            {ordersData.data.map((order) => (
+              <OrderCard
+                key={order.uuid}
+                order={order}
+                onViewDetail={handleViewDetail}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="p-3 text-center">
+            <span className="mb-3 block text-sm text-gray-500">
+              {filters.search
+                ? `Tidak ada pesanan ditemukan untuk "${filters.search}"`
+                : "Belum ada pesanan yang tersedia"}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="mx-1 hidden rounded-lg border shadow-sm sm:mx-0 sm:block">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b">
+                <TableHead className="min-w-[120px] text-xs sm:min-w-[150px] sm:text-sm">
+                  No. Order
+                </TableHead>
+                <TableHead className="hidden min-w-[150px] text-xs sm:min-w-[200px] sm:text-sm md:table-cell">
+                  Customer
+                </TableHead>
+                <TableHead className="hidden min-w-[120px] text-xs sm:min-w-[150px] sm:text-sm lg:table-cell">
+                  Outlet
+                </TableHead>
+                <TableHead className="w-24 text-center text-xs sm:w-32 sm:text-sm">
+                  Status
+                </TableHead>
+                <TableHead className="w-20 text-center text-xs sm:w-28 sm:text-sm">
+                  Total
+                </TableHead>
+                <TableHead className="hidden w-32 text-center text-xs sm:w-40 sm:text-sm xl:table-cell">
+                  Worker
+                </TableHead>
+                <TableHead className="hidden w-24 text-center text-xs sm:table-cell sm:w-32 sm:text-sm">
+                  Tanggal
+                </TableHead>
+                <TableHead className="w-16 text-center text-xs sm:w-20 sm:text-sm">
+                  Aksi
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-32 text-center">
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                      <span className="text-sm">Memuat data pesanan...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="h-32 text-center text-red-500"
+                  >
+                    <div>
+                      <div className="text-sm">
+                        Kesalahan memuat data pesanan
+                      </div>
+                      <div className="mt-1 text-xs text-red-400">
+                        {error.message || "Kesalahan tidak diketahui"}
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : ordersData?.data?.length ? (
+                ordersData.data.map((order) => (
+                  <OrderRow
+                    key={order.uuid}
+                    order={order}
+                    onViewDetail={handleViewDetail}
+                  />
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-32 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <span className="text-sm text-gray-500">
+                        {filters.search
+                          ? `Tidak ada pesanan ditemukan untuk "${filters.search}"`
+                          : "Belum ada pesanan yang tersedia"}
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      {ordersData?.meta && (
+        <div className="mx-1 rounded-b-lg border-t bg-white px-2 py-2 sm:mx-0 sm:px-4 sm:py-3">
+          <PaginationSection
+            page={ordersData.meta.page}
+            take={ordersData.meta.take}
+            total={ordersData.meta.total}
+            hasNext={ordersData.meta.hasNext}
+            hasPrevious={ordersData.meta.hasPrevious}
+            onChangePage={(newPage) => updateFilters({ page: newPage })}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
