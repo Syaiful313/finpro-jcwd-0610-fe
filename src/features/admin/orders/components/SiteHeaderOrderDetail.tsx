@@ -7,9 +7,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { OrderDetail } from "@/hooks/api/order/useGetOrderDetail";
 import Link from "next/link";
 
-export function SiteHeaderOrders() {
+interface SiteHeaderOrderDetailProps {
+  orderDetail?: OrderDetail;
+}
+
+export function SiteHeaderOrderDetail({
+  orderDetail,
+}: SiteHeaderOrderDetailProps) {
   return (
     <header className="flex h-12 shrink-0 items-center gap-1 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sm:gap-2">
       <div className="flex w-full items-center gap-1 px-2 sm:px-4 lg:gap-2 lg:px-6">
@@ -29,9 +36,18 @@ export function SiteHeaderOrders() {
               </Link>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Link
+                href="/admin/orders"
+                className="text-muted-foreground hover:text-primary text-sm font-medium sm:text-base"
+              >
+                Orders
+              </Link>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
             <BreadcrumbItem className="min-w-0">
               <BreadcrumbPage className="text-primary truncate text-sm font-medium sm:text-base">
-                Orders
+                {orderDetail?.orderNumber || "Order Detail"}
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
