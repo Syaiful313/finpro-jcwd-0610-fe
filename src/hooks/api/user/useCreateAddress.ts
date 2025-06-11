@@ -11,6 +11,8 @@ interface PayloadCreateAddress {
     city: string;
     province: string;
     postalCode: string;
+    latitude: number;
+    longitude: number;
     isPrimary: boolean;
 }
 
