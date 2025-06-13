@@ -1,5 +1,6 @@
 "use client";
 
+import PaginationSection from "@/components/PaginationSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,11 +19,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useClaimDelivery from "@/hooks/api/employee/driver/useClaimDelivery";
+import useClaimPickUp from "@/hooks/api/employee/driver/useClaimPickUp";
 import useGetAvailableRequest from "@/hooks/api/employee/driver/useGetAvailableRequest";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import {
-  ChevronLeft,
-  ChevronRight,
   Clock,
   Loader2,
   MapIcon,
@@ -35,15 +36,13 @@ import {
   SortDesc,
   Truck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import MapModal from "./MapModal";
+import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryState } from "nuqs";
-import { useDebounceValue } from "usehooks-ts";
-import PaginationSection from "@/components/PaginationSection";
-import useClaimPickUp from "@/hooks/api/employee/driver/useClaimPickUp";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useDebounceValue } from "usehooks-ts";
 import ErrorState from "./ErrorState";
-import useClaimDelivery from "@/hooks/api/employee/driver/useClaimDelivery";
+import MapModal from "./MapModal";
 
 export default function RequestList() {
   const [search, setSearch] = useQueryState("search", { defaultValue: "" });
@@ -53,15 +52,12 @@ export default function RequestList() {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [showMap, setShowMap] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
+  const router = useRouter();
 
   const itemsPerPage = 4;
-  const driverBusy = false; // Mock driver status - you might want to fetch this from another API
-  const orderLimit = 5; // Mock order limit - you might want to fetch this from another API
-  const currentOrders = 2; // Mock current orders - you might want to fetch this from another API
 
-  // Build query parameters for the API
   const queryParams = {
-    page: page, // Your API uses 1-based indexing
+    page: page,
     take: itemsPerPage,
     search: debouncedSearch,
     sortBy: "createdAt",
@@ -112,8 +108,11 @@ export default function RequestList() {
     setSelectedRequest(null);
   };
 
-  const handleNavigate = (coordinates: { lat: number; lng: number }) => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${coordinates.lat},${coordinates.lng}`;
+  const handleNavigate = (coordinates: {
+    latitude: number;
+    longitude: number;
+  }) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${coordinates.latitude},${coordinates.longitude}`;
     window.open(url, "_blank");
   };
 
@@ -157,8 +156,8 @@ export default function RequestList() {
             <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <span>
               {request.jobType === "pickup"
-                ? request.order.address_line
-                : request.order.address_line || "Address not provided"}
+                ? request.order.addressLine
+                : request.order.addressLine || "Address not provided"}
             </span>
           </div>
         </div>
@@ -192,13 +191,16 @@ export default function RequestList() {
               "Claim Order"
             )}
           </Button>
-          <Button variant="outline" className="flex-1">
-            View Detail
-          </Button>
+
           <Button
             variant="outline"
             size="icon"
-            onClick={() => handleNavigate({ lat: 0, lng: 0 })}
+            onClick={() =>
+              handleNavigate({
+                latitude: request.order.latitude,
+                longitude: request.order.longitude,
+              })
+            }
           >
             <Navigation className="h-4 w-4" />
           </Button>
@@ -224,140 +226,141 @@ export default function RequestList() {
   );
 
   return (
-    <div className="bg-background min-h-screen">
-      {/* Header */}
-      <div className="bg-background sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h1 className="flex items-center text-2xl font-bold">
-                <Truck className="mr-2 h-8 w-8" /> Request List
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Active Orders: {currentOrders}/{orderLimit} • Status:{" "}
-                {driverBusy ? "Busy" : "Available"}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowMap(!showMap)}
-            >
-              <MapIcon className="mr-2 h-4 w-4" />
-              {showMap ? "Hide Map" : "Show Map"}
-            </Button>
-          </div>
-
-          {/* Filters */}
-          <div className="space-y-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="All">All</TabsTrigger>
-                <TabsTrigger value="Pickup">Pickup</TabsTrigger>
-                <TabsTrigger value="Delivery">Delivery</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="relative flex-1">
-                <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
-                <Input
-                  placeholder="Search by order number or customer name..."
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pl-9"
-                />
+    <div className="p-3 md:p-6">
+      <Card>
+        {/* Header */}
+        <div className="bg-background sticky top-0 z-10">
+          <div className="container mx-auto px-4 py-4">
+            <div className="mb-2 flex items-center justify-between md:mb-4">
+              <div>
+                <h1 className="flex items-center text-2xl font-bold">
+                  <Truck className="mr-2 h-8 w-8" /> Request List
+                </h1>
               </div>
-              <Select value={sortOrder} onValueChange={setSortOrder}>
-                <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="desc">
-                    <div className="flex items-center gap-2">
-                      <SortDesc className="h-4 w-4" />
-                      Newest First
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="asc">
-                    <div className="flex items-center gap-2">
-                      <SortAsc className="h-4 w-4" />
-                      Oldest First
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMap(!showMap)}
+              >
+                <MapIcon className="mr-2 h-4 w-4" />
+                {showMap ? "Hide Map" : "Show Map"}
+              </Button>
+            </div>
+
+            {/* Filters */}
+            <div className="space-y-4">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="All">All</TabsTrigger>
+                  <TabsTrigger value="Pickup">Pickup</TabsTrigger>
+                  <TabsTrigger value="Delivery">Delivery</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="relative flex-1">
+                  <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
+                  <Input
+                    placeholder="Search by order number or customer name..."
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setPage(1);
+                    }}
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={sortOrder} onValueChange={setSortOrder}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desc">
+                      <div className="flex items-center gap-2">
+                        <SortDesc className="h-4 w-4" />
+                        Newest First
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="asc">
+                      <div className="flex items-center gap-2">
+                        <SortAsc className="h-4 w-4" />
+                        Oldest First
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
-        {/* Results Summary */}
-        {!isLoading && !isError && (
-          <div className="mb-6 flex items-center justify-between">
-            <p className="text-muted-foreground text-sm">
-              Showing {filteredRequests.length} of {totalElements} requests
-            </p>
-            {totalPages > 0 && (
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-6">
+          {/* Results Summary */}
+          {!isLoading && !isError && (
+            <div className="mb-6 flex items-center justify-between">
               <p className="text-muted-foreground text-sm">
-                Page {page} of {totalPages}
+                Showing {filteredRequests.length} of {totalElements} requests
               </p>
-            )}
-          </div>
-        )}
+              {totalPages > 0 && (
+                <p className="text-muted-foreground text-sm">
+                  Page {page} of {totalPages}
+                </p>
+              )}
+            </div>
+          )}
 
-        {/* Content */}
-        {isLoading ? (
-          <LoadingState />
-        ) : isError ? (
-          <ErrorState errorMessage={error?.message} onRetry={() => refetch()} />
-        ) : filteredRequests.length > 0 ? (
-          <div className="space-y-4">
-            {filteredRequests.map((request) => (
-              <RequestCard key={request.orderId} request={request} />
-            ))}
-          </div>
-        ) : (
-          <Card className="py-12 text-center">
-            <CardContent>
-              <Package className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-              <h3 className="mb-2 text-lg font-semibold">
-                No requests available
-              </h3>
-              <p className="text-muted-foreground">
-                {search || activeTab !== "All"
-                  ? "Try adjusting your filters to see more results."
-                  : "Check back later for new pickup and delivery requests."}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {(apiResponse?.meta?.total ?? 0) > itemsPerPage && (
-          <div className="mt-8">
-            <PaginationSection
-              page={page}
-              take={itemsPerPage}
-              total={apiResponse?.meta.total || 0}
-              onChangePage={setPage}
-              hasNext={hasNext}
-              hasPrevious={hasPrevious}
+          {/* Content */}
+          {isLoading ? (
+            <LoadingState />
+          ) : isError ? (
+            <ErrorState
+              errorMessage={error?.message}
+              onRetry={() => refetch()}
             />
-          </div>
-        )}
-      </div>
+          ) : filteredRequests.length > 0 ? (
+            <div className="space-y-4">
+              {filteredRequests.map((request) => (
+                <RequestCard key={request.orderId} request={request} />
+              ))}
+            </div>
+          ) : (
+            <Card className="py-12 text-center">
+              <CardContent>
+                <Package className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <h3 className="mb-2 text-lg font-semibold">
+                  No requests available
+                </h3>
+                <p className="text-muted-foreground">
+                  {search || activeTab !== "All"
+                    ? "Try adjusting your filters to see more results."
+                    : "Check back later for new pickup and delivery requests."}
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
-      {/* Map Modal */}
-      <MapModal
-        selectedRequest={selectedRequest}
-        onClose={handleCloseMapModal}
-        onNavigate={handleNavigate}
-      />
+          {(apiResponse?.meta?.total ?? 0) > itemsPerPage && (
+            <div className="mt-8">
+              <PaginationSection
+                page={page}
+                take={itemsPerPage}
+                total={apiResponse?.meta.total || 0}
+                onChangePage={setPage}
+                hasNext={hasNext}
+                hasPrevious={hasPrevious}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Map Modal */}
+        <MapModal
+          selectedRequest={selectedRequest}
+          onClose={handleCloseMapModal}
+          onNavigate={handleNavigate}
+        />
+      </Card>
     </div>
   );
 }

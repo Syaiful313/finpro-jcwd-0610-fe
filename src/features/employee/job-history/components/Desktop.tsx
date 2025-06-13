@@ -1,7 +1,12 @@
 import React from "react";
+import DriverHistoryPage from "./DriverHistoryPage";
 
 const Desktop = () => {
-  return <div>Desktop</div>;
+  return (
+    <div>
+      <DriverHistoryPage />
+    </div>
+  );
 };
 
 export default Desktop;

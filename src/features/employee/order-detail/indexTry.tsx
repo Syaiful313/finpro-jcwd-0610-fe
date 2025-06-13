@@ -57,7 +57,7 @@ const ErrorDisplay = ({
   </div>
 );
 
-const DriverJobDetails = () => {
+const IndexTry = () => {
   const params = useParams();
   const uuid = params?.uuid as string;
 
@@ -90,4 +90,4 @@ const DriverJobDetails = () => {
   return <JobDetails jobData={jobData} />;
 };
 
-export default DriverJobDetails;
+export default IndexTry;

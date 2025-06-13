@@ -15,7 +15,8 @@ import {
   Play,
   Star,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useBreadcrumb } from "../../components/BreadCrumbContext";
 
 interface DesktopLayoutProps {
   jobData: any;
@@ -57,7 +58,15 @@ const jobData = {
 const DesktopLayout: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { setBreadcrumbs } = useBreadcrumb();
 
+  useEffect(() => {
+    setBreadcrumbs([
+      { label: "Dashboard", href: "/employee" },
+      { label: "Orders", href: "/employee/orders" },
+      { label: "Order Detail" },
+    ]);
+  }, [setBreadcrumbs]);
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -128,7 +137,7 @@ const DesktopLayout: React.FC = () => {
               <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-4 dark:bg-gray-700">
                 <Avatar className="h-16 w-16">
                   <AvatarImage
-                    src={jobData.customer.avatar || "/placeholder.svg"}
+                    src={jobData.customer.avatar}
                     alt={jobData.customer.name}
                   />
                   <AvatarFallback className="bg-blue-100 text-lg font-semibold text-blue-600">

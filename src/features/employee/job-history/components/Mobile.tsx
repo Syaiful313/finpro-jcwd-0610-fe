@@ -1,7 +1,12 @@
 import React from "react";
+import DriverHistoryPage from "./DriverHistoryPage";
 
 const Mobile = () => {
-  return <div>Mobile</div>;
+  return (
+    <div>
+      <DriverHistoryPage />
+    </div>
+  );
 };
 
 export default Mobile;

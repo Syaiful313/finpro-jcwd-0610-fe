@@ -1,9 +1,9 @@
-import JobHistoryPage from "@/features/employee/job-history";
+import IndexTry from "@/features/employee/order-detail/indexTry";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import React from "react";
 
-const JobHistory = async () => {
+const page = async () => {
   const session = await auth();
 
   if (!session) return redirect("/login");
@@ -11,9 +11,9 @@ const JobHistory = async () => {
     redirect("/");
   return (
     <div>
-      <JobHistoryPage />
+      <IndexTry />
     </div>
   );
 };
 
-export default JobHistory;
+export default page;

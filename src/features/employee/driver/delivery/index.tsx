@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useBreadcrumb } from "../../components/BreadCrumbContext";
+import DeliveryHistoryPage from "./components/DeliveryHistory";
 
 const DeliveryPage = () => {
   const { setBreadcrumbs } = useBreadcrumb();
@@ -12,7 +13,11 @@ const DeliveryPage = () => {
       { label: "Delivery" },
     ]);
   }, [setBreadcrumbs]);
-  return <div>DeliveryPage</div>;
+  return (
+    <div>
+      <DeliveryHistoryPage />
+    </div>
+  );
 };
 
 export default DeliveryPage;

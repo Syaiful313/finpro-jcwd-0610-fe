@@ -9,11 +9,13 @@ export interface Order {
   outletId: number;
   outlet: Outlet[];
   notificationId?: number;
-  address_line: string;
+  addressLine: string;
   district: string;
   city: string;
   province: string;
   postalCode: string;
+  latitude: string;
+  longitude: string;
   orderNumber: string;
   orderStatus: OrderStatus;
   scheduledPickupTime?: Date;
