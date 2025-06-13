@@ -64,9 +64,9 @@ export function OrderItemsSection({ items }: { items: OrderItem[] }) {
                 <thead>
                   <tr className="text-muted-foreground border-b text-left text-sm font-medium">
                     <th className="pb-2">Item</th>
-                    <th className="pb-2 text-center">Qty</th>
-                    <th className="pb-2 text-right">Price</th>
-                    <th className="pb-2 text-right">Weight</th>
+                    <th className="pb-2 text-center">Jumlah</th>
+                    <th className="pb-2 text-right">Harga</th>
+                    <th className="pb-2 text-right">Berat</th>
                     <th className="pb-2 text-right">Subtotal</th>
                   </tr>
                 </thead>
@@ -110,7 +110,7 @@ export function OrderItemsSection({ items }: { items: OrderItem[] }) {
                   <span>{formatRupiah(tax)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total Weight:</span>
+                  <span className="text-muted-foreground">Total Berat:</span>
                   <span>{totalWeight.toFixed(1)} kg</span>
                 </div>
               </div>

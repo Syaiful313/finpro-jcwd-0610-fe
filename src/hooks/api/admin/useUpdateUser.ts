@@ -18,6 +18,7 @@ interface UpdateUserPayload {
   outletId?: string;
   npwp?: string;
   profile?: File | null;
+  removeProfile?: boolean;
 }
 
 const useUpdateUser = (userId: number) => {
@@ -49,13 +50,20 @@ const useUpdateUser = (userId: number) => {
         updateUserForm.append("isVerified", payload.isVerified.toString());
       }
 
-      if (payload.profile) {
+      if (payload.profile instanceof File) {
         updateUserForm.append("profile", payload.profile);
+      } else if (payload.removeProfile) {
+        updateUserForm.append("removeProfile", "true");
       }
 
       const { data } = await axiosInstance.patch(
         `/admin/users/${userId}`,
         updateUserForm,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
       );
       return data;
     },

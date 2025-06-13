@@ -36,7 +36,16 @@ export const createUserValidationSchema = ({
             "Password harus kombinasi huruf dan angka",
           )
           .required("Password wajib diisi")
-      : Yup.string().optional(),
+      : Yup.string()
+          .optional()
+          .test(
+            "password-strength",
+            "Password harus kombinasi huruf dan angka",
+            function (value) {
+              if (!value || value === "") return true;
+              return /^(?=.*[a-zA-Z])(?=.*\d)/.test(value) && value.length >= 8;
+            },
+          ),
 
     role: Yup.string()
       .oneOf(AVAILABLE_ROLES, "Role tidak valid")
@@ -77,11 +86,13 @@ export const validateProfilePicture = (
   profile: File | null,
   isEditMode: boolean = false,
 ): string | null => {
-  if (isEditMode) return null;
-
   const requiresProfile = ["OUTLET_ADMIN", "WORKER", "DRIVER"].includes(role);
 
-  if (requiresProfile && !profile) {
+  if (isEditMode && !profile) {
+    return null;
+  }
+
+  if (!isEditMode && requiresProfile && !profile) {
     return `Foto profil wajib diupload untuk role ${role}`;
   }
 

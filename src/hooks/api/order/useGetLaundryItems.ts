@@ -11,15 +11,27 @@ interface LaundryItem {
   pricingType: "PER_PIECE" | "PER_KG";
 }
 
+interface LaundryItemResponse {
+  success: boolean;
+  message: string;
+  data: LaundryItem[];
+}
+
 const useGetLaundryItems = () => {
   return useQuery({
     queryKey: ["laundry-items"],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<LaundryItem[]>(
+      const { data } = await axiosInstance.get<LaundryItemResponse>(
         "/orders/laundry-items",
       );
-      return data;
+      
+      console.log('Hook response:', data); // Debug log
+      
+      // Response format: { success: true, message: "...", data: [...] }
+      return data.data; // Return array langsung
     },
+    retry: 3,
+    staleTime: 5 * 60 * 1000, // 5 menit
   });
 };
 

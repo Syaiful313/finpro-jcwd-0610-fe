@@ -1,7 +1,7 @@
 "use client";
-import useAxios from "@/hooks/useAxios";
+import { axiosInstance } from "@/lib/axios";
 import { PageableResponse, PaginationQueries } from "@/types/pagination";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 interface User {
   id: number;
@@ -17,7 +17,6 @@ interface User {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
-
   totalOrdersInOutlet?: number;
   employeeInfo?: {
     id: number;
@@ -31,88 +30,46 @@ interface GetUsersQueries extends PaginationQueries {
   role?: "ADMIN" | "OUTLET_ADMIN" | "CUSTOMER" | "WORKER" | "DRIVER";
 }
 
-interface UseGetUsersOptions {
-  enabled?: boolean;
-  refetchInterval?: number;
-  staleTime?: number;
-}
-
 interface GetUsersResponse {
   success: boolean;
   message: string;
   data: User[];
   meta: {
+    hasNext: boolean;
+    hasPrevious: boolean;
     page: number;
-    take: number;
-    count: number;
-    totalPages: number;
+    perPage: number;
+    total: number;
   };
 }
 
 const useGetUsers = (
   queries?: GetUsersQueries,
-  options?: UseGetUsersOptions,
+  options?: Omit<
+    UseQueryOptions<PageableResponse<User>>,
+    "queryKey" | "queryFn"
+  >,
 ) => {
-  const axiosInstance = useAxios();
-  const endpoint = `/admin/users`;
-  const queryKey = ["users", queries];
-  const defaultQueries = {
-    take: 10,
-    page: 1,
-    sortBy: "createdAt",
-    sortOrder: "desc" as const,
-    ...queries,
-  };
-
   return useQuery({
-    queryKey,
+    queryKey: ["users", queries],
     queryFn: async () => {
-      try {
-        console.log("[DEBUG] Fetching users with params:", defaultQueries);
+      const { data: response } = await axiosInstance.get<GetUsersResponse>(
+        "/admin/users",
+        { params: queries },
+      );
 
-        // ✅ Updated to expect new response format from backend
-        const { data } = await axiosInstance.get<GetUsersResponse>(endpoint, {
-          params: defaultQueries,
-        });
-
-        // ✅ Handle new response format
-        if (!data || typeof data !== "object") {
-          throw new Error("Invalid response format");
-        }
-
-        if (!data.success) {
-          throw new Error(data.message || "Failed to fetch users");
-          throw new Error(data.message || "Failed to fetch users");
-        }
-
-        console.log("[DEBUG] Fetched users count:", data.data?.length || 0);
-        console.log("[DEBUG] Response meta:", data.meta);
-
-        // ✅ Return in PageableResponse format for compatibility
-        const response: PageableResponse<User> = {
-          data: data.data,
-          meta: {
-            page: data.meta.page,
-            take: data.meta.take,
-            total: data.meta.count,
-            hasNext: data.meta.page < data.meta.totalPages,
-            hasPrevious: data.meta.page > 1,
-          },
-        };
-
-        return response;
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        throw error;
-      }
+      const { perPage, ...restMeta } = response.meta;
+      return {
+        data: response.data,
+        meta: {
+          ...restMeta,
+          take: perPage,
+        },
+      } as PageableResponse<User>;
     },
-    enabled: options?.enabled !== false,
-    refetchInterval: options?.refetchInterval,
-    staleTime: options?.staleTime || 5 * 60 * 1000,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    ...options,
   });
 };
 
 export default useGetUsers;
-export type { GetUsersQueries, UseGetUsersOptions, User };
+export type { GetUsersQueries, User };

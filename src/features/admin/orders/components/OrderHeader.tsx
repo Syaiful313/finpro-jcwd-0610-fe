@@ -60,36 +60,15 @@ export function OrderHeader({ order }: { order: OrderDetail }) {
 
   return (
     <div className="bg-card rounded-lg border p-4 shadow-sm">
-      {/* Breadcrumb */}
-      <div className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
-        <Link
-          href="/admin/orders"
-          className="hover:text-foreground flex items-center"
-        >
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          <span>Orders List</span>
-        </Link>
-        <span>&gt;</span>
-        <span>Order Detail</span>
-        <span>&gt;</span>
-        <span className="text-foreground font-medium">
-          #{order.orderNumber}
-        </span>
-      </div>
-
-      {/* Main header content */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold md:text-3xl">
-            Order #{order.orderNumber}
+            {order.orderNumber}
           </h1>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <Badge className={`${getStatusColor(order.status)} text-white`}>
-              {order.status.replace(/_/g, " ")}
-            </Badge>
             <div className="text-muted-foreground flex items-center text-sm">
               <Clock className="mr-1 h-4 w-4" />
-              <span>Created: {formatDate(order.createdAt)}</span>
+              <span>{formatDate(order.createdAt)}</span>
             </div>
           </div>
         </div>
@@ -104,13 +83,15 @@ export function OrderHeader({ order }: { order: OrderDetail }) {
             <span>Print Invoice</span>
           </Button>
           <Link href="/admin/orders">
-            <Button variant="secondary">Back to Orders</Button>
+            <Button>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Kembali ke Pesanan
+            </Button>
           </Link>
         </div>
       </div>
 
-      {/* Additional order information */}
-      <div className="bg-muted/50 mt-4 grid grid-cols-1 gap-4 rounded-md p-3 sm:grid-cols-2 md:grid-cols-4">
+      <div className="bg-muted/70 mt-4 grid grid-cols-1 gap-4 rounded-md p-3 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <p className="text-muted-foreground text-xs">Outlet</p>
           <p className="font-medium">{order.outletName}</p>

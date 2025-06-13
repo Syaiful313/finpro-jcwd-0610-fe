@@ -67,7 +67,7 @@ export function ProcessingSection({
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
 
     if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+      return `${hours}j ${minutes}m`;
     }
     return `${minutes}m`;
   };
@@ -75,13 +75,13 @@ export function ProcessingSection({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Completed":
-        return <Badge className="bg-green-500">Completed</Badge>;
+        return <Badge className="bg-green-500">Selesai</Badge>;
       case "In Progress":
-        return <Badge className="bg-blue-500">In Progress</Badge>;
+        return <Badge className="bg-blue-500">Sedang Berlangsung</Badge>;
       case "Pending":
-        return <Badge variant="outline">Pending</Badge>;
+        return <Badge variant="outline">Menunggu</Badge>;
       case "Bypassed":
-        return <Badge className="bg-orange-500">Bypassed</Badge>;
+        return <Badge className="bg-orange-500">Dilewati</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -90,7 +90,7 @@ export function ProcessingSection({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Processing Information</h2>
+        <h2 className="text-xl font-semibold">Informasi Proses</h2>
         <Button
           variant="ghost"
           size="sm"
@@ -106,12 +106,11 @@ export function ProcessingSection({
 
       {isExpanded && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* Washing Station */}
           <div className="rounded-md border p-4">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Droplets className="h-5 w-5 text-blue-500" />
-                <h3 className="font-medium">Washing</h3>
+                <h3 className="font-medium">Pencucian</h3>
               </div>
               {getStatusBadge(processingInfo.washing.status)}
             </div>
@@ -125,13 +124,13 @@ export function ProcessingSection({
               )}
 
               <div className="grid grid-cols-2 gap-1">
-                <div className="text-muted-foreground">Start:</div>
+                <div className="text-muted-foreground">Mulai:</div>
                 <div>{formatTime(processingInfo.washing.startTime)}</div>
 
-                <div className="text-muted-foreground">End:</div>
+                <div className="text-muted-foreground">Selesai:</div>
                 <div>{formatTime(processingInfo.washing.endTime)}</div>
 
-                <div className="text-muted-foreground">Duration:</div>
+                <div className="text-muted-foreground">Durasi:</div>
                 <div>
                   {calculateDuration(
                     processingInfo.washing.startTime,
@@ -148,12 +147,11 @@ export function ProcessingSection({
             </div>
           </div>
 
-          {/* Ironing Station */}
           <div className="rounded-md border p-4">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Shirt className="h-5 w-5 text-purple-500" />
-                <h3 className="font-medium">Ironing</h3>
+                <h3 className="font-medium">Setrika</h3>
               </div>
               {getStatusBadge(processingInfo.ironing.status)}
             </div>
@@ -167,13 +165,13 @@ export function ProcessingSection({
               )}
 
               <div className="grid grid-cols-2 gap-1">
-                <div className="text-muted-foreground">Start:</div>
+                <div className="text-muted-foreground">Mulai:</div>
                 <div>{formatTime(processingInfo.ironing.startTime)}</div>
 
-                <div className="text-muted-foreground">End:</div>
+                <div className="text-muted-foreground">Selesai:</div>
                 <div>{formatTime(processingInfo.ironing.endTime)}</div>
 
-                <div className="text-muted-foreground">Duration:</div>
+                <div className="text-muted-foreground">Durasi:</div>
                 <div>
                   {calculateDuration(
                     processingInfo.ironing.startTime,
@@ -190,12 +188,11 @@ export function ProcessingSection({
             </div>
           </div>
 
-          {/* Packing Station */}
           <div className="rounded-md border p-4">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-amber-500" />
-                <h3 className="font-medium">Packing</h3>
+                <h3 className="font-medium">Kemasan</h3>
               </div>
               {getStatusBadge(processingInfo.packing.status)}
             </div>
@@ -209,13 +206,13 @@ export function ProcessingSection({
               )}
 
               <div className="grid grid-cols-2 gap-1">
-                <div className="text-muted-foreground">Start:</div>
+                <div className="text-muted-foreground">Mulai:</div>
                 <div>{formatTime(processingInfo.packing.startTime)}</div>
 
-                <div className="text-muted-foreground">End:</div>
+                <div className="text-muted-foreground">Selesai:</div>
                 <div>{formatTime(processingInfo.packing.endTime)}</div>
 
-                <div className="text-muted-foreground">Duration:</div>
+                <div className="text-muted-foreground">Durasi:</div>
                 <div>
                   {calculateDuration(
                     processingInfo.packing.startTime,
