@@ -1,5 +1,4 @@
 import { OrderDetail } from "@/hooks/api/order/useGetOrderDetail";
-import { ActionButtons } from "./ActionButtons";
 import { CustomerAddressSection } from "./CustomerAddressSection";
 import { OrderHeader } from "./OrderHeader";
 import { OrderItemsSection } from "./OrderItemsSection";
@@ -215,14 +214,12 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto p-4">
       <OrderHeader order={transformedOrder} />
 
-      <div className="mt-6 grid gap-6 md:grid-cols-12">
-        {/* Main content - 8/12 columns */}
+      <div className="mt-4 grid gap-4 md:grid-cols-12">
         <div className="md:col-span-8">
-          {/* Visual Timeline */}
-          <div className="bg-card mb-6 rounded-lg border p-4 shadow-sm">
+          <div className="bg-card mb-4 rounded-lg border p-4 shadow-sm">
             <h2 className="mb-4 text-xl font-semibold">Order Timeline</h2>
             <OrderTimeline
               statusHistory={transformedOrder.statusHistory}
@@ -230,23 +227,19 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
             />
           </div>
 
-          {/* Order Items */}
-          <div className="bg-card mb-6 rounded-lg border p-4 shadow-sm">
+          <div className="bg-card mb-4 rounded-lg border p-4 shadow-sm">
             <OrderItemsSection items={transformedOrder.items} />
           </div>
 
-          {/* Processing Information */}
-          <div className="bg-card mb-6 rounded-lg border p-4 shadow-sm">
+          <div className="bg-card mb-4 rounded-lg border p-4 shadow-sm">
             <ProcessingSection
               processingInfo={transformedOrder.processingInfo}
             />
           </div>
         </div>
 
-        {/* Sidebar - 4/12 columns */}
         <div className="md:col-span-4">
-          {/* Customer & Address Information */}
-          <div className="bg-card mb-6 rounded-lg border p-4 shadow-sm">
+          <div className="bg-card mb-4 rounded-lg border p-4 shadow-sm">
             <CustomerAddressSection
               customer={transformedOrder.customer}
               pickupAddress={transformedOrder.pickupAddress}
@@ -254,14 +247,8 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
             />
           </div>
 
-          {/* Payment Information */}
           <div className="bg-card mb-6 rounded-lg border p-4 shadow-sm">
             <PaymentSection payment={transformedOrder.payment} />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="bg-card rounded-lg border p-4 shadow-sm">
-            <ActionButtons order={transformedOrder} />
           </div>
         </div>
       </div>

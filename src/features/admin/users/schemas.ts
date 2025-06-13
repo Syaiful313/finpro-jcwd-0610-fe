@@ -1,4 +1,7 @@
 import * as Yup from "yup";
+import YupPassword from "yup-password";
+
+YupPassword(Yup);
 
 interface CreateUserSchemaOptions {
   isEditMode?: boolean;
@@ -30,13 +33,26 @@ export const createUserValidationSchema = ({
 
     password: !isEditMode
       ? Yup.string()
-          .min(8, "Password minimal 8 karakter")
-          .matches(
-            /^(?=.*[a-zA-Z])(?=.*\d)/,
-            "Password harus kombinasi huruf dan angka",
-          )
-          .required("Password wajib diisi")
-      : Yup.string().optional(),
+          .min(8, "Password must be at least 8 characters")
+          .minUppercase(1, "Must contain at least 1 uppercase letter")
+          .minSymbols(1, "Must contain at least 1 symbol")
+          .minNumbers(1, "Must contain at least 1 number")
+          .required("Password is required")
+      : Yup.string()
+          .optional()
+          .test(
+            "password-strength",
+            "Password minimal 8 karakter dan kombinasi huruf, angka, simbol, dan huruf besar",
+            function (value) {
+              if (!value || value.trim() === "") return true;
+              return (
+                /[A-Z]/.test(value) && 
+                /\d/.test(value) &&
+                /[!@#$%^&*(),.?":{}|<>]/.test(value) &&
+                value.length >= 8
+              );
+            },
+          ),
 
     role: Yup.string()
       .oneOf(AVAILABLE_ROLES, "Role tidak valid")
@@ -77,11 +93,13 @@ export const validateProfilePicture = (
   profile: File | null,
   isEditMode: boolean = false,
 ): string | null => {
-  if (isEditMode) return null;
-
   const requiresProfile = ["OUTLET_ADMIN", "WORKER", "DRIVER"].includes(role);
 
-  if (requiresProfile && !profile) {
+  if (isEditMode && !profile) {
+    return null;
+  }
+
+  if (!isEditMode && requiresProfile && !profile) {
     return `Foto profil wajib diupload untuk role ${role}`;
   }
 

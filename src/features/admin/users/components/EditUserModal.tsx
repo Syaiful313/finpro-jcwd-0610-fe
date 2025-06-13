@@ -55,6 +55,7 @@ export default function EditUserModal({
   onSuccess,
 }: EditUserModalProps) {
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [shouldRemoveProfile, setShouldRemoveProfile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateUserMutation = useUpdateUser(user.id);
@@ -85,14 +86,16 @@ export default function EditUserModal({
     validationSchema: validationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      const profileError = validateProfilePicture(
-        values.role,
-        values.profile,
-        true,
-      );
-      if (profileError && values.profile) {
-        formik.setFieldError("profile", profileError);
-        return;
+      if (values.profile) {
+        const profileError = validateProfilePicture(
+          values.role,
+          values.profile,
+          true,
+        );
+        if (profileError) {
+          formik.setFieldError("profile", profileError);
+          return;
+        }
       }
 
       const requiresEmployeeData = isEmployeeDataRequired(values.role);
@@ -112,25 +115,56 @@ export default function EditUserModal({
         }
       }
 
-      const updateUserPayload = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        role: values.role,
-        phoneNumber: values.phoneNumber,
-        isVerified: values.isVerified,
-        provider: values.provider,
-        ...(values.profile && { profile: values.profile }),
-        ...(requiresEmployeeData && values.outletId
-          ? { outletId: values.outletId }
-          : {}),
-        ...(requiresEmployeeData && values.npwp ? { npwp: values.npwp } : {}),
-      };
+      const updateUserPayload: any = {};
+
+      if (values.firstName !== user.firstName) {
+        updateUserPayload.firstName = values.firstName;
+      }
+      if (values.lastName !== user.lastName) {
+        updateUserPayload.lastName = values.lastName;
+      }
+      if (values.email !== user.email) {
+        updateUserPayload.email = values.email;
+      }
+      if (values.role !== user.role) {
+        updateUserPayload.role = values.role;
+      }
+      if (values.phoneNumber !== user.phoneNumber) {
+        updateUserPayload.phoneNumber = values.phoneNumber;
+      }
+      if (values.isVerified !== user.isVerified) {
+        updateUserPayload.isVerified = values.isVerified;
+      }
+      if (values.provider !== user.provider) {
+        updateUserPayload.provider = values.provider;
+      }
+
+      if (values.password && values.password.trim() !== "") {
+        updateUserPayload.password = values.password;
+      }
+
+      if (values.profile && values.profile instanceof File) {
+        updateUserPayload.profile = values.profile;
+      } else if (shouldRemoveProfile && user.profilePic) {
+        updateUserPayload.removeProfile = true;
+      }
+
+      if (requiresEmployeeData) {
+        if (values.outletId !== user.outletId?.toString()) {
+          updateUserPayload.outletId = values.outletId;
+        }
+        if (values.npwp !== user.employeeInfo?.npwp) {
+          updateUserPayload.npwp = values.npwp;
+        }
+      }
 
       updateUserMutation.mutate(updateUserPayload, {
         onSuccess: () => {
           handleClose();
           onSuccess();
+        },
+        onError: (error) => {
+          console.error("Update failed:", error);
         },
       });
     },
@@ -147,13 +181,36 @@ export default function EditUserModal({
   useEffect(() => {
     if (user?.profilePic) {
       setProfilePreview(user.profilePic);
+      setShouldRemoveProfile(false);
     }
   }, [user?.profilePic]);
 
   const handleClose = () => {
     if (!updateUserMutation.isPending) {
-      formik.resetForm();
+      formik.setValues({
+        email: user?.email || "",
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+        password: "",
+        role: user?.role || "",
+        phoneNumber: user?.phoneNumber || "",
+        provider: user?.provider || "CREDENTIAL",
+        isVerified: user?.isVerified || false,
+        profile: null,
+        outletId: user?.outletId?.toString() || "",
+        npwp: user?.employeeInfo?.npwp || "",
+      });
+
       setProfilePreview(user?.profilePic || null);
+      setShouldRemoveProfile(false);
+
+      formik.setErrors({});
+      formik.setTouched({});
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
       onClose();
     }
   };
@@ -162,13 +219,14 @@ export default function EditUserModal({
     const file = event.target.files?.[0];
     if (file) {
       const error = validateProfilePicture(formik.values.role, file, true);
-      if (error && error.includes("JPEG")) {
+      if (error) {
         formik.setFieldError("profile", error);
         return;
       }
 
       formik.setFieldValue("profile", file);
       formik.setFieldError("profile", "");
+      setShouldRemoveProfile(false);
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -180,9 +238,17 @@ export default function EditUserModal({
 
   const removeProfilePicture = () => {
     formik.setFieldValue("profile", null);
-    setProfilePreview(user?.profilePic || null);
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+
+    if (user?.profilePic) {
+      setShouldRemoveProfile(true);
+      setProfilePreview(null);
+    } else {
+      setProfilePreview(user?.profilePic || null);
+      setShouldRemoveProfile(false);
     }
   };
 
@@ -204,7 +270,6 @@ export default function EditUserModal({
         </DialogHeader>
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
-          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email *
@@ -227,7 +292,6 @@ export default function EditUserModal({
             </p>
           </div>
 
-          {/* Name Fields */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-sm font-medium">
@@ -270,7 +334,30 @@ export default function EditUserModal({
             </div>
           </div>
 
-          {/* Role */}
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-sm font-medium">
+              Password (Optional)
+            </Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Kosongkan jika tidak ingin mengubah password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              disabled={isLoading}
+            />
+            {formik.touched.password && formik.errors.password && (
+              <p className="mt-1 text-xs text-red-500">
+                {formik.errors.password}
+              </p>
+            )}
+            <p className="text-muted-foreground text-xs">
+              Minimal 8 karakter, kombinasi huruf dan angka
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="role" className="text-sm font-medium">
               Role *
@@ -427,9 +514,14 @@ export default function EditUserModal({
                   />
                   <Button
                     type="button"
-                    onClick={removeProfilePicture}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeProfilePicture();
+                    }}
                     className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
                     disabled={isLoading}
+                    size="sm"
                   >
                     <TrashIcon className="h-3 w-3" />
                   </Button>
@@ -503,7 +595,7 @@ export default function EditUserModal({
             Batal
           </Button>
           <Button
-            type="submit"
+            type="button"
             onClick={() => formik.handleSubmit()}
             disabled={isLoading || !formik.isValid}
             className="w-full sm:w-auto"

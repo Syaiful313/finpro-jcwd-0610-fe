@@ -1,23 +1,23 @@
 export const ROLE_CONFIG = {
-  ADMIN: {
-    color: "bg-red-50 text-red-700 border-red-200",
-    label: "Admin",
-  },
-  OUTLET_ADMIN: {
-    color: "bg-purple-50 text-purple-700 border-purple-200",
-    label: "Admin Outlet",
-  },
   CUSTOMER: {
     color: "bg-blue-50 text-blue-700 border-blue-200",
     label: "Customer",
   },
   WORKER: {
-    color: "bg-green-50 text-green-700 border-green-200",
+    color: "bg-blue-50 text-blue-800 border-blue-300",
     label: "Worker",
   },
+  ADMIN: {
+    color: "bg-blue-100 text-blue-900 border-blue-400",
+    label: "Admin",
+  },
   DRIVER: {
-    color: "bg-orange-50 text-orange-700 border-orange-200",
+    color: "bg-blue-50 text-blue-700 border-blue-200",
     label: "Driver",
+  },
+  OUTLET_ADMIN: {
+    color: "bg-blue-100 text-blue-900 border-blue-400",
+    label: "Admin Outlet",
   },
 };
 

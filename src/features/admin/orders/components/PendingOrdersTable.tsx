@@ -3,7 +3,6 @@
 import PaginationSection from "@/components/PaginationSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -15,17 +14,16 @@ import {
 import useGetPendingProcessOrders from "@/hooks/api/order/useGetPendingProcessOrders";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Clock, Loader2, Phone, Search, Settings, User } from "lucide-react";
+import { Clock, Loader2, MapPin, Phone, Settings, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useCallback, useState } from "react";
-import { useDebounceValue } from "usehooks-ts";
 
 const PAGE_SIZE = 5;
 
 const getCellClass = (columnId: string) => {
-  const baseClass = "py-2 px-1 sm:py-3 sm:px-2 md:px-4";
+  const baseClass = "py-2 px-2 sm:py-3 sm:px-4";
   const styles: Record<string, string> = {
     orderNumber:
       "min-w-[120px] sm:min-w-[140px] md:min-w-[180px] text-xs sm:text-sm font-medium",
@@ -49,22 +47,19 @@ const formatDate = (dateString: string) => {
 };
 
 const StatusBadge = ({ status }: { status: string }) => (
-  <Badge
-    variant="outline"
-    className="border-orange-200 bg-orange-50 px-1 py-0.5 text-xs font-medium text-orange-700 sm:px-1.5 sm:py-0.5 md:px-2 md:py-1"
-  >
+  <span className="inline-block rounded border-orange-200 bg-orange-50 px-1.5 py-0.5 text-xs font-semibold text-orange-700">
     <span className="hidden sm:inline">Sampai Outlet</span>
     <span className="sm:hidden">Sampai</span>
-  </Badge>
+  </span>
 );
 
 const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
   <div className="flex flex-col">
-    <div className="flex items-center text-xs text-gray-900">
-      <User className="mr-1 h-3 w-3 flex-shrink-0" />
-      <span className="truncate font-medium">{name}</span>
+    <div className="font-medium break-words">{name}</div>
+    <div className="mt-1 flex items-center text-xs text-gray-500">
+      <User className="mr-1 h-3 w-3" />
+      <span className="break-all">{email}</span>
     </div>
-    <div className="truncate text-xs text-gray-500">{email}</div>
   </div>
 );
 
@@ -93,75 +88,101 @@ const PendingOrderCard = ({
   onProcessOrder: (orderId: string) => void;
   isProcessing: boolean;
 }) => (
-  <div className="rounded-lg border bg-white p-2 shadow-sm transition-shadow hover:shadow-md sm:p-2.5">
-    <div className="mb-2 flex items-start justify-between">
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-1.5">
-          <StatusBadge status={order.orderStatus} />
+  <div className="overflow-hidden rounded-2xl border-l-4 border-orange-400 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
+    {/* Header */}
+    <div className="border-b border-slate-200 bg-slate-50 p-3.5">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-sm font-semibold text-white">
+          {order.orderNumber.slice(-2)}
         </div>
-        <h3 className="truncate pr-1 text-sm font-medium text-gray-900">
-          {order.orderNumber}
-        </h3>
-      </div>
-      <div className="flex flex-shrink-0">
-        <Button
-          size="sm"
-          onClick={() => onProcessOrder(order.uuid)}
-          disabled={isProcessing}
-          className="h-6 px-1.5 text-xs sm:h-7 sm:px-2"
-        >
-          {isProcessing ? (
-            <Loader2 className="mr-0.5 h-3 w-3 animate-spin sm:mr-1" />
-          ) : (
-            <Settings className="mr-0.5 h-3 w-3 sm:mr-1" />
-          )}
-          <span className="hidden sm:inline">Proses</span>
-        </Button>
+        <div className="min-w-0 flex-1">
+          <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900">
+            {order.orderNumber}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <StatusBadge status={order.orderStatus} />
+            <span className="flex items-center gap-1 text-xs font-semibold text-orange-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+              Pending Proses
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div className="space-y-1 text-xs text-gray-600 sm:space-y-1.5">
-      <div>
-        <span className="font-medium text-gray-800">Customer:</span>
-        <div className="mt-0.5 leading-relaxed text-gray-600">
-          {order.customer.name} - {order.customer.email}
+    {/* Body */}
+    <div className="p-3.5">
+      {/* Contact list */}
+      <div className="mb-3 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <User className="h-3.5 w-3.5 flex-shrink-0 text-orange-500" />
+          <span className="truncate">{order.customer.name}</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <Settings className="h-3.5 w-3.5 flex-shrink-0 text-orange-500" />
+          <span className="truncate">{order.customer.email}</span>
         </div>
         {order.customer.phoneNumber && (
-          <div className="mt-0.5 leading-relaxed text-gray-600">
-            📞 {order.customer.phoneNumber}
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <Phone className="h-3.5 w-3.5 flex-shrink-0 text-orange-500" />
+            <span>{order.customer.phoneNumber}</span>
           </div>
         )}
-      </div>
-
-      <div>
-        <span className="font-medium text-gray-800">Alamat:</span>
-        <div className="mt-0.5 leading-relaxed text-gray-600">
-          {order.address.fullAddress}
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-orange-500" />
+          <span className="truncate">{order.address.fullAddress}</span>
         </div>
-        <div className="mt-0.5 leading-relaxed text-gray-600">
-          {order.address.district}, {order.address.city},{" "}
-          {order.address.province}
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <Clock className="h-3.5 w-3.5 flex-shrink-0 text-orange-500" />
+          <span>{formatDate(order.createdAt)}</span>
         </div>
       </div>
 
+      {/* Driver Info */}
       {order.pickupInfo && (
-        <div>
-          <span className="font-medium text-gray-800">Driver:</span>
-          <div className="mt-0.5 leading-relaxed text-gray-600">
-            {order.pickupInfo.driver}
-            {order.pickupInfo.driverPhone &&
-              ` - ${order.pickupInfo.driverPhone}`}
+        <div className="mb-3 rounded-lg bg-blue-50 p-2">
+          <div className="flex items-center gap-2 text-xs text-blue-600">
+            <User className="h-3 w-3" />
+            <span className="font-medium">{order.pickupInfo.driver}</span>
           </div>
+          {order.pickupInfo.driverPhone && (
+            <div className="text-xs text-blue-500">
+              📞 {order.pickupInfo.driverPhone}
+            </div>
+          )}
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 flex-1 items-center">
-          <Clock className="mr-1 h-3 w-3 flex-shrink-0" />
-          <span className="truncate text-xs">
-            {formatDate(order.createdAt)}
-          </span>
+      {/* Address Details */}
+      <div className="mb-3 rounded-lg bg-gray-50 p-2">
+        <div className="text-xs text-gray-600">
+          <div className="font-medium text-gray-800">Alamat Lengkap:</div>
+          <div className="mt-1">
+            {order.address.district}, {order.address.city}
+          </div>
+          <div>{order.address.province}</div>
         </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onProcessOrder(order.uuid)}
+          disabled={isProcessing}
+          className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />
+              Memproses...
+            </>
+          ) : (
+            <>
+              <Settings className="mr-1 inline h-3 w-3" />
+              Proses Order
+            </>
+          )}
+        </button>
       </div>
     </div>
   </div>
@@ -176,7 +197,7 @@ const PendingOrderRow = ({
   onProcessOrder: (orderId: string) => void;
   isProcessing: boolean;
 }) => (
-  <TableRow className="border-b transition-colors hover:bg-gray-50">
+  <TableRow className="border-b hover:bg-gray-50">
     <TableCell className={getCellClass("orderNumber")}>
       <div className="flex flex-col">
         <div className="font-medium break-words text-gray-900">
@@ -220,16 +241,16 @@ const PendingOrderRow = ({
       <div className="flex justify-center">
         <Button
           size="sm"
+          variant="ghost"
           onClick={() => onProcessOrder(order.uuid)}
           disabled={isProcessing}
-          className="h-6 px-1 text-xs sm:h-7 sm:px-2"
+          className="h-7 w-7 p-0 text-orange-600 hover:bg-orange-50 sm:h-8 sm:w-8"
         >
           {isProcessing ? (
-            <Loader2 className="mr-0.5 h-3 w-3 animate-spin sm:mr-1" />
+            <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
           ) : (
-            <Settings className="mr-0.5 h-3 w-3 sm:mr-1" />
+            <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
           )}
-          <span className="hidden sm:inline">Proses</span>
         </Button>
       </div>
     </TableCell>
@@ -241,8 +262,6 @@ export function PendingOrdersTable() {
   const router = useRouter();
 
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [search, setSearch] = useQueryState("search", { defaultValue: "" });
-  const [debouncedSearch] = useDebounceValue(search, 500);
   const [processingOrderId, setProcessingOrderId] = useState<string | null>(
     null,
   );
@@ -259,7 +278,6 @@ export function PendingOrdersTable() {
     take: PAGE_SIZE,
     sortBy: "createdAt",
     sortOrder: "asc",
-    ...(debouncedSearch && { search: debouncedSearch }),
   });
 
   const handleProcessOrder = useCallback(
@@ -285,20 +303,14 @@ export function PendingOrdersTable() {
     [setPage],
   );
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearch(e.target.value);
-      setPage(1);
-    },
-    [setSearch, setPage],
-  );
-
   if (!session || !isOutletAdmin) {
     return (
-      <div className="flex h-64 items-center justify-center px-2 sm:px-4">
+      <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500">Access Denied</span>
-          <p className="mt-2 text-xs text-gray-500">
+          <span className="text-sm text-red-500 sm:text-base">
+            Access Denied
+          </span>
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm">
             Only outlet admin can view pending orders.
           </p>
         </div>
@@ -309,138 +321,144 @@ export function PendingOrdersTable() {
   const totalItems = pendingOrdersResponse?.meta?.total ?? 0;
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-6">
-      {/* Search Input */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="relative w-full">
-          <Search className="absolute top-1/2 left-2 h-3 w-3 -translate-y-1/2 text-gray-400 sm:left-3 sm:h-4 sm:w-4" />
-          <Input
-            placeholder="Cari order number atau nama..."
-            value={search}
-            onChange={handleSearchChange}
-            className="pl-8 text-sm sm:pl-10 sm:text-base"
-            disabled={isLoading}
-          />
-        </div>
-      </div>
+    <>
+      <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex h-32 items-center justify-center">
+            <div className="text-center">
+              <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+              <span className="mt-2 block text-sm">Memuat data pesanan...</span>
+            </div>
+          </div>
+        )}
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex h-24 items-center justify-center sm:h-32">
-          <div className="text-center">
-            <Loader2 className="mx-auto h-5 w-5 animate-spin sm:h-6 sm:w-6" />
-            <span className="mt-1 block text-xs sm:text-sm">
-              Memuat data pesanan...
+        {/* Error State */}
+        {!isLoading && error && (
+          <div className="mx-5 mt-4 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+            <div className="text-sm text-red-600">
+              Kesalahan memuat data pesanan
+            </div>
+            <div className="mt-1 text-xs text-red-500">
+              {error.message || "Kesalahan tidak diketahui"}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              className="mt-3"
+            >
+              Coba Lagi
+            </Button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && totalItems === 0 && (
+          <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center">
+            <Clock className="mx-auto h-12 w-12 text-gray-400" />
+            <span className="mt-3 block text-sm text-gray-500">
+              Tidak ada pesanan yang perlu diproses
             </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              className="mt-3"
+            >
+              Refresh
+            </Button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Error State */}
-      {!isLoading && error && (
-        <div className="p-3 text-center text-red-500 sm:p-4">
-          <div className="text-sm">Kesalahan memuat data pesanan</div>
-          <div className="mt-1 text-xs text-red-400">
-            {error.message || "Kesalahan tidak diketahui"}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            className="mt-2"
-          >
-            Retry
-          </Button>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!isLoading && !error && totalItems === 0 && (
-        <div className="flex h-24 flex-col items-center justify-center space-y-2 sm:h-32 sm:space-y-3">
-          <Clock className="h-10 w-10 text-gray-400 sm:h-12 sm:w-12" />
-          <span className="text-xs text-gray-500 sm:text-sm">
-            {debouncedSearch
-              ? "Tidak ada pesanan yang cocok dengan pencarian"
-              : "Tidak ada pesanan yang perlu diproses"}
-          </span>
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
-            Refresh
-          </Button>
-        </div>
-      )}
-
-      {/* Data Display */}
-      {!isLoading && !error && totalItems > 0 && (
-        <div className="space-y-3 sm:space-y-4 md:space-y-6">
-          {/* Mobile Card View */}
-          <div className="block sm:hidden">
-            <div className="space-y-2">
-              {pendingOrdersResponse?.data?.map((order) => (
-                <PendingOrderCard
-                  key={order.uuid}
-                  order={order}
-                  onProcessOrder={handleProcessOrder}
-                  isProcessing={processingOrderId === order.uuid}
-                />
-              )) ?? []}
+        {/* Content */}
+        {!isLoading && !error && totalItems > 0 && (
+          <>
+            {/* Mobile Card View */}
+            <div className="block sm:hidden">
+              <div className="space-y-2 px-3 pt-2">
+                {pendingOrdersResponse?.data?.map((order) => (
+                  <PendingOrderCard
+                    key={order.uuid}
+                    order={order}
+                    onProcessOrder={handleProcessOrder}
+                    isProcessing={processingOrderId === order.uuid}
+                  />
+                )) ?? []}
+              </div>
             </div>
-          </div>
 
-          {/* Desktop Table View */}
-          <div className="hidden rounded-lg border shadow-sm sm:block">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-b">
-                    <TableHead className="min-w-[120px] text-xs sm:min-w-[140px] sm:text-sm md:min-w-[180px]">
-                      No. Order
-                    </TableHead>
-                    <TableHead className="hidden min-w-[160px] text-xs sm:min-w-[180px] sm:text-sm md:table-cell md:min-w-[220px]">
-                      Customer
-                    </TableHead>
-                    <TableHead className="w-24 text-center text-xs sm:w-28 sm:text-sm md:w-36">
-                      Status
-                    </TableHead>
-                    <TableHead className="hidden w-32 text-center text-xs sm:w-36 sm:text-sm lg:table-cell lg:w-44">
-                      Driver
-                    </TableHead>
-                    <TableHead className="hidden w-24 text-center text-xs sm:table-cell sm:w-28 sm:text-sm md:w-36">
-                      Tanggal
-                    </TableHead>
-                    <TableHead className="w-16 text-center text-xs sm:w-18 sm:text-sm md:w-24">
-                      Aksi
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pendingOrdersResponse?.data?.map((order) => (
-                    <PendingOrderRow
-                      key={order.uuid}
-                      order={order}
-                      onProcessOrder={handleProcessOrder}
-                      isProcessing={processingOrderId === order.uuid}
-                    />
-                  )) ?? []}
-                </TableBody>
-              </Table>
+            {/* Desktop Table View */}
+            <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b">
+                      <TableHead className="min-w-[120px] text-xs sm:min-w-[140px] sm:text-sm md:min-w-[180px]">
+                        No. Order
+                      </TableHead>
+                      <TableHead className="hidden min-w-[160px] text-xs sm:min-w-[180px] sm:text-sm md:table-cell md:min-w-[220px]">
+                        Customer
+                      </TableHead>
+                      <TableHead className="w-24 text-center text-xs sm:w-28 sm:text-sm md:w-36">
+                        Status
+                      </TableHead>
+                      <TableHead className="hidden w-32 text-center text-xs sm:w-36 sm:text-sm lg:table-cell lg:w-44">
+                        Driver
+                      </TableHead>
+                      <TableHead className="hidden w-24 text-center text-xs sm:table-cell sm:w-28 sm:text-sm md:w-36">
+                        Tanggal
+                      </TableHead>
+                      <TableHead className="w-16 text-center text-xs sm:w-18 sm:text-sm md:w-24">
+                        Aksi
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pendingOrdersResponse?.data?.map((order) => (
+                      <PendingOrderRow
+                        key={order.uuid}
+                        order={order}
+                        onProcessOrder={handleProcessOrder}
+                        isProcessing={processingOrderId === order.uuid}
+                      />
+                    )) ?? []}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
-          </div>
 
-          {/* Pagination Section */}
-          {pendingOrdersResponse?.meta && (
-            <div className="rounded-b-lg border-t bg-white px-2 py-2 sm:px-4 sm:py-3">
-              <PaginationSection
-                page={pendingOrdersResponse.meta.page}
-                take={pendingOrdersResponse.meta.take}
-                total={pendingOrdersResponse.meta.total}
-                hasNext={pendingOrdersResponse.meta.hasNext}
-                hasPrevious={pendingOrdersResponse.meta.hasPrevious}
-                onChangePage={handlePageChange}
-              />
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            {/* Pagination */}
+            {pendingOrdersResponse?.meta && (
+              <>
+                {/* Desktop Pagination */}
+                <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white px-4 py-6 sm:mx-0 sm:flex">
+                  <PaginationSection
+                    page={pendingOrdersResponse.meta.page}
+                    take={pendingOrdersResponse.meta.take}
+                    total={pendingOrdersResponse.meta.total}
+                    hasNext={pendingOrdersResponse.meta.hasNext}
+                    hasPrevious={pendingOrdersResponse.meta.hasPrevious}
+                    onChangePage={handlePageChange}
+                  />
+                </div>
+
+                {/* Mobile Pagination */}
+                <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden">
+                  <PaginationSection
+                    page={pendingOrdersResponse.meta.page}
+                    take={pendingOrdersResponse.meta.take}
+                    total={pendingOrdersResponse.meta.total}
+                    hasNext={pendingOrdersResponse.meta.hasNext}
+                    hasPrevious={pendingOrdersResponse.meta.hasPrevious}
+                    onChangePage={handlePageChange}
+                  />
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
+    </>
   );
 }

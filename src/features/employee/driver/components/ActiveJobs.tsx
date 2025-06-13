@@ -19,7 +19,7 @@ const ActiveJobs = () => {
     isError,
     error,
     refetch,
-  } = useGetDriverJobs({ type: "active" });
+  } = useGetDriverJobs({ status: "active" });
 
   const requests = activeJobsData?.data || [];
   const totalRequests = activeJobsData?.meta?.total || 0;
