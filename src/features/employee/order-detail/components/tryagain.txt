@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -22,12 +21,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -37,171 +30,168 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Mock data types
-type OrderStatus = "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED";
-type OrderType = "PICKUP" | "DELIVERY";
-type JobStatus = "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED";
+// Import the types we created
 
-interface OrderItem {
-  id: string;
-  laundryItemName: string;
-  quantity: number;
-  weight?: number;
-  pricePerUnit: number;
-  totalPrice: number;
+import {
+  Job,
+  DriverJobResponse,
+  DriverTaskStatus,
+  OrderStatus,
+  formatFullAddress,
+  getCustomerName,
+  formatCurrency,
+  formatDateTime,
+} from "@/types/detailApi";
+import { toast } from "sonner";
+import useStartPickUp from "@/hooks/api/employee/driver/useStartPickUp";
+import useStartDelivery from "@/hooks/api/employee/driver/useStartDelivery";
+import useCompletePickUp from "@/hooks/api/employee/driver/useCompletePickUp";
+import useCompleteDelivery from "@/hooks/api/employee/driver/useCompleteDelivery";
+import { useFormik } from "formik";
+interface DriverOrderDetailPageProps {
+  jobData: DriverJobResponse;
 }
 
-interface CustomerAddress {
-  addressLine: string;
-  district: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  latitude: number;
-  longitude: number;
+interface CompleteJobFormValues {
+  notes: string;
+  photos: File[];
 }
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  status: OrderStatus;
-  customerName: string;
-  customerPhone: string;
-  orderType: OrderType;
-  scheduledTime: string;
-  address: CustomerAddress;
-  items: OrderItem[];
-  totalWeight: number;
-  totalPrice: number;
-  pickupJobStatus?: JobStatus;
-  deliveryJobStatus?: JobStatus;
-  driverNotes?: string;
-  pickupPhotos?: string[];
-}
-
-// Mock data - Starting with ASSIGNED status
-const mockOrder: Order = {
-  id: "1",
-  orderNumber: "ORD-2024-001",
-  status: "ASSIGNED",
-  customerName: "Sarah Johnson",
-  customerPhone: "+62 812-3456-7890",
-  orderType: "PICKUP",
-  scheduledTime: "2024-01-15T14:00:00Z",
-  address: {
-    addressLine: "Jl. Sudirman No. 123, Block A",
-    district: "Kebayoran Baru",
-    city: "South Jakarta",
-    province: "DKI Jakarta",
-    postalCode: "12190",
-    latitude: -6.2088,
-    longitude: 106.8456,
-  },
-  items: [
-    {
-      id: "1",
-      laundryItemName: "White Shirt",
-      quantity: 3,
-      weight: 0.5,
-      pricePerUnit: 8000,
-      totalPrice: 24000,
-    },
-    {
-      id: "2",
-      laundryItemName: "Jeans",
-      quantity: 2,
-      weight: 0.8,
-      pricePerUnit: 12000,
-      totalPrice: 24000,
-    },
-    {
-      id: "3",
-      laundryItemName: "Dress",
-      quantity: 1,
-      weight: 0.3,
-      pricePerUnit: 15000,
-      totalPrice: 15000,
-    },
-  ],
-  totalWeight: 1.6,
-  totalPrice: 63000,
-  pickupJobStatus: "ASSIGNED", // Starting status
-  driverNotes: "",
-};
-
-export default function DriverOrderDetail() {
-  const [order, setOrder] = useState<Order>(mockOrder);
+export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
+  const [job, setJob] = useState<Job>(jobData.job);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
   const [isStartJobDialogOpen, setIsStartJobDialogOpen] = useState(false);
-  const [notes, setNotes] = useState(order.driverNotes || "");
+  const [notes, setNotes] = useState(job.notes || "");
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getStatusColor = (status: OrderStatus | JobStatus) => {
+  const startPickUpMutation = useStartPickUp();
+  const startDeliveryMutation = useStartDelivery();
+  const completePickUpMutation = useCompletePickUp(job.id);
+  const completeDeliveryMutation = useCompleteDelivery(job.id);
+
+  // Tentukan mutation yang akan digunakan berdasarkan job type
+  const startJobMutation =
+    jobData.type === "pickup" ? startPickUpMutation : startDeliveryMutation;
+  const completeJobMutation =
+    jobData.type === "pickup"
+      ? completePickUpMutation
+      : completeDeliveryMutation;
+
+  const initialValues: CompleteJobFormValues = {
+    notes: job.notes || "",
+    photos: [],
+  };
+
+  const formik = useFormik({
+    initialValues,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      if (values.photos.length === 0) {
+        toast.error("Please upload at least one photo to complete the task.");
+        return;
+      }
+
+      try {
+        await completeJobMutation.mutateAsync({
+          notes: values.notes,
+          photos: values.photos,
+        });
+
+        // Update local job status
+        setJob((prev) => ({
+          ...prev,
+          status: DriverTaskStatus.COMPLETED,
+          notes: values.notes,
+        }));
+
+        setIsCompleteDialogOpen(false);
+        formik.resetForm();
+      } catch (error) {
+        console.error("Error completing task:", error);
+      }
+    },
+  });
+
+
+  // Helper functions
+  const getStatusColor = (status: DriverTaskStatus | OrderStatus) => {
     switch (status) {
-      case "PENDING":
+      case DriverTaskStatus.PENDING:
+      case OrderStatus.WAITING_FOR_PICKUP:
         return "bg-orange-500";
-      case "ASSIGNED":
+      case DriverTaskStatus.ASSIGNED:
+      case OrderStatus.DRIVER_ON_THE_WAY_TO_CUSTOMER:
         return "bg-blue-500";
-      case "IN_PROGRESS":
+      case DriverTaskStatus.IN_PROGRESS:
+      case OrderStatus.ARRIVED_AT_CUSTOMER:
+      case OrderStatus.BEING_DELIVERED_TO_CUSTOMER:
         return "bg-green-500";
-      case "COMPLETED":
+      case DriverTaskStatus.COMPLETED:
+      case OrderStatus.COMPLETED:
+      case OrderStatus.DELIVERED_TO_CUSTOMER:
         return "bg-gray-500";
+      case DriverTaskStatus.CANCELLED:
+        return "bg-red-500";
       default:
         return "bg-gray-500";
     }
   };
 
-  const getStatusText = (status: OrderStatus | JobStatus) => {
+  const getStatusText = (status: DriverTaskStatus | OrderStatus) => {
     switch (status) {
-      case "PENDING":
+      case DriverTaskStatus.PENDING:
         return "Pending";
-      case "ASSIGNED":
+      case DriverTaskStatus.ASSIGNED:
         return "Assigned";
-      case "IN_PROGRESS":
+      case DriverTaskStatus.IN_PROGRESS:
         return "In Progress";
-      case "COMPLETED":
+      case DriverTaskStatus.COMPLETED:
+        return "Completed";
+      case DriverTaskStatus.CANCELLED:
+        return "Cancelled";
+      case OrderStatus.WAITING_FOR_PICKUP:
+        return "Waiting for Pickup";
+      case OrderStatus.DRIVER_ON_THE_WAY_TO_CUSTOMER:
+        return "Driver on the Way";
+      case OrderStatus.ARRIVED_AT_CUSTOMER:
+        return "Arrived at Customer";
+      case OrderStatus.BEING_DELIVERED_TO_CUSTOMER:
+        return "Being Delivered";
+      case OrderStatus.DELIVERED_TO_CUSTOMER:
+        return "Delivered";
+      case OrderStatus.COMPLETED:
         return "Completed";
       default:
-        return status;
+        return status.replace(/_/g, " ");
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  // Get formatted address
+  const addressInfo = formatFullAddress(job.order);
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  // Get customer name (this might need adjustment based on your user structure)
+  const customerName = getCustomerName(jobData.job);
+
+  // Get customer phone (you might need to fetch this separately or include in the API)
+  const customerPhone = job.order.user.phoneNumber;
 
   const copyAddress = () => {
-    const fullAddress = `${order.address.addressLine}, ${order.address.district}, ${order.address.city}, ${order.address.province} ${order.address.postalCode}`;
-    navigator.clipboard.writeText(fullAddress);
-    alert("Address copied to clipboard!");
+    navigator.clipboard.writeText(addressInfo.fullAddress);
+    // alert("Address copied to clipboard!");
+    toast("Address copied to clipboard!");
   };
 
   const callCustomer = () => {
-    window.open(`tel:${order.customerPhone}`);
+    window.open(`tel:${customerPhone}`);
   };
 
   const startNavigation = () => {
-    const { latitude, longitude } = order.address;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+    // Since we don't have lat/lng in the current API, use address for navigation
+    const encodedAddress = encodeURIComponent(addressInfo.fullAddress);
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
     window.open(url, "_blank");
   };
 
@@ -215,25 +205,17 @@ export default function DriverOrderDetail() {
   };
 
   const startJob = async () => {
-    setIsLoading(true);
     try {
-      // Simulate API call to start job
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await startJobMutation.mutateAsync(job.id);
 
-      // Update order status to IN_PROGRESS
-      setOrder((prev) => ({
+      setJob((prev) => ({
         ...prev,
-        status: "IN_PROGRESS",
-        pickupJobStatus: "IN_PROGRESS",
+        status: DriverTaskStatus.IN_PROGRESS,
       }));
-
       setIsStartJobDialogOpen(false);
-      alert("Job started successfully! You can now proceed with the pickup.");
+      const taskType = jobData.type === "pickup" ? "Pickup" : "Delivery";
     } catch (error) {
       console.error("Error starting job:", error);
-      alert("Failed to start job. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -245,26 +227,25 @@ export default function DriverOrderDetail() {
 
     setIsLoading(true);
     try {
-      const taskType = order.orderType === "PICKUP" ? "pickup" : "delivery";
+      const taskType = jobData.type;
 
       // Create FormData for photo upload
       const formData = new FormData();
-      selectedPhotos.forEach((photo, index) => {
+      selectedPhotos.forEach((photo) => {
         formData.append(`photos`, photo);
       });
       formData.append("notes", notes);
-      formData.append("orderId", order.id);
+      formData.append("jobId", job.id.toString());
       formData.append("taskType", taskType);
 
-      // Simulate API call to complete pickup/delivery
+      // TODO: Replace with actual API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Update order status to COMPLETED
-      setOrder((prev) => ({
+      // Update job status to COMPLETED
+      setJob((prev) => ({
         ...prev,
-        status: "COMPLETED",
-        pickupJobStatus: "COMPLETED",
-        driverNotes: notes,
+        status: DriverTaskStatus.COMPLETED,
+        notes: notes,
       }));
 
       setIsCompleteDialogOpen(false);
@@ -283,20 +264,13 @@ export default function DriverOrderDetail() {
     }
   };
 
-  const getCurrentJobStatus = () => {
-    return order.orderType === "PICKUP"
-      ? order.pickupJobStatus
-      : order.deliveryJobStatus;
-  };
-
   const renderActionButtons = () => {
-    const currentStatus = getCurrentJobStatus();
-    const taskType = order.orderType === "PICKUP" ? "Pickup" : "Delivery";
+    const taskType = jobData.type === "pickup" ? "Pickup" : "Delivery";
 
-    if (currentStatus === "COMPLETED") {
+    if (job.status === DriverTaskStatus.COMPLETED) {
       return (
-        <div className="fixed right-0 bottom-0 left-0 p-4">
-          <div className="flex items-center justify-center gap-2 text-green-600">
+        <div className="fixed right-0 bottom-0 left-0 p-4 md:static">
+          <div className="flex items-center justify-center gap-2 text-green-600 md:p-5">
             <CheckCircle className="h-5 w-5" />
             <span className="font-medium">
               {taskType} Completed Successfully!
@@ -306,19 +280,10 @@ export default function DriverOrderDetail() {
       );
     }
 
-    switch (currentStatus) {
-      case "ASSIGNED":
+    switch (job.status) {
+      case DriverTaskStatus.ASSIGNED:
         return (
           <div className="fixed right-0 bottom-0 left-0 space-y-2 border-t bg-white p-4">
-            <Button
-              onClick={startNavigation}
-              variant="outline"
-              className="w-full"
-              size="lg"
-            >
-              <Navigation className="mr-2 h-4 w-4" />
-              Start Navigation
-            </Button>
             <Dialog
               open={isStartJobDialogOpen}
               onOpenChange={setIsStartJobDialogOpen}
@@ -363,7 +328,7 @@ export default function DriverOrderDetail() {
             </Dialog>
           </div>
         );
-      case "IN_PROGRESS":
+      case DriverTaskStatus.IN_PROGRESS:
         return (
           <div className="fixed right-0 bottom-0 left-0 border-t bg-white p-4">
             <Dialog
@@ -412,9 +377,7 @@ export default function DriverOrderDetail() {
                         {selectedPhotos.map((photo, index) => (
                           <div key={index} className="relative">
                             <Image
-                              src={
-                                URL.createObjectURL(photo) || "/placeholder.svg"
-                              }
+                              src={URL.createObjectURL(photo)}
                               alt={`Photo ${index + 1}`}
                               width={100}
                               height={100}
@@ -484,10 +447,10 @@ export default function DriverOrderDetail() {
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold">{order.orderNumber}</h1>
-            <Badge className={`${getStatusColor(order.status)} text-white`}>
-              {getStatusText(order.status)}
+          <div className="flex gap-3">
+            <h1 className="text-lg font-semibold">#{job.order.orderNumber}</h1>
+            <Badge className={`${getStatusColor(job.status)} text-white`}>
+              {getStatusText(job.status)}
             </Badge>
           </div>
         </div>
@@ -498,29 +461,29 @@ export default function DriverOrderDetail() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${getCurrentJobStatus() === "ASSIGNED" ? "bg-blue-500" : "bg-green-500"}`}
+              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.ASSIGNED ? "bg-blue-500" : "bg-green-500"}`}
             />
             <span className="text-sm font-medium">Assigned</span>
           </div>
           <div className="mx-4 h-0.5 flex-1 bg-gray-200">
             <div
-              className={`h-full transition-all duration-500 ${getCurrentJobStatus() === "IN_PROGRESS" || getCurrentJobStatus() === "COMPLETED" ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
+              className={`h-full transition-all duration-500 ${job.status === DriverTaskStatus.IN_PROGRESS || job.status === DriverTaskStatus.COMPLETED ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
             />
           </div>
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${getCurrentJobStatus() === "IN_PROGRESS" ? "bg-green-500" : getCurrentJobStatus() === "COMPLETED" ? "bg-green-500" : "bg-gray-300"}`}
+              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.IN_PROGRESS ? "bg-green-500" : job.status === DriverTaskStatus.COMPLETED ? "bg-green-500" : "bg-gray-300"}`}
             />
             <span className="text-sm font-medium">In Progress</span>
           </div>
           <div className="mx-4 h-0.5 flex-1 bg-gray-200">
             <div
-              className={`h-full transition-all duration-500 ${getCurrentJobStatus() === "COMPLETED" ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
+              className={`h-full transition-all duration-500 ${job.status === DriverTaskStatus.COMPLETED ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
             />
           </div>
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${getCurrentJobStatus() === "COMPLETED" ? "bg-green-500" : "bg-gray-300"}`}
+              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.COMPLETED ? "bg-green-500" : "bg-gray-300"}`}
             />
             <span className="text-sm font-medium">Completed</span>
           </div>
@@ -533,7 +496,7 @@ export default function DriverOrderDetail() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <User className="h-5 w-5" />
-              {order.customerName}
+              {customerName}
             </CardTitle>
             <Button variant="outline" size="sm" onClick={callCustomer}>
               <Phone className="h-4 w-4" />
@@ -543,7 +506,7 @@ export default function DriverOrderDetail() {
         <CardContent className="space-y-3">
           <div>
             <p className="text-sm text-gray-600">Phone Number</p>
-            <p className="font-medium">{order.customerPhone}</p>
+            <p className="font-medium">{customerPhone}</p>
           </div>
           <div>
             <div className="flex items-center justify-between">
@@ -552,18 +515,18 @@ export default function DriverOrderDetail() {
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-            <p className="font-medium">{order.address.addressLine}</p>
+            <p className="font-medium">{addressInfo.addressLine}</p>
             <p className="text-sm text-gray-600">
-              {order.address.district}, {order.address.city},{" "}
-              {order.address.province} {order.address.postalCode}
+              {addressInfo.district}, {addressInfo.city}, {addressInfo.province}{" "}
+              {addressInfo.postalCode}
             </p>
           </div>
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4 text-gray-500" />
-              <span>{formatDateTime(order.scheduledTime)}</span>
+              <span>{formatDateTime(job.pickUpScheduleOutlet)}</span>
             </div>
-            <Badge variant="outline">{order.orderType}</Badge>
+            <Badge variant="outline">{jobData.type.toUpperCase()}</Badge>
           </div>
         </CardContent>
       </Card>
@@ -581,9 +544,7 @@ export default function DriverOrderDetail() {
             <div className="text-center">
               <MapPin className="mx-auto mb-2 h-8 w-8 text-gray-500" />
               <p className="text-sm text-gray-600">Interactive Map</p>
-              <p className="text-xs text-gray-500">
-                Lat: {order.address.latitude}, Lng: {order.address.longitude}
-              </p>
+              <p className="text-xs text-gray-500">{addressInfo.fullAddress}</p>
             </div>
           </div>
           <Button
@@ -597,61 +558,49 @@ export default function DriverOrderDetail() {
         </CardContent>
       </Card>
 
-      {/* Order Details */}
-      <Card className="m-4">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Order Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible defaultValue="items">
-            <AccordionItem value="items">
-              <AccordionTrigger>
-                Laundry Items ({order.items.length})
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-3">
-                  {order.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-start justify-between rounded-lg bg-gray-50 p-3"
-                    >
-                      <div className="flex-1">
-                        <p className="font-medium">{item.laundryItemName}</p>
-                        <p className="text-sm text-gray-600">
-                          {item.quantity} pcs{" "}
-                          {item.weight && `• ${item.weight} kg`}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {formatCurrency(item.pricePerUnit)} per pcs
-                        </p>
-                      </div>
-                      <p className="font-semibold">
-                        {formatCurrency(item.totalPrice)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          <Separator className="my-4" />
-
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Total Weight</span>
-              <span className="font-medium">{order.totalWeight} kg</span>
+      {/* Order Details - Only show for delivery jobs */}
+      {jobData.type === "delivery" && (
+        <Card className="m-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Order Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Order Number</span>
+                <span className="font-medium">#{job.order.orderNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Weight</span>
+                <span className="font-medium">{job.order.totalWeight} kg</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery Fee</span>
+                <span className="font-medium">
+                  {formatCurrency(job.order.totalDeliveryFee)}
+                </span>
+              </div>
+              <div className="flex justify-between text-lg font-semibold">
+                <span>Total Price</span>
+                <span>{formatCurrency(job.order.totalPrice)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Payment Status</span>
+                <Badge
+                  variant={
+                    job.order.paymentStatus === "PAID" ? "default" : "secondary"
+                  }
+                >
+                  {job.order.paymentStatus.replace(/_/g, " ")}
+                </Badge>
+              </div>
             </div>
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Total Price</span>
-              <span>{formatCurrency(order.totalPrice)}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Job Status Card */}
       <Card className="m-4">
@@ -660,19 +609,18 @@ export default function DriverOrderDetail() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
-            <Badge
-              className={`${getStatusColor(getCurrentJobStatus()!)} text-white`}
-            >
-              {getStatusText(getCurrentJobStatus()!)}
+            <Badge className={`${getStatusColor(job.status)} text-white`}>
+              {getStatusText(job.status)}
             </Badge>
             <span className="text-sm text-gray-600">
-              {order.orderType} Task
+              {jobData.type.charAt(0).toUpperCase() + jobData.type.slice(1)}{" "}
+              Task
             </span>
           </div>
-          {order.driverNotes && (
+          {job.notes && (
             <div className="mt-3 rounded-lg bg-gray-50 p-3">
               <p className="text-sm text-gray-600">Driver Notes:</p>
-              <p className="text-sm">{order.driverNotes}</p>
+              <p className="text-sm">{job.notes}</p>
             </div>
           )}
         </CardContent>

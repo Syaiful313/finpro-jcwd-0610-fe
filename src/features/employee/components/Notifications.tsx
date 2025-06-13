@@ -16,11 +16,11 @@ import React, { useState } from "react";
 import { Bell, Package, Truck, CheckCircle, AlertCircle } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
-import { id } from "date-fns/locale";
-import { DriverNotification, NotifType } from "@/types/DriverNotification";
+import { enUS, id } from "date-fns/locale";
+import { DriverNotification } from "@/types/DriverNotification";
 import useGetNotifications from "@/hooks/api/employee/driver/useGetNotification";
+import { NotifType } from "@/types/enum";
 
-// Helper function to get notification icon
 const getNotificationIcon = (notifType: NotifType) => {
   switch (notifType) {
     case NotifType.NEW_PICKUP_REQUEST:
@@ -41,33 +41,15 @@ const getNotificationIcon = (notifType: NotifType) => {
   }
 };
 
-// Helper function to get customer initials
 const getCustomerInitials = (firstName: string, lastName: string) => {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 };
 
-// Helper function to format notification message
 const formatNotificationMessage = (notification: DriverNotification) => {
   const customerName = notification.order?.user.firstName
     ? `${notification.order.user.firstName} ${notification.order.user.lastName}`
     : "Customer";
-
-  const orderNumber = notification.orderUuid || "N/A";
-
-  switch (notification.notifType) {
-    case NotifType.NEW_PICKUP_REQUEST:
-      return `New pickup request from ${customerName} (${orderNumber})`;
-    case NotifType.NEW_DELIVERY_REQUEST:
-      return `New delivery request for ${customerName} (${orderNumber})`;
-    case NotifType.PICKUP_COMPLETED:
-      return `Pickup completed for order ${orderNumber}`;
-    case NotifType.DELIVERY_COMPLETED:
-      return `Delivery completed for order ${orderNumber}`;
-    case NotifType.ORDER_COMPLETED:
-      return `Order ${orderNumber} has been completed`;
-    default:
-      return notification.message;
-  }
+  return notification.message;
 };
 
 // Helper function to get notification category
@@ -124,7 +106,6 @@ const CustomerAvatar = ({
   );
 };
 
-// Notification Item Component
 const NotificationItem = ({
   notification,
 }: {
@@ -132,28 +113,19 @@ const NotificationItem = ({
 }) => {
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,
-    locale: id,
+    locale: enUS,
   });
-
-  const address = notification.order
-    ? `${notification.order.district}, ${notification.order.city}`
-    : "";
 
   return (
     <DropdownMenuItem
       className={`cursor-pointer p-3 ${!notification.isRead ? "bg-blue-50 dark:bg-blue-950/20" : ""}`}
     >
       <div className="flex w-full gap-3">
-        <CustomerAvatar notification={notification} />
-
         <div className="flex-1 space-y-1">
           <div className="text-sm">
             <p className="text-foreground leading-5 font-medium">
               {formatNotificationMessage(notification)}
             </p>
-            {address && (
-              <p className="text-muted-foreground mt-1 text-xs">📍 {address}</p>
-            )}
           </div>
 
           <div className="text-muted-foreground flex items-center gap-2 text-xs">
@@ -196,7 +168,6 @@ export default function NotificationDropdown() {
     sortBy: "createdAt",
     sortOrder: "desc",
   });
-  console.log("data", data);
 
   const unreadCount =
     data?.data?.filter((notif: DriverNotification) => !notif.isRead).length ||
@@ -277,7 +248,7 @@ export default function NotificationDropdown() {
         <DropdownMenuSeparator />
         <div className="p-2">
           <Button variant="ghost" className="w-full justify-center" asChild>
-            <Link href="/notifications">View All Notifications</Link>
+            <Link href="/notifications">Mark All As Read</Link>
           </Button>
         </div>
       </DropdownMenuContent>

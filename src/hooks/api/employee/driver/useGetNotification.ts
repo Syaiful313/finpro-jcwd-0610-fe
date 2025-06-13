@@ -29,12 +29,12 @@ const useGetNotifications = (queries?: GetNotificationsProps) => {
       });
       return data;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes - shorter for real-time feel
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: true, // Refetch when user comes back to tab
-    refetchOnMount: true, // Always refetch on mount for notifications
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: 30 * 1000, // Poll every 30 seconds for new notifications
+    refetchInterval: 30 * 1000,
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });

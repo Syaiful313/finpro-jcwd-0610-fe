@@ -23,12 +23,28 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const pathsWithoutBottomNav = [
-    "/employee/order-detail",
-    "/employee/profile/edit",
-    // tambahkan path lain sesuai kebutuhan
-  ];
-  const shouldShowBottomNav = !pathsWithoutBottomNav.includes(pathname);
+  const shouldHideBottomNav = (currentPath: string): boolean => {
+    const pathsWithoutBottomNav = [
+      "/employee/orders/order-detail",
+      "/employee/profile/edit",
+      "/employee/orders/process",
+    ];
+
+    const pathPatternsWithoutBottomNav = [
+      /^\/employee\/orders\/order-detail\/[^\/]+$/,
+      /^\/employee\/orders\/order-detail\/[^\/]+\/.*$/,
+    ];
+
+    if (pathsWithoutBottomNav.includes(currentPath)) {
+      return true;
+    }
+
+    return pathPatternsWithoutBottomNav.some((pattern) =>
+      pattern.test(currentPath),
+    );
+  };
+
+  const shouldShowBottomNav = !shouldHideBottomNav(pathname);
 
   useEffect(() => {
     if (isMobile) {
@@ -38,11 +54,9 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
     }
   }, [isMobile]);
 
-  // PINDAHKAN BreadcrumbProvider ke level atas agar tersedia di mobile dan desktop
   return (
     <BreadcrumbProvider>
       {isMobile ? (
-        // Mobile layout - sekarang sudah ada BreadcrumbProvider
         <main
           className={`min-h-screen bg-[#fafafa] ${shouldShowBottomNav ? "pb-20" : "pb-0"}`}
         >
@@ -54,7 +68,6 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
           {shouldShowBottomNav && <BottomNav />}
         </main>
       ) : (
-        // Desktop layout
         <SidebarProvider>
           <EmployeeSidebar role="WORKER" variant="inset" />
           <SidebarInset>

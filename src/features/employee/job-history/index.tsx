@@ -1,12 +1,13 @@
 "use client";
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { isDriver } from "@/utils/AuthRole";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useBreadcrumb } from "../components/BreadCrumbContext";
-import Desktop from "./components/Desktop";
-import Mobile from "./components/Mobile";
-import { useRouter } from "next/navigation";
+import DriverHistoryPage from "./components/DriverHistoryPage";
+import WorkerHistoryPage from "./components/WorkerHistoryPage";
 
 const JobHistoryPage = () => {
   const { data: session, status } = useSession();
@@ -25,7 +26,12 @@ const JobHistoryPage = () => {
       router.push("/");
     }
   }, [status, router]);
-  return isMobile ? <Mobile /> : <Desktop />;
+
+  return (
+    <div>
+      {isDriver(session) ? <DriverHistoryPage /> : <WorkerHistoryPage />}
+    </div>
+  );
 };
 
 export default JobHistoryPage;
