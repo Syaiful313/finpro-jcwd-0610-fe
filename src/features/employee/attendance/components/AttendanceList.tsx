@@ -21,7 +21,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -39,21 +38,19 @@ import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
 import { cn } from "@/lib/utils";
 import { isDriver, isWorker } from "@/utils/AuthRole";
 import { useSession } from "next-auth/react";
-import { toast } from "sonner";
 import Image from "next/image";
+import { toast } from "sonner";
 
 const AttendanceList = () => {
   const { data: session } = useSession();
   const isLimitedUser = isWorker(session) || isDriver(session);
 
   const [page, setPage] = useState(1);
-  const [take] = useState(10);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeId, setEmployeeId] = useState<number>();
 
-  // Applied filters for API call
   const [appliedFilters, setAppliedFilters] = useState({
     page: 1,
     take: 10,
@@ -175,10 +172,10 @@ const AttendanceList = () => {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="md:p6 space-y-6 p-3">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
+          <CardTitle className="flex items-center gap-2 text-2xl font-bold">
             <CalendarIcon className="h-5 w-5" />
             Attendance History
           </CardTitle>

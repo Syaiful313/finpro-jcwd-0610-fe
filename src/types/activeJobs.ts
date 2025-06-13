@@ -6,10 +6,12 @@ export type ActiveJobs = {
   jobType: "pickup" | "delivery";
   notes: string | null;
   order: {
+    uuid: string;
     actualDeliveryTime: string | null;
     actualPickupTime: string | null;
-    address_line: string;
+    addressLine: string;
     city: string;
+
     createdAt: string;
     district: string;
     notificationId: number;
@@ -33,7 +35,6 @@ export type ActiveJobs = {
       lastName: string;
       phoneNumber: string;
       userId: number;
-      uuid: string;
     };
   };
   photos: any[] | null;

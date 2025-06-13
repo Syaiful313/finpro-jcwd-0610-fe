@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useBreadcrumb } from "../../components/BreadCrumbContext";
+import PickupHistoryPage from "./components/PickUpHistory";
 
 const PickUpPage = () => {
   const { setBreadcrumbs } = useBreadcrumb();
@@ -12,7 +13,11 @@ const PickUpPage = () => {
       { label: "Pick up" },
     ]);
   }, [setBreadcrumbs]);
-  return <div>PickUpPage</div>;
+  return (
+    <div>
+      <PickupHistoryPage />
+    </div>
+  );
 };
 
 export default PickUpPage;

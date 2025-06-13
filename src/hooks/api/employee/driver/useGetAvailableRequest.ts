@@ -1,5 +1,4 @@
 import useAxios from "@/hooks/useAxios";
-import { DriverOrder, Order } from "@/types/order";
 import { PageableResponse, PaginationQueries } from "@/types/pagination";
 import { RequestList } from "@/types/requestList";
 import { useQuery } from "@tanstack/react-query";
