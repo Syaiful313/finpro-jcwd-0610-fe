@@ -15,8 +15,8 @@ import {
   StoreIcon,
   UsersIcon,
 } from "lucide-react";
-import * as React from "react";
 import { useSession } from "next-auth/react";
+import * as React from "react";
 
 import {
   Sidebar,
@@ -45,37 +45,37 @@ const data = {
       title: "Dashboard",
       url: "/admin/dashboard",
       icon: LayoutDashboardIcon,
-      roles: ["ADMIN", "OUTLET_ADMIN"], // dapat diakses oleh admin dan user
+      roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
       title: "Management User",
       url: "/admin/users",
       icon: UsersIcon,
-      roles: ["ADMIN", "OUTLET_ADMIN"], // hanya admin
+      roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
       title: "Management Outlet",
       url: "/admin/outlets",
       icon: StoreIcon,
-      roles: ["ADMIN"], // hanya admin
+      roles: ["ADMIN"],
     },
     {
       title: "Item Laundry",
       url: "/admin/items",
       icon: PackageIcon,
-      roles: ["ADMIN"], // hanya admin
+      roles: ["ADMIN"],
     },
     {
       title: "Order Laundry",
       url: "/admin/orders",
       icon: ShoppingCartIcon,
-      roles: ["ADMIN", "user"], // dapat diakses oleh admin dan user
+      roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
       title: "Bypass Request",
       url: "/admin/bypass-requests",
       icon: SettingsIcon,
-      roles: ["ADMIN"], // hanya admin
+      roles: ["ADMIN"],
     },
   ],
   navClouds: [
@@ -148,13 +148,13 @@ const data = {
       name: "Laporan Pendapatan",
       url: "#",
       icon: DatabaseIcon,
-      roles: ["ADMIN"], // hanya admin yang bisa lihat laporan
+      roles: ["ADMIN"],
     },
     {
       name: "Laporan Performa",
       url: "#",
       icon: BarChartIcon,
-      roles: ["ADMIN"], // hanya admin yang bisa lihat laporan
+      roles: ["ADMIN"],
     },
   ],
 };
@@ -162,17 +162,15 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status } = useSession();
 
-  // Filter navigasi berdasarkan role user
   const getFilteredNavItems = (items: any[]) => {
     if (!session?.user?.role) return [];
 
     return items.filter((item) => {
-      if (!item.roles) return true; // jika tidak ada roles, tampilkan untuk semua
+      if (!item.roles) return true;
       return item.roles.includes(session.user.role);
     });
   };
 
-  // Loading state saat session masih dimuat
   if (status === "loading") {
     return (
       <Sidebar collapsible="offcanvas" {...props}>
@@ -205,7 +203,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     );
   }
 
-  // Jika tidak ada session, jangan tampilkan navigasi sensitif
   if (!session) {
     return (
       <Sidebar collapsible="offcanvas" {...props}>
@@ -239,7 +236,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const filteredNavMain = getFilteredNavItems(data.navMain);
   const filteredDocuments = getFilteredNavItems(data.documents);
 
-  // Menyesuaikan format user untuk NavUser component
   const userForNavUser = {
     name: session.user?.firstName || "User",
     email: session.user?.email || "user@example.com",

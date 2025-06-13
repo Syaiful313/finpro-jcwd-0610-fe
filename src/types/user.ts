@@ -1,3 +1,5 @@
+import { Address } from "./address";
+
 export interface User {
   id: number;
   firstName: string;
@@ -5,7 +7,7 @@ export interface User {
   email: string;
   password: string;
   role: Role;
-  phoneNumber?: number;
+  phoneNumber?: string;
   profilePic?: string;
   isVerified?: boolean;
   provider?: Provider;
@@ -18,6 +20,7 @@ export interface User {
     npwp: string;
     createdAt: string;
   } | null;
+  addresses?: Address[];
 }
 
 export enum Role {
