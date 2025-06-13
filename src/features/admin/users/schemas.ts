@@ -1,4 +1,7 @@
 import * as Yup from "yup";
+import YupPassword from "yup-password";
+
+YupPassword(Yup);
 
 interface CreateUserSchemaOptions {
   isEditMode?: boolean;
@@ -30,20 +33,24 @@ export const createUserValidationSchema = ({
 
     password: !isEditMode
       ? Yup.string()
-          .min(8, "Password minimal 8 karakter")
-          .matches(
-            /^(?=.*[a-zA-Z])(?=.*\d)/,
-            "Password harus kombinasi huruf dan angka",
-          )
-          .required("Password wajib diisi")
+          .min(8, "Password must be at least 8 characters")
+          .minUppercase(1, "Must contain at least 1 uppercase letter")
+          .minSymbols(1, "Must contain at least 1 symbol")
+          .minNumbers(1, "Must contain at least 1 number")
+          .required("Password is required")
       : Yup.string()
           .optional()
           .test(
             "password-strength",
-            "Password harus kombinasi huruf dan angka",
+            "Password minimal 8 karakter dan kombinasi huruf, angka, simbol, dan huruf besar",
             function (value) {
-              if (!value || value === "") return true;
-              return /^(?=.*[a-zA-Z])(?=.*\d)/.test(value) && value.length >= 8;
+              if (!value || value.trim() === "") return true;
+              return (
+                /[A-Z]/.test(value) && 
+                /\d/.test(value) &&
+                /[!@#$%^&*(),.?":{}|<>]/.test(value) &&
+                value.length >= 8
+              );
             },
           ),
 
