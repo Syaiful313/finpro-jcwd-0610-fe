@@ -75,7 +75,7 @@ const data = {
       title: "Bypass Request",
       url: "/admin/bypass-requests",
       icon: SettingsIcon,
-      roles: ["ADMIN"],
+      roles: ["OUTLET_ADMIN"],
     },
   ],
   navClouds: [
