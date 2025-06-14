@@ -1,28 +1,16 @@
 import useAxios from "@/hooks/useAxios";
-import { axiosInstance } from "@/lib/axios";
 import { User } from "@/types/user";
-import { useMutation } from "@tanstack/react-query";
-import { getSession } from "next-auth/react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
-export const useGetUser = (userId: number) => {
+const useGetUser = (userId: number) => {
   const axiosInstance = useAxios();
-  return useMutation<User, Error, number>({
-    mutationFn: async () => {
-        const session = await getSession();
-        const token = session?.user.accessToken;
-        if (!token) throw new Error("No auth token found");
-        const { data } = await axiosInstance.get(`/user/${userId}`);
-        return data;
+  return useQuery<User>({
+    queryKey: ["user", userId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`/user/${userId}`);
+      return data;
     },
-    onSuccess: async (data) => {
-      toast.success("User data fetched successfully!");
-      console.log("Fetched user data:", data);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-      console.error("Get user error", error);
-    },
+    enabled: !!userId,
   });
 };
 

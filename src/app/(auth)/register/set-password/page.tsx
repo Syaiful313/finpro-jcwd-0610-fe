@@ -6,7 +6,6 @@ import { useSearchParams } from 'next/navigation';
 const SetPassword = () => {
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
-    console.log(token);
     return <SetPasswordPage token = {token as string}/>
 }
 

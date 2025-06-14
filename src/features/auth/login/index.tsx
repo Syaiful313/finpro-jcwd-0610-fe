@@ -1,16 +1,22 @@
 'use client';
-
-import Link from "next/link";
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import useLogin from "@/hooks/api/auth/useLogin";
-import { signIn } from "next-auth/react";
-import NavbarLogin from "./_components/NavbarLogin";
-import { useState } from "react";
+import { useFormik } from 'formik';
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import * as Yup from 'yup';
 
 const LoginPage = () => {
+    const router = useRouter();
+    const { status } = useSession();   
     const { mutate: login } = useLogin();
     const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (status === "authenticated") { router.replace("/user/profile") }
+    }, [status, router]); 
+    
     const LoginSchema = Yup.object().shape({
         email: Yup.string()
             .email('Invalid email address')
@@ -37,10 +43,9 @@ const LoginPage = () => {
     };
 
     return (
-        <>
-            <NavbarLogin/>
-            <div className="min-h-screen bg-white flex justify-center px-4 sm:px-6 lg:px-8 pt-4 md:pt-10">
-                <div className="max-w-xl w-full space-y-8 bg-white px-10 rounded-lg">
+        <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 py-32">
+            <div className="flex justify-center px-4 sm:px-6 lg:px-8 pt-4 md:pt-10">
+                <div className="max-w-2xl w-full space-y-8 px-10 rounded-lg">
                     <div className="text-center">
                         <h2 className="text-4xl font-extrabold text-gray-900">Welcome back!</h2>
                     </div>
@@ -115,7 +120,7 @@ const LoginPage = () => {
                             <div className="w-full border-t border-gray-300"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">Or</span>
+                            <span className="bg-gradient-to-br from-white to-blue-50 px-3 text-gray-500">Or</span>
                         </div>
                     </div>
                     <div className="mt-6 space-y-3">
@@ -132,7 +137,7 @@ const LoginPage = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 export default LoginPage;

@@ -50,7 +50,7 @@ const ServiceSection = () => {
             <div className="lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white">
                 <div className="rounded-lg max-w-full h-auto object-cover">
                     <Image
-                    src="/laundry-basket.webp"
+                    src="https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749784231/laundry-basket_zpkkzo.jpg"
                     alt="Laundry Basket"
                     width={600}
                     height={400}

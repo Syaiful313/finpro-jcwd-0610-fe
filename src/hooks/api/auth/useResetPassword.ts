@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export const useResetPassword = (token: string) => {
+const useResetPassword = (token: string) => {
   const router = useRouter();
   return useMutation({
     mutationFn: async (newPassword: string) => {
@@ -16,7 +16,6 @@ export const useResetPassword = (token: string) => {
           },
         },
       );
-      console.log(`Bearer ${token}`)
       return data;
     },
     onSuccess: () => {
@@ -24,7 +23,6 @@ export const useResetPassword = (token: string) => {
         router.push('/login');
     },
     onError: (error: any) => {
-        console.log(`Bearer ${token}`)
         const message = error?.response?.data?.message || 'Something went wrong';
         toast.error(message);
     }
