@@ -1,30 +1,39 @@
 'use client';
-
-import { FC, useState } from 'react';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import useResetPassword from '@/hooks/api/auth/useResetPassword';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useFormik } from 'formik';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { FC, useEffect, useState } from 'react';
+import * as Yup from 'yup';
+import yupPassword from 'yup-password';
 import InvalidToken from '../set-password/components/InvalidToken';
+yupPassword(Yup);
 
 interface ResetPasswordPageProps {
   token: string,
 }
 
 const ResetPasswordPage:FC<ResetPasswordPageProps> = ({token}) => {
+    const router = useRouter();
+    const { status } = useSession();   
     const { mutate: resetPassword } = useResetPassword(token);
     const [showPasswords, setShowPasswords] = useState(false);
+
+    useEffect(() => {
+        if (status === "authenticated") { router.replace("/user/profile") }
+    }, [status, router]); 
+
     const PasswordSchema = Yup.object().shape({
       newPassword: Yup.string()
         .min(8, 'Password must be at least 8 characters')
+        .minUppercase(1, 'Must contain at least 1 uppercase letter')
+        .minSymbols(1, 'Must contain at least 1 symbol')
+        .minNumbers(1, 'Must contain at least 1 number')
         .required('Password is required'),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref('newPassword')], 'Passwords must match')
         .required('Confirm password is required'),
     });
-
-    console.log("Token", token);
 
     const formik = useFormik({
       initialValues: {
@@ -35,7 +44,7 @@ const ResetPasswordPage:FC<ResetPasswordPageProps> = ({token}) => {
       onSubmit: async (values) => {
         const { newPassword } = values;
         if (!token) return;
-        resetPassword(newPassword);
+        resetPassword( newPassword );
       },
     });
 
@@ -51,14 +60,9 @@ const ResetPasswordPage:FC<ResetPasswordPageProps> = ({token}) => {
     
     return (
       <main>
-        <div className="relative z-10 flex justify-center px-4 pt-20 pb-10">
-          <div className="bg-white px-10 max-w-xl w-full space-y-8">
+        <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 relative z-10 flex justify-center px-4 py-48">
+          <div className="px-10 max-w-2xl w-full space-y-8">
             <div>
-              <div className="w-full max-w-lg h-18 mb-20 text-center relative">
-                <Link href="/">
-                  <Image src="/logo-text.svg" alt="logo-bubblify" className="object-contain mx-auto" fill/>
-                </Link>
-              </div>
               <h2 className="text-3xl font-extrabold text-gray-900 text-start">Reset Your Password</h2>
               <p className="mt-2 text-md text-gray-600 text-start">Enter a new password for your account.</p>
             </div>

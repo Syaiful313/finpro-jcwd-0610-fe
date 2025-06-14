@@ -7,8 +7,7 @@ const ResetPassword = () => {
     const router = useRouter()
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
-    if (!token || token === null) router.push('/login');
-    console.log(token);
+    // if (!token || token === null) router.push('/login');
     return <ResetPasswordPage token = {token as string}/>
 }
 

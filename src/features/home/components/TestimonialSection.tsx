@@ -5,28 +5,28 @@ const TestimonialsSection = () => {
       name: 'Dewi',
       text: "Bubblify is my go-to laundry service, no matter where I live. Their convenience, amazing-smelling detergent, and friendly delivery team make me absolutely obsessed. Highly recommended!",
       bgColor: 'bg-primary',
-      profileImg: '/dewi.webp', 
+      profileImg: 'https://res.cloudinary.com/dd6hqmwqu/image/upload/v1748006354/samples/bike.jpg', 
     },
     {
       id: 2,
       name: 'Arif',
       text: "Beyond convenient and always a delight! I'm obsessed with Bubblify, especially their fantastic-smelling detergent and incredibly friendly delivery staff. I've used them in every city and highly recommend!",
       bgColor: 'bg-[#F473B9]', 
-      profileImg: '/arif.webp', 
+      profileImg: 'https://res.cloudinary.com/dd6hqmwqu/image/upload/v1748006353/samples/people/kitchen-bar.jpg', 
     },
     {
       id: 3,
       name: 'Indah',
       text: "Obsessed with Bubblify! Their service is incredibly convenient, the detergent smells amazing, and every delivery person has been a pleasure. My top laundry choice, city after city.",
       bgColor: 'bg-[#FFBDE6]', 
-      profileImg: '/indah.webp', 
+      profileImg: 'https://res.cloudinary.com/dd6hqmwqu/image/upload/v1748006355/samples/people/bicycle.jpg', 
     },
     {
       id: 4,
       name: 'Rizky',
       text: "Bubblify has me hooked! Despite having laundry facilities available, I prefer their incredibly easy and great service. It makes me question why others still bother with their own laundry.",
       bgColor: 'bg-[#76DAFF]', 
-      profileImg: '/rizky.webp', 
+      profileImg: 'https://res.cloudinary.com/dd6hqmwqu/image/upload/v1748006355/samples/people/smiling-man.jpg', 
     },
   ];
 

@@ -1,30 +1,30 @@
 'use client';
-
-import { FC, useState } from 'react';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import Image from 'next/image';
-import InvalidToken from './components/InvalidToken';
-import Link from 'next/link';
 import useSetPassword from '@/hooks/api/auth/useSetPassword';
+import { useFormik } from 'formik';
+import { FC, useEffect, useState } from 'react';
+import * as Yup from 'yup';
+import yupPassword from 'yup-password';
+import InvalidToken from './components/InvalidToken';
+import { PasswordSchema } from './schema';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+yupPassword(Yup);
 
 interface SetPasswordPageProps {
   token: string,
 }
 
 const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
+    const router = useRouter();
+    const { status } = useSession();
     const { mutate: setPassword } = useSetPassword(token);
     const [showPasswords, setShowPasswords] = useState(false);
-    const PasswordSchema = Yup.object().shape({
-      password: Yup.string()
-        .min(8, 'Password must be at least 8 characters')
-        .required('Password is required'),
-      confirmPassword: Yup.string()
-        .oneOf([Yup.ref('password')], 'Passwords must match')
-        .required('Confirm password is required'),
-    });
 
-    console.log("TOKEN SET PASSWORD", token);
+    useEffect(() => {
+        if (status === "authenticated") {
+            router.replace("/user/profile");
+        }
+    }, [status, router]);  
 
     const formik = useFormik({
       initialValues: {
@@ -36,7 +36,6 @@ const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
         const { password } = values;
         if (!token) return;
         setPassword(password);
-        console.log("SEND SET PASSWORD", password)
       },
     });
 
@@ -51,15 +50,9 @@ const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
     }
 
     return (
-      <>
-        <div className="relative z-10 flex justify-center items-center p-10 px-4 bg-white">
+        <div className="min-h-screen flex justify-center items-center px-4 bg-gradient-to-br from-white to-blue-50">
           <div className="p-10 max-w-xl w-full mx-auto space-y-8">
             <div className="text-start">
-              <div className="w-full max-w-lg h-18 mb-20 text-center relative">
-                <Link href="/">
-                  <Image src="/logo-text.svg" alt="logo-bubblify" className="object-contain mx-auto" fill/>
-                </Link>
-              </div>
               <h2 className="text-4xl font-extrabold text-gray-900">Set Your New Password</h2>
               <p className="mt-2 text-md text-gray-600">Enter a new password for your account.</p>
             </div>
@@ -113,7 +106,6 @@ const SetPasswordPage:FC<SetPasswordPageProps> = ({token}) => {
             </form>
           </div>
         </div>
-      </>
     );
 };
 

@@ -1,4 +1,4 @@
-import { axiosInstance } from "@/lib/axios";
+import useAxios from "@/hooks/useAxios";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -7,7 +7,8 @@ interface ForgotPasswordPayload {
   email: string;
 }
 
-export const useForgotPassword = () => {
+const useForgotPassword = () => {
+  const axiosInstance = useAxios();
   const router = useRouter();
   return useMutation({
     mutationFn: async (payload: ForgotPasswordPayload) => {
@@ -21,8 +22,9 @@ export const useForgotPassword = () => {
     onError: (error: any) => {
         const message = error?.response?.data?.message || 'Something went wrong';
         toast.error(message);
+        console.error(error);
     }
   });
 };
 
-export default useForgotPassword;
+export default useForgotPassword

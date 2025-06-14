@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const DiscountBanner = () => {
   return (
     <div className="bg-[#76DAFF] my-20 py-20 md:py-30 flex flex-col items-center justify-center text-center relative overflow-hidden">
@@ -9,7 +11,9 @@ const DiscountBanner = () => {
             <p className="text-gray-800 uppercase tracking-widest text-sm md:text-base mb-2">SCHEDULE TODAY TO</p>
             <h2 className="text-4xl md:text-6xl font-extrabold text-gray-800 leading-tight mb-4">Get 20% off</h2>
             <p className="text-primary text-3xl md:text-5xl font-extrabold mb-8">your first order</p>
-            <button className="bg-primary hover:bg-secondary text-white hover:text-primary font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out">Schedule your first pickup</button>
+            <Link href='/order/request'>
+            <button className="bg-primary hover:bg-secondary text-white hover:text-primary font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out hover:cursor-pointer">Schedule your first pickup</button>
+            </Link>
         </div>
     </div>
   );

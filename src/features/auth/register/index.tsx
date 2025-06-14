@@ -2,12 +2,20 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
-import NavbarLogin from '../login/_components/NavbarLogin';
+import { signIn, useSession } from 'next-auth/react';
 import useRegister from '@/hooks/api/auth/useRegister';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const RegisterPage = () => {
+    const router = useRouter();
+    const { status } = useSession();   
     const { mutate: register } = useRegister();
+
+    useEffect(() => {
+        if (status === "authenticated") { router.replace("/user/profile") }
+    }, [status, router]); 
+
     const SignupSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(2, 'Minimum of first name is 2 characters')
@@ -34,15 +42,14 @@ const RegisterPage = () => {
         },
         validationSchema: SignupSchema,
         onSubmit: (values) => {
+            console.log("sending data", values)
             register(values);
         },
     });
 
     return (
-        <>
-        <NavbarLogin/>
-        <div className="min-h-screen bg-white flex justify-center px-4 sm:px-6 lg:px-8 md:pt-8">
-            <div className="max-w-xl w-full space-y-8 bg-white px-10 rounded-lg">
+        <div className="min-h-screen bg-white flex justify-center px-4 lg:px-8 py-32 lg:py-48">
+            <div className="max-w-2xl w-full space-y-8 bg-white px-10 rounded-lg">
                 <div className="text-center">
                     <h2 className="text-2xl md:text-4xl font-extrabold text-gray-900">Create your account</h2>
                 </div>
@@ -138,7 +145,6 @@ const RegisterPage = () => {
                 </p>
             </div>
         </div>
-    </>
 )};
 
 export default RegisterPage

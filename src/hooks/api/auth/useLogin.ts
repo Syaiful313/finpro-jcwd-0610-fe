@@ -5,11 +5,15 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export const useLogin = () => {
-  const router = useRouter();
+interface LoginPayload {
+  email: string;
+  password: string;
+}
 
+const useLogin = () => {
+  const router = useRouter();
   return useMutation({
-    mutationFn: async (payload: Pick<User, "email" | "password">) => {
+    mutationFn: async (payload: LoginPayload) => {
       const { data } = await axiosInstance.post("/auth/login", payload);
       return data;
     },
@@ -21,13 +25,13 @@ export const useLogin = () => {
       } else if (data.role === "WORKER" || data.role === "DRIVER") {
         router.push("/employee");
       } else {
-        console.log("ini role", data.role);
         router.push("/");
       }
     },
-    onError: (error) => {
-      toast.error(error.message);
-      console.error("Login error", error);
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || 'Something went wrong';
+      toast.error(message);
+      console.error(error);
     },
   });
 };

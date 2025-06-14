@@ -1,8 +1,6 @@
 'use client';
-
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import NavbarLogin from '../login/_components/NavbarLogin';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
@@ -18,10 +16,8 @@ const EmailVerificationPage = () => {
   }, [session, status]);
 
   return (
-    <>
-      <NavbarLogin/>
-      <div className="bg-white flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-xl w-full space-y-8 bg-white p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 flex flex-col justify-center items-center py-32 px-4 lg:px-8">
+        <div className="max-w-2xl w-full space-y-8 p-8 text-center">
           <h2 className="text-4xl font-extrabold text-gray-900">Check Your Email</h2>
           <p className="mt-2 text-lg text-gray-600">
             We've sent a verification link to your email address. Please click the link in the email to verify your account and set your password.
@@ -36,7 +32,6 @@ const EmailVerificationPage = () => {
           </div>
         </div>
       </div>
-    </>
   );
 };
 
