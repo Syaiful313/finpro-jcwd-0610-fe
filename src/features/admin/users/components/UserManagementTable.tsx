@@ -1,7 +1,6 @@
 "use client";
 
 import PaginationSection from "@/components/PaginationSection";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,9 +22,9 @@ import useGetUsers, { User as ApiUser } from "@/hooks/api/admin/useGetUsers";
 import { ROLE_CONFIG } from "@/lib/config";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  Calendar,
   ChevronDownIcon,
   Edit,
+  Filter,
   FilterIcon,
   Loader2,
   Mail,
@@ -58,39 +57,51 @@ const getCellClass = (columnId: string) => {
       "min-w-[100px] sm:min-w-[120px] text-xs sm:text-sm hidden md:table-cell",
     role: "w-24 sm:w-32 text-center",
     status: "w-20 sm:w-24 text-center hidden sm:table-cell",
-    // date: "w-24 sm:w-32 text-xs sm:text-sm hidden lg:table-cell",
     actions: "w-20 sm:w-32 text-center",
   };
   return `${baseClass} ${styles[columnId] || "text-xs sm:text-sm"}`;
 };
 
 const RoleBadge = ({ role }: { role: string }) => {
+  const getRoleBadgeStyle = (role: string) => {
+    const styles = {
+      CUSTOMER: "bg-blue-100 text-blue-700",
+      WORKER: "bg-blue-200 text-blue-800",
+      ADMIN: "bg-blue-300 text-blue-900",
+      DRIVER: "bg-blue-200 text-blue-800",
+      OUTLET_ADMIN: "bg-blue-300 text-blue-900",
+    };
+    return styles[role as keyof typeof styles] || styles.CUSTOMER;
+  };
+
   const config = ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] || {
-    color: "bg-gray-50 text-gray-700 border-gray-200",
     label: role,
   };
 
   return (
-    <Badge
-      variant="outline"
-      className={`px-1.5 py-0.5 text-xs font-medium sm:px-2 sm:py-1 ${config.color}`}
+    <span
+      className={`inline-block rounded px-1.5 py-0.5 text-xs font-semibold ${getRoleBadgeStyle(role)}`}
     >
       {config.label}
-    </Badge>
+    </span>
   );
 };
 
 const StatusBadge = ({ isVerified }: { isVerified: boolean }) => (
-  <Badge
-    variant="outline"
-    className={`px-1.5 py-0.5 text-xs font-medium sm:px-2 sm:py-1 ${
+  <div
+    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
       isVerified
-        ? "border-green-200 bg-green-50 text-green-700"
-        : "border-yellow-200 bg-yellow-50 text-yellow-700"
+        ? "bg-green-100 text-green-700"
+        : "bg-yellow-100 text-yellow-700"
     }`}
   >
+    <div
+      className={`h-2 w-2 rounded-full ${
+        isVerified ? "bg-green-500" : "bg-yellow-500"
+      }`}
+    />
     {isVerified ? "Verified" : "Unverified"}
-  </Badge>
+  </div>
 );
 
 const UserCard = ({
@@ -109,68 +120,107 @@ const UserCard = ({
   onEdit: (user: ApiUser) => void;
   onDelete: (id: number, name: string) => void;
   isDeleting: boolean;
-}) => (
-  <div className="rounded-lg border bg-white p-2.5 shadow-sm">
-    <div className="mb-2 flex items-start justify-between">
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-2">
-          <span className="text-xs text-gray-500">{index} .</span>
-          <RoleBadge role={user.role} />
-        </div>
-        <h3 className="truncate pr-1 text-sm font-medium text-gray-900">
-          {user.firstName} {user.lastName}
-        </h3>
-      </div>
-      {isAdmin && (
-        <div className="flex flex-shrink-0 gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0 text-green-600 hover:bg-green-50"
-            onClick={() => onEdit(user)}
+}) => {
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName?.charAt(0) || ""}${lastName?.charAt(0) || ""}`.toUpperCase();
+  };
+
+  const getRoleColors = (role: string) => {
+    const roleColors = {
+      CUSTOMER: { avatar: "bg-gradient-to-br from-blue-500 to-blue-600" },
+      WORKER: { avatar: "bg-gradient-to-br from-blue-600 to-blue-700" },
+      ADMIN: { avatar: "bg-gradient-to-br from-blue-800 to-blue-900" },
+      DRIVER: { avatar: "bg-gradient-to-br from-blue-700 to-blue-800" },
+      OUTLET_ADMIN: { avatar: "bg-gradient-to-br from-blue-800 to-blue-900" },
+    };
+    return roleColors[role as keyof typeof roleColors] || roleColors.CUSTOMER;
+  };
+
+  const roleColors = getRoleColors(user.role);
+
+  return (
+    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
+      {/* Header */}
+      <div className="border-b border-slate-200 bg-slate-50 p-3.5">
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`h-9 w-9 ${roleColors.avatar} flex flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white`}
           >
-            <Edit className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0 text-red-600 hover:bg-red-50"
-            onClick={() =>
-              onDelete(user.id, `${user.firstName} ${user.lastName}`)
-            }
-            disabled={isDeleting}
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
+            {getInitials(user.firstName, user.lastName)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900">
+              {user.firstName} {user.lastName}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <RoleBadge role={user.role} />
+              <span className="flex items-center gap-1 text-xs font-semibold text-green-600">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                {user.isVerified ? "Verified" : "Unverified"}
+              </span>
+            </div>
+          </div>
         </div>
-      )}
-    </div>
-
-    <div className="space-y-1.5 text-xs text-gray-600">
-      <div className="flex items-center">
-        <Mail className="mr-1 h-3 w-3 flex-shrink-0" />
-        <span className="truncate">{user.email}</span>
       </div>
 
-      {user.phoneNumber && (
-        <div className="flex items-center">
-          <Phone className="mr-1 h-3 w-3 flex-shrink-0" />
-          <span>{user.phoneNumber}</span>
+      {/* Body */}
+      <div className="p-3.5">
+        {/* Contact list */}
+        <div className="mb-3 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <Mail className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+            <span className="truncate">{user.email}</span>
+          </div>
+          {user.phoneNumber && (
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <Phone className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+              <span>{user.phoneNumber}</span>
+            </div>
+          )}
+          {isOutletAdmin && user.employeeInfo && (
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <svg
+                className="h-3.5 w-3.5 flex-shrink-0 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span>NPWP: {user.employeeInfo.npwp}</span>
+            </div>
+          )}
         </div>
-      )}
 
-      {isOutletAdmin && user.employeeInfo && (
-        <div className="text-green-600">
-          <span className="font-medium">NPWP:</span> {user.employeeInfo.npwp}
-        </div>
-      )}
-
-      <div className="flex items-center justify-end pt-1">
-        <StatusBadge isVerified={user.isVerified} />
+        {/* Actions */}
+        {isAdmin && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => onEdit(user)}
+              className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-50"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() =>
+                onDelete(user.id, `${user.firstName} ${user.lastName}`)
+              }
+              disabled={isDeleting}
+              className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const UserRow = ({
   user,
@@ -392,105 +442,181 @@ export function UserManagementTable() {
 
   return (
     <>
-      <div className="space-y-3 px-1 sm:space-y-6 sm:px-4 lg:px-0">
-        <div className="px-1 sm:px-0">
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-            User Management
-          </h1>
-          <p className="text-sm text-gray-600 sm:text-base">
-            {isAdmin
-              ? "Kelola pengguna aplikasi dan permission mereka"
-              : "Lihat pengguna di outlet Anda"}
-          </p>
-        </div>
-
-        <div className="mx-1 flex flex-col gap-3 rounded-lg border p-2 shadow-sm sm:mx-0 sm:gap-4 sm:p-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative w-full lg:max-w-md lg:flex-1">
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Cari berdasarkan nama atau email..."
-              value={filters.search}
-              onChange={(e) => updateFilters({ search: e.target.value })}
-              className="pl-10 text-sm"
-            />
+      <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
+        {/* Mobile Header */}
+        <div className="block sm:hidden">
+          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+            {/* Header content */}
+            <div className="px-4 py-14">
+              <h1 className="text-2xl font-bold">User Management</h1>
+              <p className="mt-2 opacity-90">
+                {isAdmin
+                  ? "Kelola pengguna aplikasi dan permission mereka"
+                  : "Lihat pengguna di outlet Anda"}
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 lg:flex-shrink-0">
-            {isAdmin && (
-              <Button
-                onClick={handleCreateUser}
-                className="flex h-9 items-center justify-center gap-2 text-sm sm:h-10"
-              >
-                <UserPlus className="h-4 w-4" />
-                <span className="xs:inline hidden">Tambah User</span>
-                <span className="xs:hidden">Tambah</span>
-              </Button>
-            )}
+          {/* Search and filter section - overlapping white card */}
+          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+            {/* Search input */}
+            <div className="relative mb-2">
+              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Cari berdasarkan nama atau email..."
+                value={filters.search}
+                onChange={(e) => updateFilters({ search: e.target.value })}
+                className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-9 min-w-0 text-sm sm:h-10 lg:min-w-[140px]"
-                >
-                  <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <span className="truncate text-xs sm:text-sm">
-                    {filters.role
-                      ? availableRoles[
-                          filters.role as keyof typeof availableRoles
-                        ]?.label
-                      : "Semua Role"}
-                  </span>
-                  <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => updateFilters({ role: "" })}>
-                  Semua Role
-                </DropdownMenuItem>
-                {Object.entries(availableRoles).map(([role, config]) => (
-                  <DropdownMenuItem
-                    key={role}
-                    onClick={() => updateFilters({ role })}
-                  >
-                    {config.label}
+            {/* Filter and Add buttons */}
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600">
+                    <Filter className="h-4 w-4" />
+                    <span>
+                      {filters.role
+                        ? availableRoles[
+                            filters.role as keyof typeof availableRoles
+                          ]?.label
+                        : "Semua Role"}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => updateFilters({ role: "" })}>
+                    Semua Role
                   </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {Object.entries(availableRoles).map(([role, config]) => (
+                    <DropdownMenuItem
+                      key={role}
+                      onClick={() => updateFilters({ role })}
+                    >
+                      {config.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            <Button
-              variant="outline"
-              onClick={() =>
-                updateFilters({
-                  search: "",
-                  role: "",
-                  page: 1,
-                })
-              }
-              disabled={!filters.search && !filters.role}
-              className="h-9 text-sm sm:h-10"
-            >
-              Reset
-            </Button>
+              {isAdmin && (
+                <button
+                  onClick={handleCreateUser}
+                  className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Tambah
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="block px-1 sm:hidden sm:px-0">
+        {/* Desktop Header */}
+        <div className="hidden sm:block">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+            <h1 className="text-2xl font-bold">User Management</h1>
+            <p className="mt-2 opacity-90">
+              {isAdmin
+                ? "Kelola pengguna aplikasi dan permission mereka"
+                : "Lihat pengguna di outlet Anda"}
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop Search & Filter Section */}
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative w-full lg:max-w-md lg:flex-1">
+              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Cari berdasarkan nama atau email..."
+                value={filters.search}
+                onChange={(e) => updateFilters({ search: e.target.value })}
+                className="rounded-xl border-gray-200 pl-12 text-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-shrink-0">
+              {isAdmin && (
+                <Button
+                  onClick={handleCreateUser}
+                  className="flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-500 text-sm hover:bg-blue-700"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  <span className="xs:inline hidden">Tambah User</span>
+                  <span className="xs:hidden">Tambah</span>
+                </Button>
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                  >
+                    <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span className="truncate text-xs sm:text-sm">
+                      {filters.role
+                        ? availableRoles[
+                            filters.role as keyof typeof availableRoles
+                          ]?.label
+                        : "Semua Role"}
+                    </span>
+                    <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => updateFilters({ role: "" })}>
+                    Semua Role
+                  </DropdownMenuItem>
+                  {Object.entries(availableRoles).map(([role, config]) => (
+                    <DropdownMenuItem
+                      key={role}
+                      onClick={() => updateFilters({ role })}
+                    >
+                      {config.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="outline"
+                onClick={() =>
+                  updateFilters({
+                    search: "",
+                    role: "",
+                    page: 1,
+                  })
+                }
+                disabled={!filters.search && !filters.role}
+                className="h-10 rounded-xl border-gray-200 text-sm"
+              >
+                Reset
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="block sm:hidden">
           {isLoading ? (
             <div className="flex h-32 items-center justify-center">
               <Loader2 className="mr-2 h-6 w-6 animate-spin" />
               <span className="text-sm">Memuat data user...</span>
             </div>
           ) : error ? (
-            <div className="p-4 text-center text-red-500">
+            <div className="mx-3 p-4 text-center text-red-500">
               <div className="text-sm">Kesalahan memuat data</div>
               <div className="mt-1 text-xs text-red-400">
                 {error.message || "Kesalahan tidak diketahui"}
               </div>
             </div>
           ) : usersData?.data?.length ? (
-            <div className="space-y-2">
+            <div className="space-y-2 px-3 pt-2">
               {usersData.data.map((user, index) => (
                 <UserCard
                   key={user.id}
@@ -505,8 +631,8 @@ export function UserManagementTable() {
               ))}
             </div>
           ) : (
-            <div className="p-3 text-center">
-              <span className="mb-3 block text-sm text-gray-500">
+            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center">
+              <span className="mb-4 block text-sm text-gray-500">
                 {isOutletAdmin
                   ? "Tidak ada driver atau worker ditemukan di outlet Anda"
                   : "Tidak ada data pengguna ditemukan"}
@@ -515,7 +641,7 @@ export function UserManagementTable() {
                 <Button
                   onClick={handleCreateUser}
                   variant="outline"
-                  className="mx-auto flex items-center gap-2"
+                  className="mx-auto flex items-center gap-2 rounded-xl"
                   size="sm"
                 >
                   <UserPlus className="h-4 w-4" />
@@ -526,7 +652,8 @@ export function UserManagementTable() {
           )}
         </div>
 
-        <div className="mx-1 hidden rounded-lg border shadow-sm sm:mx-0 sm:block">
+        {/* Desktop Table View */}
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -558,7 +685,7 @@ export function UserManagementTable() {
                 {isLoading ? (
                   <TableRow>
                     <TableCell
-                      colSpan={isAdmin ? 7 : 6}
+                      colSpan={isAdmin ? 6 : 5}
                       className="h-32 text-center"
                     >
                       <div className="flex items-center justify-center">
@@ -570,7 +697,7 @@ export function UserManagementTable() {
                 ) : error ? (
                   <TableRow>
                     <TableCell
-                      colSpan={isAdmin ? 7 : 6}
+                      colSpan={isAdmin ? 6 : 5}
                       className="h-32 text-center text-red-500"
                     >
                       <div>
@@ -597,7 +724,7 @@ export function UserManagementTable() {
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={isAdmin ? 7 : 6}
+                      colSpan={isAdmin ? 6 : 5}
                       className="h-32 text-center"
                     >
                       <div className="flex flex-col items-center justify-center space-y-3">
@@ -610,7 +737,7 @@ export function UserManagementTable() {
                           <Button
                             onClick={handleCreateUser}
                             variant="outline"
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 rounded-xl"
                             size="sm"
                           >
                             <UserPlus className="h-4 w-4" />
@@ -626,8 +753,25 @@ export function UserManagementTable() {
           </div>
         </div>
 
+        {/* Desktop Pagination */}
         {usersData?.meta && (
-          <div className="mx-1 rounded-b-lg border-t bg-white px-2 py-2 sm:mx-0 sm:px-4 sm:py-3">
+          <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex">
+            <PaginationSection
+              page={usersData.meta.page}
+              take={usersData.meta.take}
+              total={usersData.meta.total}
+              hasNext={
+                usersData.meta.page * usersData.meta.take < usersData.meta.total
+              }
+              hasPrevious={usersData.meta.page > 1}
+              onChangePage={(newPage) => updateFilters({ page: newPage })}
+            />
+          </div>
+        )}
+
+        {/* Mobile Pagination */}
+        {usersData?.meta && (
+          <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden">
             <PaginationSection
               page={usersData.meta.page}
               take={usersData.meta.take}

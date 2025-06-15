@@ -3,24 +3,24 @@ import { Search, PaintBucket, SoapDispenserDroplet, Package } from 'lucide-react
 const StepsSection = () => {
     const steps = [
         {
-        icon: Search,
-        title: 'Thorough check before cleaning',
-        description: 'We give your clothes a careful once-over, making sure pockets are empty and garments are ready for the wash.',
+            icon: Search,
+            title: 'Thorough check before cleaning',
+            description: 'We give your clothes a careful once-over, making sure pockets are empty and garments are ready for the wash.',
         },
         {
-        icon: PaintBucket, 
-        title: 'Gentle, color-safe washing',
-        description: ' Your laundry is sorted by color and washed using cold water to protect fabrics and save energy.',
+            icon: PaintBucket, 
+            title: 'Gentle, color-safe washing',
+            description: ' Your laundry is sorted by color and washed using cold water to protect fabrics and save energy.',
         },
         {
-        icon: SoapDispenserDroplet, 
-        title: 'Personalized cleaning options',
-        description: 'Whether you prefer fragrance-free detergent, extra softening, or special care, just tell us your preferences, we have got you covered.',
+            icon: SoapDispenserDroplet, 
+            title: 'Personalized cleaning options',
+            description: 'Whether you prefer fragrance-free detergent, extra softening, or special care, just tell us your preferences, we have got you covered.',
         },
         {
-        icon: Package, 
-        title: 'Perfectly ironed and delivered',
-        description: ' We ironed your clothes neatly, match your socks, and bring everything back to your doorstep, fresh, organized, and ready to go.',
+            icon: Package, 
+            title: 'Perfectly ironed and delivered',
+            description: ' We ironed your clothes neatly, match your socks, and bring everything back to your doorstep, fresh, organized, and ready to go.',
         },
     ];
 

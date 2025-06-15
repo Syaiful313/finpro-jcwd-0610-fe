@@ -7,7 +7,9 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AppSidebar } from "../../components/AppSidebar";
 import { ProcessOrderForm } from "./components/ProcessOrderForm";
-import { SiteHeaderOrdersDetail } from "./components/SiteHeaderOrdersDetail";
+import {
+  SiteHeaderOrderProcessDetail,
+} from "./components/SiteHeaderOrderProcessDetail";
 
 interface OrdersDetailPageProps {
   orderId: string;
@@ -36,7 +38,7 @@ export default function OrdersDetailPage({ orderId }: OrdersDetailPageProps) {
       <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset>
-          <SiteHeaderOrdersDetail orderId={orderId} />
+          <SiteHeaderOrderProcessDetail orderId={orderId} />
           <div className="flex flex-1 flex-col items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
             <span className="ml-2">Loading order detail...</span>
@@ -51,7 +53,7 @@ export default function OrdersDetailPage({ orderId }: OrdersDetailPageProps) {
       <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset>
-          <SiteHeaderOrdersDetail orderId={orderId} />
+          <SiteHeaderOrderProcessDetail orderId={orderId} />
           <div className="flex flex-1 flex-col items-center justify-center">
             <div className="text-center">
               <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
@@ -79,11 +81,11 @@ export default function OrdersDetailPage({ orderId }: OrdersDetailPageProps) {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeaderOrdersDetail orderId={orderId} />
+        <SiteHeaderOrderProcessDetail orderId={orderId} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">
+            <div className="flex flex-col gap-4 md:gap-6 md:py-4">
+              <div className="px-1">
                 <ProcessOrderForm
                   orderId={orderId}
                   orderNumber={orderDetail.orderNumber}

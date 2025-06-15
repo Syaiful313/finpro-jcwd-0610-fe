@@ -7,10 +7,6 @@ export const useSetPassword = (token: string) => {
   const router = useRouter();
   return useMutation({
     mutationFn: async (password: string) => {
-      console.log("🔐 SENDING DATA");
-      console.log("Password:", password);
-      console.log("Token:", token);
-      console.log("Authorization Header:", `Bearer ${token}`);
       const { data } = await axiosInstance.post(
         "/auth/verify-email-and-set-password",
         { password },
@@ -20,7 +16,6 @@ export const useSetPassword = (token: string) => {
           },
         },
       );
-      console.log(`Sending Bearer ${token}`)
       return data;
     },
     onSuccess: () => {

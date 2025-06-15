@@ -25,14 +25,17 @@ import useGetLaundryItems, {
 import {
   ChevronDownIcon,
   Edit,
+  Filter,
   FilterIcon,
   Loader2,
   Package,
+  PackagePlus,
   Plus,
   Search,
   ShirtIcon,
   Tag,
   Trash2,
+  Weight,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import {
@@ -68,16 +71,18 @@ const getCellClass = (columnId: string) => {
 };
 
 const StatusBadge = ({ isActive }: { isActive: boolean }) => (
-  <Badge
-    variant="outline"
-    className={`px-1.5 py-0.5 text-xs font-medium sm:px-2 sm:py-1 ${
-      isActive
-        ? "border-green-200 bg-green-50 text-green-700"
-        : "border-red-200 bg-red-50 text-red-700"
+  <div
+    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
+      isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
     }`}
   >
+    <div
+      className={`h-2 w-2 rounded-full ${
+        isActive ? "bg-green-500" : "bg-red-500"
+      }`}
+    />
     {isActive ? "Active" : "Inactive"}
-  </Badge>
+  </div>
 );
 
 const PricingTypeBadge = ({
@@ -135,75 +140,99 @@ const LaundryItemCard = ({
   index: number;
   onEdit: (item: ApiLaundryItem) => void;
   onDelete: (item: ApiLaundryItem) => void;
-}) => (
-  <div className="rounded-lg border bg-white p-2.5 shadow-sm">
-    <div className="mb-2 flex items-start justify-between">
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-2">
-          <span className="text-xs text-gray-500">{index} .</span>
-          <StatusBadge isActive={laundryItem.isActive} />
+}) => {
+  // Generate initials from item name
+  const getInitials = (itemName: string) => {
+    return itemName
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Color mapping for status
+  const getStatusColors = (isActive: boolean) => {
+    return isActive
+      ? { avatar: 'bg-gradient-to-br from-green-500 to-green-600' }
+      : { avatar: 'bg-gradient-to-br from-red-500 to-red-600' };
+  };
+
+  const statusColors = getStatusColors(laundryItem.isActive);
+
+  return (
+    <div className="bg-white rounded-2xl shadow-md border-l-4 border-blue-500 overflow-hidden transition-all duration-300 hover:shadow-lg">
+      {/* Header */}
+      <div className="p-3.5 bg-slate-50 border-b border-slate-200">
+        <div className="flex items-center gap-2.5">
+          <div className={`w-9 h-9 ${statusColors.avatar} rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0`}>
+            {getInitials(laundryItem.name)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-slate-900 text-sm whitespace-nowrap overflow-hidden text-ellipsis mb-0.5">
+              {laundryItem.name}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <StatusBadge isActive={laundryItem.isActive} />
+              <PricingTypeBadge pricingType={laundryItem.pricingType} />
+            </div>
+          </div>
         </div>
-        <h3 className="truncate pr-1 text-sm font-medium text-gray-900">
-          {laundryItem.name}
-        </h3>
       </div>
-      <div className="flex flex-shrink-0 gap-1">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onEdit(laundryItem)}
-          className="h-7 w-7 p-0"
-          title="Edit Item"
-        >
-          <Edit className="h-3 w-3" />
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onDelete(laundryItem)}
-          className="h-7 w-7 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
-          title="Hapus Item"
-        >
-          <Trash2 className="h-3 w-3" />
-        </Button>
+
+      {/* Body */}
+      <div className="p-3.5">
+        {/* Category */}
+        <div className="mb-3">
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Kategori</div>
+          <div className="text-sm text-slate-600 leading-relaxed">{laundryItem.category}</div>
+        </div>
+
+        {/* Price & Usage */}
+        <div className="flex flex-col gap-2 mb-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <Tag className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+              <span>Harga:</span>
+            </div>
+            <div className="text-right">
+              {laundryItem.pricingType === "PER_KG" ? (
+                <div className="text-sm font-medium text-gray-400">-</div>
+              ) : (
+                <>
+                  <div className="text-sm font-medium text-gray-900">
+                    Rp {laundryItem.basePrice.toLocaleString("id-ID")}
+                  </div>
+                  <div className="text-xs text-gray-500">per pcs</div>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-2 text-xs text-green-600">
+            <Package className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>{laundryItem._count.orderItems} Orders</span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onEdit(laundryItem)}
+            className="flex-1 py-1.5 px-3.5 text-xs font-medium text-blue-600 border border-slate-300 rounded-lg bg-white hover:bg-blue-50 transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(laundryItem)}
+            className="flex-1 py-1.5 px-3.5 text-xs font-medium text-red-600 border border-slate-300 rounded-lg bg-white hover:bg-red-50 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </div>
-
-    <div className="space-y-1.5 text-xs text-gray-600">
-      <div className="flex items-center gap-2">
-        <Tag className="h-3 w-3 flex-shrink-0" />
-        <span className="font-medium text-gray-800">Kategori:</span>
-        <span className="text-gray-600">{laundryItem.category}</span>
-      </div>
-
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center">
-          <ShirtIcon className="mr-1 h-3 w-3 flex-shrink-0" />
-          <PricingTypeBadge pricingType={laundryItem.pricingType} />
-        </div>
-        <div className="text-right">
-          {laundryItem.pricingType === "PER_KG" ? (
-            <div className="font-medium text-gray-400">-</div>
-          ) : (
-            <>
-              <div className="font-medium text-gray-800">
-                Rp {laundryItem.basePrice.toLocaleString("id-ID")}
-              </div>
-              <div className="text-xs text-gray-500">per pcs</div>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-center gap-4 pt-1">
-        <div className="flex items-center text-green-600">
-          <Package className="mr-1 h-3 w-3" />
-          <span>{laundryItem._count.orderItems} Orders</span>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 const LaundryItemRow = ({
   laundryItem,
@@ -436,262 +465,416 @@ export function LaundryItemManagementTable() {
   }
 
   return (
-    <div className="space-y-3 px-1 sm:space-y-6 sm:px-4 lg:px-0">
-      <div className="px-1 sm:px-0">
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-          Laundry Item Management
-        </h1>
-        <p className="text-sm text-gray-600 sm:text-base">
-          Lihat dan kelola item laundry dalam sistem
-        </p>
-      </div>
-
-      <div className="mx-1 flex flex-col gap-3 rounded-lg border p-2 shadow-sm sm:mx-0 sm:gap-4 sm:p-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="relative w-full lg:max-w-md lg:flex-1">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <Input
-            placeholder="Cari berdasarkan nama item atau kategori..."
-            value={filters.search}
-            onChange={(e) => updateFilters({ search: e.target.value })}
-            className="pl-10 text-sm"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 lg:flex-shrink-0">
-          <Button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex h-9 items-center justify-center gap-2 text-sm sm:h-10"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="xs:inline hidden">Tambah Item</span>
-            <span className="xs:hidden">Tambah</span>
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-9 min-w-0 text-sm sm:h-10 lg:min-w-[140px]"
-              >
-                <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate text-xs sm:text-sm">
-                  {filters.isActive == null
-                    ? "Semua Status"
-                    : filters.isActive
-                      ? "Active"
-                      : "Inactive"}
-                </span>
-                <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={() => updateFilters({ isActive: null })}
-              >
-                Semua Status
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => updateFilters({ isActive: true })}
-              >
-                Active Only
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => updateFilters({ isActive: false })}
-              >
-                Inactive Only
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-9 min-w-0 text-sm sm:h-10 lg:min-w-[140px]"
-              >
-                <Tag className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate text-xs sm:text-sm">
-                  {getPricingTypeDisplayText(filters.pricingType)}
-                </span>
-                <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={() => updateFilters({ pricingType: "" })}
-              >
-                Semua Tipe
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => updateFilters({ pricingType: "PER_PIECE" })}
-              >
-                Per Piece
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => updateFilters({ pricingType: "PER_KG" })}
-              >
-                Per Kg
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button
-            variant="outline"
-            onClick={() =>
-              updateFilters({
-                search: "",
-                isActive: null,
-                category: null,
-                pricingType: "",
-                page: 1,
-              })
-            }
-            disabled={!hasActiveFilters()}
-            className="h-9 text-sm sm:h-10"
-          >
-            Reset
-          </Button>
-        </div>
-      </div>
-
-      <div className="block px-1 sm:hidden sm:px-0">
-        {isLoading ? (
-          <div className="flex h-32 items-center justify-center">
-            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-            <span className="text-sm">Memuat data item laundry...</span>
-          </div>
-        ) : error ? (
-          <div className="p-4 text-center text-red-500">
-            <div className="text-sm">Kesalahan memuat data item laundry</div>
-            <div className="mt-1 text-xs text-red-400">
-              {error.message || "Kesalahan tidak diketahui"}
+    <>
+      <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
+        {/* Mobile Header */}
+        <div className="block sm:hidden">
+          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+            {/* Header content */}
+            <div className="px-5 py-14">
+              <h1 className="text-2xl font-bold">Laundry Item Management</h1>
+              <p className="mt-2 opacity-90">
+                Lihat dan kelola item laundry dalam sistem
+              </p>
             </div>
           </div>
-        ) : laundryItemsData?.data?.length ? (
-          <div className="space-y-2">
-            {laundryItemsData.data.map((laundryItem, index) => (
-              <LaundryItemCard
-                key={laundryItem.id}
-                laundryItem={laundryItem}
-                index={(filters.page - 1) * PAGE_SIZE + index + 1}
-                onEdit={handleEditItem}
-                onDelete={handleDeleteItem}
+
+          {/* Search and filter section - overlapping white card */}
+          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+            {/* Search input */}
+            <div className="relative mb-2">
+              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Cari berdasarkan nama item atau kategori..."
+                value={filters.search}
+                onChange={(e) => updateFilters({ search: e.target.value })}
+                className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
               />
-            ))}
+            </div>
+
+            {/* Filter and Add buttons */}
+            <div className="flex gap-1">
+              {/* Status Filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-gray-200 bg-blue-500 px-3 text-sm text-white transition-colors hover:bg-blue-600">
+                   <Filter className="h-4 w-4" />
+                    <span className="whitespace-nowrap text-xs">
+                      {filters.isActive == null
+                        ? "Status"
+                        : filters.isActive
+                          ? "Active"
+                          : "Inactive"}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ isActive: null })}
+                  >
+                    Semua Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ isActive: true })}
+                  >
+                    Active Only
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ isActive: false })}
+                  >
+                    Inactive Only
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Type Filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-gray-200 bg-blue-500 px-3 text-sm text-white transition-colors hover:bg-blue-600">
+                    <Weight className="h-4 w-4" />
+                    <span className="whitespace-nowrap text-xs">
+                      {filters.pricingType === ""
+                        ? "Type"
+                        : filters.pricingType === "PER_PIECE"
+                          ? "Per Pcs"
+                          : "Per Kg"}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ pricingType: "" })}
+                  >
+                    Semua Tipe
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ pricingType: "PER_PIECE" })}
+                  >
+                    Per Piece
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ pricingType: "PER_KG" })}
+                  >
+                    Per Kg
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Add Button */}
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-500 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+              >
+                <PackagePlus className="h-4 w-4" />
+                <span className="text-xs">Tambah</span>
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="p-3 text-center">
-            <span className="mb-3 block text-sm text-gray-500">
-              {filters.search
-                ? `Tidak ada item laundry ditemukan untuk "${filters.search}"`
-                : "Belum ada item laundry yang terdaftar"}
-            </span>
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden sm:block">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+            <h1 className="text-2xl font-bold">Laundry Item Management</h1>
+            <p className="mt-2 opacity-90">
+              Lihat dan kelola item laundry dalam sistem
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop Search & Filter Section */}
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative w-full lg:max-w-md lg:flex-1">
+              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Cari berdasarkan nama item atau kategori..."
+                value={filters.search}
+                onChange={(e) => updateFilters({ search: e.target.value })}
+                className="pl-12 text-sm border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-shrink-0">
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-500 text-sm hover:bg-blue-600"
+              >
+                <PackagePlus className="h-4 w-4" />
+                <span className="xs:inline hidden">Tambah Item</span>
+                <span className="xs:hidden">Tambah</span>
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                  >
+                    <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span className="truncate text-xs sm:text-sm">
+                      {filters.isActive == null
+                        ? "Semua Status"
+                        : filters.isActive
+                          ? "Active"
+                          : "Inactive"}
+                    </span>
+                    <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ isActive: null })}
+                  >
+                    Semua Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ isActive: true })}
+                  >
+                    Active Only
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ isActive: false })}
+                  >
+                    Inactive Only
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                  >
+                    <Tag className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span className="truncate text-xs sm:text-sm">
+                      {getPricingTypeDisplayText(filters.pricingType)}
+                    </span>
+                    <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ pricingType: "" })}
+                  >
+                    Semua Tipe
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ pricingType: "PER_PIECE" })}
+                  >
+                    Per Piece
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => updateFilters({ pricingType: "PER_KG" })}
+                  >
+                    Per Kg
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="outline"
+                onClick={() =>
+                  updateFilters({
+                    search: "",
+                    isActive: null,
+                    category: null,
+                    pricingType: "",
+                    page: 1,
+                  })
+                }
+                disabled={!hasActiveFilters()}
+                className="h-10 rounded-xl border-gray-200 text-sm"
+              >
+                Reset
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="block sm:hidden">
+          {isLoading ? (
+            <div className="flex h-32 items-center justify-center">
+              <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+              <span className="text-sm">Memuat data item laundry...</span>
+            </div>
+          ) : error ? (
+            <div className="mx-3 p-4 text-center text-red-500">
+              <div className="text-sm">Kesalahan memuat data item laundry</div>
+              <div className="mt-1 text-xs text-red-400">
+                {error.message || "Kesalahan tidak diketahui"}
+              </div>
+            </div>
+          ) : laundryItemsData?.data?.length ? (
+            <div className="space-y-2 px-3 pt-1">
+              {laundryItemsData.data.map((laundryItem, index) => (
+                <LaundryItemCard
+                  key={laundryItem.id}
+                  laundryItem={laundryItem}
+                  index={(filters.page - 1) * PAGE_SIZE + index + 1}
+                  onEdit={handleEditItem}
+                  onDelete={handleDeleteItem}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center">
+              <span className="mb-4 block text-sm text-gray-500">
+                {filters.search
+                  ? `Tidak ada item laundry ditemukan untuk "${filters.search}"`
+                  : "Belum ada item laundry yang terdaftar"}
+              </span>
+              {!filters.search && (
+                <Button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  variant="outline"
+                  className="mx-auto flex items-center gap-2 rounded-xl"
+                  size="sm"
+                >
+                  <PackagePlus className="h-4 w-4" />
+                  Tambah Item Pertama
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b">
+                  <TableHead className="w-12 text-center text-xs sm:w-16 sm:text-sm">
+                    No
+                  </TableHead>
+                  <TableHead className="min-w-[150px] text-xs sm:min-w-[200px] sm:text-sm">
+                    Nama Item
+                  </TableHead>
+                  <TableHead className="hidden min-w-[120px] text-xs sm:min-w-[150px] sm:text-sm md:table-cell">
+                    Kategori
+                  </TableHead>
+                  <TableHead className="w-24 text-center text-xs sm:w-32 sm:text-sm">
+                    Harga
+                  </TableHead>
+                  <TableHead className="hidden w-20 text-center text-xs sm:table-cell sm:w-28 sm:text-sm">
+                    Tipe
+                  </TableHead>
+                  <TableHead className="w-20 text-center text-xs sm:w-24 sm:text-sm">
+                    Status
+                  </TableHead>
+                  <TableHead className="hidden w-24 text-center text-xs sm:w-32 sm:text-sm md:table-cell">
+                    Penggunaan
+                  </TableHead>
+                  <TableHead className="w-16 text-center text-xs sm:w-20 sm:text-sm">
+                    Aksi
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-32 text-center">
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                        <span className="text-sm">
+                          Memuat data item laundry...
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="h-32 text-center text-red-500"
+                    >
+                      <div>
+                        <div className="text-sm">
+                          Kesalahan memuat data item laundry
+                        </div>
+                        <div className="mt-1 text-xs text-red-400">
+                          {error.message || "Kesalahan tidak diketahui"}
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : laundryItemsData?.data?.length ? (
+                  laundryItemsData.data.map((laundryItem, index) => (
+                    <LaundryItemRow
+                      key={laundryItem.id}
+                      laundryItem={laundryItem}
+                      index={(filters.page - 1) * PAGE_SIZE + index + 1}
+                      onEdit={handleEditItem}
+                      onDelete={handleDeleteItem}
+                    />
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-32 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <span className="text-sm text-gray-500">
+                          {filters.search
+                            ? `Tidak ada item laundry ditemukan untuk "${filters.search}"`
+                            : "Belum ada item laundry yang terdaftar"}
+                        </span>
+                        {!filters.search && (
+                          <Button
+                            onClick={() => setIsCreateModalOpen(true)}
+                            variant="outline"
+                            className="flex items-center gap-2 rounded-xl"
+                            size="sm"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Tambah Item Pertama
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        {/* Desktop Pagination */}
+        {laundryItemsData?.meta && (
+          <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white px-4 py-6 sm:mx-0 sm:flex">
+            <PaginationSection
+              page={laundryItemsData.meta.page}
+              take={laundryItemsData.meta.take}
+              total={laundryItemsData.meta.total}
+              hasNext={
+                laundryItemsData.meta.page * laundryItemsData.meta.take <
+                laundryItemsData.meta.total
+              }
+              hasPrevious={laundryItemsData.meta.page > 1}
+              onChangePage={(newPage) => updateFilters({ page: newPage })}
+            />
+          </div>
+        )}
+
+        {/* Mobile Pagination */}
+        {laundryItemsData?.meta && (
+          <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden">
+            <PaginationSection
+              page={laundryItemsData.meta.page}
+              take={laundryItemsData.meta.take}
+              total={laundryItemsData.meta.total}
+              hasNext={
+                laundryItemsData.meta.page * laundryItemsData.meta.take <
+                laundryItemsData.meta.total
+              }
+              hasPrevious={laundryItemsData.meta.page > 1}
+              onChangePage={(newPage) => updateFilters({ page: newPage })}
+            />
           </div>
         )}
       </div>
-
-      <div className="mx-1 hidden rounded-lg border shadow-sm sm:mx-0 sm:block">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b">
-                <TableHead className="w-12 text-center text-xs sm:w-16 sm:text-sm">
-                  No
-                </TableHead>
-                <TableHead className="min-w-[150px] text-xs sm:min-w-[200px] sm:text-sm">
-                  Nama Item
-                </TableHead>
-                <TableHead className="hidden min-w-[120px] text-xs sm:min-w-[150px] sm:text-sm md:table-cell">
-                  Kategori
-                </TableHead>
-                <TableHead className="w-24 text-center text-xs sm:w-32 sm:text-sm">
-                  Harga
-                </TableHead>
-                <TableHead className="hidden w-20 text-center text-xs sm:table-cell sm:w-28 sm:text-sm">
-                  Tipe
-                </TableHead>
-                <TableHead className="w-20 text-center text-xs sm:w-24 sm:text-sm">
-                  Status
-                </TableHead>
-                <TableHead className="hidden w-24 text-center text-xs sm:w-32 sm:text-sm md:table-cell">
-                  Penggunaan
-                </TableHead>
-                <TableHead className="w-16 text-center text-xs sm:w-20 sm:text-sm">
-                  Aksi
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-32 text-center">
-                    <div className="flex items-center justify-center">
-                      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                      <span className="text-sm">
-                        Memuat data item laundry...
-                      </span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : error ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="h-32 text-center text-red-500"
-                  >
-                    <div>
-                      <div className="text-sm">
-                        Kesalahan memuat data item laundry
-                      </div>
-                      <div className="mt-1 text-xs text-red-400">
-                        {error.message || "Kesalahan tidak diketahui"}
-                      </div>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : laundryItemsData?.data?.length ? (
-                laundryItemsData.data.map((laundryItem, index) => (
-                  <LaundryItemRow
-                    key={laundryItem.id}
-                    laundryItem={laundryItem}
-                    index={(filters.page - 1) * PAGE_SIZE + index + 1}
-                    onEdit={handleEditItem}
-                    onDelete={handleDeleteItem}
-                  />
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-32 text-center">
-                    <div className="flex flex-col items-center justify-center space-y-3">
-                      <span className="text-sm text-gray-500">
-                        {filters.search
-                          ? `Tidak ada item laundry ditemukan untuk "${filters.search}"`
-                          : "Belum ada item laundry yang terdaftar"}
-                      </span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
-      {laundryItemsData?.meta && (
-        <div className="mx-1 rounded-b-lg border-t bg-white px-2 py-2 sm:mx-0 sm:px-4 sm:py-3">
-          <PaginationSection
-            page={laundryItemsData.meta.page}
-            take={laundryItemsData.meta.take}
-            total={laundryItemsData.meta.total}
-            hasNext={
-              laundryItemsData.meta.page * laundryItemsData.meta.take <
-              laundryItemsData.meta.total
-            }
-            hasPrevious={laundryItemsData.meta.page > 1}
-            onChangePage={(newPage) => updateFilters({ page: newPage })}
-          />
-        </div>
-      )}
 
       <CreateLaundryItemModal
         open={isCreateModalOpen}
@@ -722,6 +905,6 @@ export function LaundryItemManagementTable() {
         onConfirm={handleConfirmDelete}
         isDeleting={deleteItemMutation.isPending}
       />
-    </div>
+    </>
   );
 }

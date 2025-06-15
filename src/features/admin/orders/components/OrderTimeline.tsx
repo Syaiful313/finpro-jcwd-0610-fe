@@ -17,7 +17,6 @@ import {
   Truck,
   User,
 } from "lucide-react";
-import { useState } from "react";
 
 export interface StatusHistoryItem {
   status: string;
@@ -36,41 +35,39 @@ export function OrderTimeline({
   statusHistory: StatusHistoryItem[];
   currentStatus: string;
 }) {
-  const [visibleTooltip, setVisibleTooltip] = useState<string | null>(null);
-
   const sortedHistory = [...statusHistory].sort((a, b) => {
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
 
   const allStatuses = [
-    { key: "WAITING_FOR_PICKUP", icon: Clock, label: "Order Placed" },
+    { key: "WAITING_FOR_PICKUP", icon: Clock, label: "Pesanan Dibuat" },
     {
       key: "DRIVER_ON_THE_WAY_TO_CUSTOMER",
       icon: Truck,
-      label: "Pickup in Progress",
+      label: "Sedang Dijemput",
     },
     {
       key: "ARRIVED_AT_CUSTOMER",
       icon: ShoppingBag,
-      label: "Arrived at Customer",
+      label: "Tiba di Pelanggan",
     },
     {
       key: "DRIVER_ON_THE_WAY_TO_OUTLET",
       icon: Truck,
-      label: "On Way to Outlet",
+      label: "Menuju Outlet",
     },
-    { key: "ARRIVED_AT_OUTLET", icon: Package, label: "Arrived at Outlet" },
-    { key: "BEING_WASHED", icon: Droplets, label: "Washing" },
-    { key: "BEING_IRONED", icon: Shirt, label: "Ironing" },
-    { key: "BEING_PACKED", icon: Package, label: "Packing" },
-    { key: "READY_FOR_DELIVERY", icon: Package, label: "Ready for Delivery" },
+    { key: "ARRIVED_AT_OUTLET", icon: Package, label: "Tiba di Outlet" },
+    { key: "BEING_WASHED", icon: Droplets, label: "Sedang Dicuci" },
+    { key: "BEING_IRONED", icon: Shirt, label: "Sedang Disetrika" },
+    { key: "BEING_PACKED", icon: Package, label: "Sedang Dikemas" },
+    { key: "READY_FOR_DELIVERY", icon: Package, label: "Siap Dikirim" },
     {
       key: "BEING_DELIVERED_TO_CUSTOMER",
       icon: Truck,
-      label: "Delivery in Progress",
+      label: "Sedang Dikirim",
     },
-    { key: "DELIVERED_TO_CUSTOMER", icon: CheckCircle2, label: "Delivered" },
-    { key: "COMPLETED", icon: CheckCircle2, label: "Completed" },
+    { key: "DELIVERED_TO_CUSTOMER", icon: CheckCircle2, label: "Terkirim" },
+    { key: "COMPLETED", icon: CheckCircle2, label: "Selesai" },
   ];
 
   const currentStatusIndex = allStatuses.findIndex(
@@ -124,20 +121,9 @@ export function OrderTimeline({
 
               return (
                 <TooltipProvider key={status.key}>
-                  <Tooltip
-                    open={visibleTooltip === status.key}
-                    onOpenChange={(open) => {
-                      if (open) setVisibleTooltip(status.key);
-                      else if (visibleTooltip === status.key)
-                        setVisibleTooltip(null);
-                    }}
-                  >
+                  <Tooltip>
                     <TooltipTrigger asChild>
-                      <div
-                        className="flex w-20 flex-col items-center"
-                        onMouseEnter={() => setVisibleTooltip(status.key)}
-                        onMouseLeave={() => setVisibleTooltip(null)}
-                      >
+                      <div className="flex w-20 flex-col items-center">
                         {/* Status Icon */}
                         <div
                           className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border ${
@@ -153,12 +139,10 @@ export function OrderTimeline({
                           <IconComponent className="h-5 w-5" />
                         </div>
 
-                        {/* Status Label */}
                         <div className="mt-2 text-center text-xs font-medium">
                           {status.label}
                         </div>
 
-                        {/* Timestamp (if completed) */}
                         {historyItem && (
                           <div className="text-muted-foreground mt-1 text-center text-xs">
                             {formatDate(historyItem.timestamp)}
@@ -206,15 +190,15 @@ export function OrderTimeline({
                           </>
                         ) : stepStatus === "current" ? (
                           <div className="text-muted-foreground text-sm">
-                            Current status
+                            Status saat ini
                           </div>
                         ) : stepStatus === "skipped" ? (
                           <div className="text-sm text-orange-500">
-                            This step was bypassed
+                            Tahap ini dilewati
                           </div>
                         ) : (
                           <div className="text-muted-foreground text-sm">
-                            Pending
+                            Menunggu
                           </div>
                         )}
                       </div>
@@ -227,13 +211,10 @@ export function OrderTimeline({
         </div>
       </div>
 
-      {/* Mobile Timeline (Vertical) */}
       <div className="md:hidden">
         <div className="relative space-y-0">
-          {/* Connector Line */}
           <div className="bg-muted absolute top-0 left-5 h-full w-0.5"></div>
 
-          {/* Timeline Steps */}
           {allStatuses.map((status, index) => {
             const stepStatus = getStepStatus(status.key);
             const historyItem = getHistoryItem(status.key);
@@ -241,7 +222,6 @@ export function OrderTimeline({
 
             return (
               <div key={status.key} className="relative flex gap-4 pb-8 pl-14">
-                {/* Status Icon */}
                 <div
                   className={`absolute left-0 z-10 flex h-10 w-10 items-center justify-center rounded-full border ${
                     stepStatus === "completed"
@@ -256,7 +236,6 @@ export function OrderTimeline({
                   <IconComponent className="h-5 w-5" />
                 </div>
 
-                {/* Status Content */}
                 <div className="flex-1">
                   <div className="font-medium">{status.label}</div>
 
@@ -293,13 +272,15 @@ export function OrderTimeline({
                       )}
                     </>
                   ) : stepStatus === "current" ? (
-                    <div className="text-sm text-blue-500">Current status</div>
+                    <div className="text-sm text-blue-500">Status saat ini</div>
                   ) : stepStatus === "skipped" ? (
                     <div className="text-sm text-orange-500">
-                      This step was bypassed
+                      Tahap ini dilewati
                     </div>
                   ) : (
-                    <div className="text-muted-foreground text-sm">Pending</div>
+                    <div className="text-muted-foreground text-sm">
+                      Menunggu
+                    </div>
                   )}
                 </div>
               </div>

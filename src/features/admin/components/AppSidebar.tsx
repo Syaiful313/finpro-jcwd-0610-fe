@@ -75,7 +75,7 @@ const data = {
       title: "Bypass Request",
       url: "/admin/bypass-requests",
       icon: SettingsIcon,
-      roles: ["ADMIN"],
+      roles: ["OUTLET_ADMIN"],
     },
   ],
   navClouds: [
@@ -148,13 +148,13 @@ const data = {
       name: "Laporan Pendapatan",
       url: "#",
       icon: DatabaseIcon,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
       name: "Laporan Performa",
       url: "#",
       icon: BarChartIcon,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "OUTLET_ADMIN"],
     },
   ],
 };

@@ -6,32 +6,32 @@ const LocationPage = () => {
       {
         location: "Sleman",
         address: "Jl. Kaliurang No.55, Sleman, Yogyakarta",
-        image: "/loc01.webp"
+        image: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749784415/loc01_mfk8w0.jpg"
       },
       {
         location: "Bantul",
         address: "Jl. Parangtritis No.101, Bantul, Yogyakarta",
-        image: "/loc02.webp"
+        image: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749784417/loc02_by2fhy.jpg"
       },
       {
         location: "Jalan Malioboro",
         address: "Jl. Malioboro No.18, Gondomanan, Yogyakarta",
-        image: "/loc03.webp"
+        image: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749784409/loc03_k8hiz8.jpg"
       },
       {
         location: "Kotagede",
         address: "Jl. Tegal Gendu No.3, Kotagede, Yogyakarta",
-        image: "/loc04.webp"
+        image: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749784408/loc04_cvxpgi.jpg"
       },
       {
         location: "Seturan",
         address: "Jl. Selokan Mataram No.23, Seturan, Depok, Sleman",
-        image: "/loc05.webp"
+        image: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749784434/loc05_t8k7u6.jpg"
       },
       {
         location: "Gamping",
         address: "Jl. Wates No.45, Gamping, Sleman, Yogyakarta",
-        image: "/loc06.webp"
+        image: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749784405/loc06_bzq9mg.jpg"
       }
     ]
     return (
