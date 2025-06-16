@@ -146,7 +146,7 @@ const data = {
   documents: [
     {
       name: "Laporan Pendapatan",
-      url: "#",
+      url: "/admin/sales-reports",
       icon: DatabaseIcon,
       roles: ["ADMIN", "OUTLET_ADMIN"],
     },

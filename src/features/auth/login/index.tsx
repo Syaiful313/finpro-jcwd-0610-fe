@@ -13,9 +13,9 @@ const LoginPage = () => {
     const { mutate: login } = useLogin();
     const [showPassword, setShowPassword] = useState(false);
 
-    useEffect(() => {
-        if (status === "authenticated") { router.replace("/user/profile") }
-    }, [status, router]); 
+    // useEffect(() => {
+    //     if (status === "authenticated") { router.replace("/user/profile") }
+    // }, [status, router]); 
     
     const LoginSchema = Yup.object().shape({
         email: Yup.string()
