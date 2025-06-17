@@ -39,6 +39,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import formatRupiah from "@/utils/RupiahFormat";
 
 // Mock data types
 type OrderStatus = "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED";
@@ -168,14 +169,6 @@ export default function DriverOrderDetail() {
       default:
         return status;
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   const formatDateTime = (dateString: string) => {
@@ -625,11 +618,11 @@ export default function DriverOrderDetail() {
                           {item.weight && `• ${item.weight} kg`}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {formatCurrency(item.pricePerUnit)} per pcs
+                          {formatRupiah(item.pricePerUnit)} per pcs
                         </p>
                       </div>
                       <p className="font-semibold">
-                        {formatCurrency(item.totalPrice)}
+                        {formatRupiah(item.totalPrice)}
                       </p>
                     </div>
                   ))}
@@ -647,7 +640,7 @@ export default function DriverOrderDetail() {
             </div>
             <div className="flex justify-between text-lg font-semibold">
               <span>Total Price</span>
-              <span>{formatCurrency(order.totalPrice)}</span>
+              <span>{formatRupiah(order.totalPrice)}</span>
             </div>
           </div>
         </CardContent>

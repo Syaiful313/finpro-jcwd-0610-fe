@@ -4,9 +4,9 @@ import { useBreadcrumb } from "@/features/employee/components/BreadCrumbContext"
 import useGetDetailOrderByUuid from "@/hooks/api/employee/worker/useGetDetailOrderByUuid";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import ProcessOrderDetail from "./components/ProcessOrderDetail";
+import ProcessOrderDetail from "./ProcessOrderDetail";
 
-const ProcessPage = () => {
+const IndexPage = () => {
   const params = useParams();
   const searchParams = useSearchParams();
   const uuid = params?.uuid as string;
@@ -59,4 +59,4 @@ const ProcessPage = () => {
   );
 };
 
-export default ProcessPage;
+export default IndexPage;

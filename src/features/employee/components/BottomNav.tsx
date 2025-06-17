@@ -1,6 +1,13 @@
 "use client";
 
-import { BarChart3, History, Home, ListCheck, User } from "lucide-react";
+import {
+  BarChart3,
+  DoorClosedLocked,
+  History,
+  Home,
+  ListCheck,
+  User,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -15,9 +22,9 @@ const BottomNav: React.FC = () => {
   const navItems = [
     {
       id: "/",
-      icon: User,
+      icon: DoorClosedLocked,
       label: "Profile",
-      href: "/",
+      href: "/employee/orders/bypass",
     },
     {
       id: "orders",
@@ -53,18 +60,15 @@ const BottomNav: React.FC = () => {
     setActiveIndex(currentIndex >= 0 ? currentIndex : 2);
   }, [pathname]);
 
-  // Optimized click handler with useRouter
   const handleTabClick = useCallback(
     (index: number, href: string) => {
-      if (isNavigating || pathname === href) return; // Prevent multiple clicks or same page
+      if (isNavigating || pathname === href) return;
 
       setIsNavigating(true);
       setActiveIndex(index);
 
-      // Use router.push for client-side navigation
       router.push(href);
 
-      // Reset navigation state after a short delay
       setTimeout(() => {
         setIsNavigating(false);
       }, 100);

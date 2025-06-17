@@ -21,7 +21,6 @@ import { id } from "date-fns/locale";
 import { CalendarIcon, Eye, Filter, MapPin, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { parseAsInteger, parseAsIsoDateTime, useQueryState } from "nuqs";
-import { useState } from "react";
 import { toast } from "sonner";
 
 export default function PickupHistoryPage() {

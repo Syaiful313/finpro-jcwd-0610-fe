@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils"; // pastikan kamu punya helper className ini
+import { cn } from "@/lib/utils";
 
 export function NavMain({
   items,
@@ -37,8 +37,6 @@ export function NavMain({
                 <SidebarMenuButton
                   tooltip={item.title}
                   onClick={() => router.push(item.url)}
-                  // isActive={isActive}
-                  // className="hover:bg-accent w-full cursor-pointer justify-start transition-colors"
                   className={cn(
                     "hover:bg-accent w-full cursor-pointer justify-start transition-colors",
                     isActive && "bg-primary font-semibold text-white",
