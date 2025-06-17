@@ -13,9 +13,9 @@ const LoginPage = () => {
     const { mutate: login } = useLogin();
     const [showPassword, setShowPassword] = useState(false);
 
-    useEffect(() => {
-        if (status === "authenticated") { router.replace("/user/profile") }
-    }, [status, router]); 
+    // useEffect(() => {
+    //     if (status === "authenticated") { router.replace("/user/profile") }
+    // }, [status, router]); 
     
     const LoginSchema = Yup.object().shape({
         email: Yup.string()
@@ -34,7 +34,6 @@ const LoginPage = () => {
         validationSchema: LoginSchema,
         onSubmit: (values) => {
             login(values);
-            console.log('Form submitted with:', values);
         },
     });
 
@@ -129,11 +128,6 @@ const LoginPage = () => {
                             className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
                             onClick={() => signIn('google', { callbackUrl: '/' })}
                         >Continue with Google</button>
-                        <button
-                            type="button"
-                            className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
-                            onClick={() => signIn('github', { callbackUrl: '/' })}
-                        >Continue with Github</button>
                     </div>
                 </div>
             </div>

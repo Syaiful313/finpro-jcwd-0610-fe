@@ -1,20 +1,28 @@
 import useVerifyEmail from "@/hooks/api/auth/useVerifyEmail";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface ReverifyPageProps {
     token: string;
 }
 
 const ReverifyPage: FC<ReverifyPageProps> = ({ token }) => {
+    const [isVerifying, setIsVerifying] = useState(true);
     const { mutate: verifyEmail, isSuccess, isError, error } = useVerifyEmail();
     
     useEffect(() => {
-        if (token) { verifyEmail(token) }
+        if (token) { 
+            setIsVerifying(true); 
+            verifyEmail(token, {
+                onSettled: () => {
+                setIsVerifying(false); 
+                },
+            })
+        }
     }, [token, verifyEmail]);
 
     return (
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 flex items-center justify-center">
-        {!isSuccess || !isError && (
+        {isVerifying && (
             <div className="flex flex-col items-center gap-4">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-xl font-medium text-blue-600">Verifying...</p>

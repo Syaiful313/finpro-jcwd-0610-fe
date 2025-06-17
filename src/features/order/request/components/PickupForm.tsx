@@ -3,6 +3,7 @@ import { FC } from "react";
 import { motion } from 'framer-motion';
 import { User } from "@/types/user";
 import { validationSchema } from "../schema";
+import { toast } from "sonner";
 
 interface PickupFormProps {
     user?: User;
@@ -24,6 +25,11 @@ const PickupForm: FC<PickupFormProps> = ({
           initialValues={{ addressId: '', scheduledPickupTime: '' }}
           validationSchema={validationSchema}
           onSubmit={(values, actions) => {
+            if (!user?.isVerified) {
+              toast.error("Please verify your account before requesting pickup");
+              actions.setSubmitting(false); 
+              return;
+            }
             setPendingValues(values);
             setFormActions(actions);
             setShowConfirmModal(true);
