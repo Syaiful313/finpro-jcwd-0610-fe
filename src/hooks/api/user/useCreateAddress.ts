@@ -1,5 +1,5 @@
 import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -16,6 +16,7 @@ interface PayloadCreateAddress {
 }
 
 const useCreateAddress = (userId: number) => {
+  const queryClient = useQueryClient();
   const axiosInstance = useAxios();
   return useMutation({
     mutationFn: async (payload: PayloadCreateAddress) => {
@@ -27,6 +28,7 @@ const useCreateAddress = (userId: number) => {
     },
     onSuccess: async () => {
       toast.success("Address created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error) => {
       toast.error(error.message);

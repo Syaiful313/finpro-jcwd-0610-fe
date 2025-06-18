@@ -5,9 +5,10 @@ import useCreatePickupAndOrder from "@/hooks/api/order/useCreatePickupAndOrder";
 import useGetUser from "@/hooks/api/user/useGetUser";
 import { motion } from 'framer-motion';
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import * as Yup from "yup";
+import { useEffect, useRef, useState } from "react";
 import PickupForm from "./components/PickupForm";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type PickupFormValues = {
   addressId: string;
@@ -16,29 +17,24 @@ type PickupFormValues = {
 
 const PickupSection = () => {
   const session = useSession();
+  const router = useRouter();
+  const status = session.status;
   const userId = session.data?.user.id;
   const { data: user } = useGetUser(userId ?? 0);
   const { mutate: createPickupOrder } = useCreatePickupAndOrder(user?.id!);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingValues, setPendingValues] = useState<PickupFormValues | null>(null);
   const [formActions, setFormActions] = useState<any>(null);
+  const hasShownToast = useRef(false);
 
   useEffect(() => {
-    if (session.status === "loading") return;
-  }, [user?.id]);
-
-  const validationSchema = Yup.object().shape({
-    addressId: Yup.number()
-      .required("Choose an address for your pickup")
-      .typeError("Choose an address for your pickup"),
-    scheduledPickupTime: Yup.string()
-      .required("Please input pickup schedule time")
-      .test("is-valid-date", "Date format invalid", (val) => !isNaN(Date.parse(val ?? "")))
-      .test("is-future", "Pickup time is at least 1 hour from now", (val) => {
-        if (!val) return false;
-        return new Date(val) > new Date(Date.now() + 60 * 60 * 1000);
-      }),
-  });
+    if (status === "loading") return; 
+    if (status === "unauthenticated" && !hasShownToast.current) {
+      toast.error("Please register/login to request pickup")
+      router.replace("/register"); 
+      hasShownToast.current = true;
+    }
+  }, [status, router]);
 
   const handleConfirmSubmit = async () => {
     if (!pendingValues) return;

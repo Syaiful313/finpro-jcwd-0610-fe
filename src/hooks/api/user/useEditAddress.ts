@@ -1,5 +1,5 @@
 import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface PayloadEditAddress {
@@ -15,8 +15,9 @@ interface PayloadEditAddress {
     isPrimary: boolean;
 }
 
-const useEditAddress = () => {
+const useEditAddress = (userId: number) => {
   const axiosInstance = useAxios();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: PayloadEditAddress) => {
         const { addressId, ...rest } = payload;
@@ -24,7 +25,9 @@ const useEditAddress = () => {
         return data;
     },
     onSuccess: async () => {
-      toast.success("Address edited successfully!");
+      toast.success("Address edited successfully!");      
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
+
     },
     onError: (error) => {
       toast.error(error.message);

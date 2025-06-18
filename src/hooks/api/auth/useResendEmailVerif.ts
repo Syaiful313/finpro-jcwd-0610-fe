@@ -13,7 +13,7 @@ const useResendEmailVerif = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success('Please check your email to verify.');
+      toast.success('Please check your email to verify');
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || 'Something went wrong';
