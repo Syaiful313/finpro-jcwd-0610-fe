@@ -1,7 +1,14 @@
 import React from "react";
+import ListOfWorkerHistory from "../../worker/components/ListOfWorkerHistory";
 
 const WorkerHistoryPage = () => {
-  return <div>WorkerHistoryPage</div>;
+  return (
+    <div>
+      <>
+        <ListOfWorkerHistory />
+      </>
+    </div>
+  );
 };
 
 export default WorkerHistoryPage;

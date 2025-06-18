@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useBreadcrumb } from "../../components/BreadCrumbContext";
+import { format } from "path";
+import formatRupiah from "@/utils/RupiahFormat";
 
 interface DesktopLayoutProps {
   jobData: any;
@@ -98,14 +100,6 @@ const DesktopLayout: React.FC = () => {
       `https://wa.me/${jobData.customer.phone.replace(/^0/, "62")}?text=${message}`,
       "_blank",
     );
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   return (
@@ -369,7 +363,7 @@ const DesktopLayout: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {formatCurrency(jobData.payment.total)}
+                    {formatRupiah(jobData.payment.total)}
                   </span>
                 </div>
               </div>

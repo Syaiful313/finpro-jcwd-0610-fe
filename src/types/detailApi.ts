@@ -123,24 +123,3 @@ export const formatFullAddress = (order: Order): FullAddress => {
 export const getCustomerName = (job: Job): string => {
   return `${job.order.user.firstName} ${job.order.user.lastName}`.trim();
 };
-
-// Helper function to format currency
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
-
-// Helper function to format date time
-export const formatDateTime = (dateString: string): string => {
-  return new Date(dateString).toLocaleString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};

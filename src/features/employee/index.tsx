@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
@@ -74,6 +74,7 @@ const MobileLayout: React.FC = () => (
 );
 
 const DesktopLayout: React.FC = () => {
+  const { data: session } = useSession();
   const router = useRouter();
   return (
     <div className="min-h-screen p-6 dark:bg-gray-900">
@@ -87,6 +88,10 @@ const DesktopLayout: React.FC = () => {
             <div className="mt-4 flex items-center justify-between space-x-2 px-6">
               <UserGreeting isMobile={false} />
               <Avatar className="h-25 w-25 border-4 border-white/20">
+                <AvatarImage
+                  src={`${session?.user?.profilePic}`}
+                  alt="avatar"
+                />
                 <AvatarFallback className="bg-white text-xl font-bold text-[#0080FF]">
                   J
                 </AvatarFallback>

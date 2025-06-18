@@ -13,7 +13,6 @@ const useGetOrderByUuid = (uuid: string) => {
     queryKey: ["orderDetails", uuid],
     enabled: isEnabled,
     queryFn: async () => {
-      if (!isEnabled) throw new Error("Session not ready");
       const { data } = await axiosInstance.get<DriverJobResponse>(
         `/driver/details/${uuid}`,
       );

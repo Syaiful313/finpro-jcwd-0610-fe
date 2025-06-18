@@ -1,5 +1,4 @@
 import ProcessOrder from "@/features/employee/worker/process";
-import React from "react";
 
 const Process = () => {
   return (

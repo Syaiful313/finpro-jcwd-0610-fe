@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useBreadcrumb } from "../../components/BreadCrumbContext";
+import TryStation from "./components/TryStation";
 
 const QueuePage = () => {
   const { setBreadcrumbs } = useBreadcrumb();
@@ -12,7 +13,11 @@ const QueuePage = () => {
       { label: "Queue" },
     ]);
   }, [setBreadcrumbs]);
-  return <div>QueuePage</div>;
+  return (
+    <div>
+      <TryStation />
+    </div>
+  );
 };
 
 export default QueuePage;
