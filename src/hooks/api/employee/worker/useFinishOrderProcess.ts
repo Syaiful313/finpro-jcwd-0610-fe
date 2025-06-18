@@ -25,6 +25,9 @@ const useFinishOrderProcess = () => {
         queryKey: ["WorkerOrderDetails"],
         exact: false,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["WorkerStationOrder"],
+      });
     },
     onError: (error: AxiosError<any>) => {
       toast.error(error.response?.data.message);

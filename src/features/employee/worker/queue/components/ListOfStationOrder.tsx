@@ -137,7 +137,7 @@ const ListOfStationOrder = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {localDateFrom ? ( // Display local state
+                      {localDateFrom ? (
                         format(localDateFrom, "PPP", { locale: id })
                       ) : (
                         <span>Pick start date</span>
@@ -147,8 +147,8 @@ const ListOfStationOrder = () => {
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      selected={localDateFrom} // Select based on local state
-                      onSelect={setLocalDateFrom} // Update local state
+                      selected={localDateFrom}
+                      onSelect={setLocalDateFrom}
                       initialFocus
                       locale={id}
                     />

@@ -232,10 +232,10 @@ const TryStation = () => {
                             );
                             router.push(
                               `/employee/orders/detail/${order.uuid}`,
-                            ); // Redirect to a generic detail page
+                            );
                           }
                         }}
-                        disabled={!nextWorkerTypeForProcessing} // Disable if no relevant worker station
+                        disabled={!nextWorkerTypeForProcessing}
                       >
                         <Eye className="mr-2 h-4 w-4" />
                         View Details

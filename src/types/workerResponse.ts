@@ -44,8 +44,8 @@ export interface OrderWorkProcess {
   bypass?: BypassRequest | null;
   workerType: WorkerTypes;
   notes?: string | null;
-  completedAt?: Date | null;
-  createdAt: Date;
+  completedAt?: string | null;
+  createdAt: string;
   updatedAt: Date;
 }
 

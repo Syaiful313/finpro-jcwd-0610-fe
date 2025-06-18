@@ -41,7 +41,6 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import formatRupiah from "@/utils/RupiahFormat";
 
-// Mock data types
 type OrderStatus = "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED";
 type OrderType = "PICKUP" | "DELIVERY";
 type JobStatus = "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED";
@@ -83,7 +82,6 @@ interface Order {
   pickupPhotos?: string[];
 }
 
-// Mock data - Starting with ASSIGNED status
 const mockOrder: Order = {
   id: "1",
   orderNumber: "ORD-2024-001",
@@ -129,7 +127,7 @@ const mockOrder: Order = {
   ],
   totalWeight: 1.6,
   totalPrice: 63000,
-  pickupJobStatus: "ASSIGNED", // Starting status
+  pickupJobStatus: "ASSIGNED",
   driverNotes: "",
 };
 
@@ -210,10 +208,8 @@ export default function DriverOrderDetail() {
   const startJob = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call to start job
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Update order status to IN_PROGRESS
       setOrder((prev) => ({
         ...prev,
         status: "IN_PROGRESS",
@@ -240,7 +236,6 @@ export default function DriverOrderDetail() {
     try {
       const taskType = order.orderType === "PICKUP" ? "pickup" : "delivery";
 
-      // Create FormData for photo upload
       const formData = new FormData();
       selectedPhotos.forEach((photo, index) => {
         formData.append(`photos`, photo);
@@ -249,10 +244,8 @@ export default function DriverOrderDetail() {
       formData.append("orderId", order.id);
       formData.append("taskType", taskType);
 
-      // Simulate API call to complete pickup/delivery
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Update order status to COMPLETED
       setOrder((prev) => ({
         ...prev,
         status: "COMPLETED",
@@ -265,7 +258,6 @@ export default function DriverOrderDetail() {
         `${taskType.charAt(0).toUpperCase() + taskType.slice(1)} completed successfully!`,
       );
 
-      // Reset form
       setSelectedPhotos([]);
       setNotes("");
     } catch (error) {

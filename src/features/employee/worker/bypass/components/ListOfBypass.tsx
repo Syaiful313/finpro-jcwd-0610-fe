@@ -23,6 +23,7 @@ import {
   useQueryState,
 } from "nuqs";
 import BypassFilter from "./BypassFilter";
+import { useState } from "react";
 
 const ListOfBypass = () => {
   const router = useRouter();
@@ -39,6 +40,8 @@ const ListOfBypass = () => {
     "status",
     parseAsString.withDefault("all"),
   );
+  const [includeCompleted, setIncludeCompleted] = useState(false);
+
   const itemsPerPage = 6;
 
   const {
@@ -57,6 +60,7 @@ const ListOfBypass = () => {
       queryStatus === "all"
         ? undefined
         : (queryStatus as "pending" | "approved" | "rejected"),
+    includeCompleted: true,
   });
 
   const hasNext = bypassData?.meta?.hasNext || false;
@@ -124,7 +128,6 @@ const ListOfBypass = () => {
 
                 if (!associatedOrder || !workProcess) return null;
 
-                // --- LOGIKA LAMA ANDA UNTUK nextStation (SUDAH DIPERBAIKI) ---
                 let nextStation: "washing" | "ironing" | "packing" | undefined;
                 const bypassedStation = workProcess.workerType.toLowerCase();
                 if (bypassedStation === "washing") {
@@ -136,8 +139,6 @@ const ListOfBypass = () => {
                 }
 
                 let isActionable = false;
-                // Periksa apakah status order saat ini masih relevan dengan stasiun yang di-bypass.
-                // Ini adalah "gerbang masuk" untuk setiap stasiun.
                 if (bypassedStation === "washing") {
                   isActionable =
                     associatedOrder.orderStatus === "ARRIVED_AT_OUTLET";
@@ -147,10 +148,8 @@ const ListOfBypass = () => {
                   isActionable = associatedOrder.orderStatus === "BEING_IRONED";
                 }
 
-                // Tombol akan disable jika status bypass bukan 'APPROVED' ATAU jika ordernya sudah tidak actionable lagi.
                 const isButtonDisabled =
                   request.bypassStatus !== "APPROVED" || !isActionable;
-                // --- AKHIR BLOK LOGIKA BARU ---
 
                 return (
                   <Card
@@ -201,7 +200,6 @@ const ListOfBypass = () => {
                           variant="outline"
                           size="sm"
                           className="w-full"
-                          // disabled={true}
                           disabled={isButtonDisabled}
                           onClick={() => {
                             if (nextStation) {

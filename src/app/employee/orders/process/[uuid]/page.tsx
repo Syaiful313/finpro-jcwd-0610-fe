@@ -1,9 +1,10 @@
-import ProcessPage from "@/features/employee/worker/process";
+import TryIndex from "@/features/employee/worker/process/tryIndex";
 
 const WorkerProcess = () => {
   return (
     <div>
-      <ProcessPage />
+      {/* <ProcessPage /> */}
+      <TryIndex />
     </div>
   );
 };

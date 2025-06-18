@@ -5,9 +5,9 @@ import { User } from "./user";
 export interface Order {
   uuid: string;
   userId: number;
-  user: User[];
+  user: User;
   outletId: number;
-  outlet: Outlet[];
+  outlet: Outlet;
   notificationId?: number;
   addressLine: string;
   district: string;

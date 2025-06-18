@@ -7,6 +7,7 @@ interface BypassProps extends PaginationQueries {
   status?: "pending" | "approved" | "rejected";
   dateFrom?: string;
   dateTo?: string;
+  includeCompleted?: boolean;
 }
 
 const useGetListOfBypass = (queries?: BypassProps) => {
@@ -18,7 +19,13 @@ const useGetListOfBypass = (queries?: BypassProps) => {
       const { data } = await axiosInstance.get<
         PageableResponse<BypassResponse>
       >("/worker/bypass-requests", {
-        params: queries,
+        params: {
+          ...queries,
+          ...(queries?.status === "approved" &&
+            queries?.includeCompleted !== true && {
+              completedAt: null,
+            }),
+        },
       });
       return data;
     },
