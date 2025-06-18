@@ -1,5 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
+import NotificationBadgeNavbar from '@/features/extra/components/NotificationBadgeNavbar'
 import { cn } from '@/lib/utils'
 import { Menu, X } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
@@ -13,6 +14,7 @@ const menuItems = [
   { name: 'Pricing', href: '/services#pricing' },
   { name: 'About', href: '/about' },
 ]
+
 
 const MenuList = ({ className }: { className?: string }) => (
   <ul className={className}>
@@ -29,25 +31,28 @@ const MenuList = ({ className }: { className?: string }) => (
 )
 
 const ProfileImage = ({ user }: { user: any }) => {
-  if (user.profilePic) {
-    return (
-      <Link href="/user/profile">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-          <img
-            src={user.profilePic}
-            alt="Profile Picture"
-            className="w-full h-full object-cover rounded-full"
-          />
-        </div>
-      </Link>
-    )
-  }
+  const isValidProfilePic =
+    user.profilePic &&
+    user.profilePic !== 'null' &&
+    user.profilePic !== 'undefined';
+  const fallbackProfileImg = `https://ui-avatars.com/api/?name=${user?.firstName || 'User'}&background=DDDDDD&color=555555&bold=true&rounded=true`;
+
   return (
-    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
-      {user.firstName?.[0] || 'U'}
-    </div>
-  )
-}
+    <Link href="/user/profile">
+      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+        <img
+          src={isValidProfilePic ? user.profilePic : fallbackProfileImg}
+          alt="Profile Picture"
+          className="w-full h-full object-cover rounded-full"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = fallbackProfileImg;
+          }}
+        />
+      </div>
+    </Link>
+  );
+};
+
 
 export const Navbar = () => {
   const { data: session } = useSession()
@@ -93,6 +98,7 @@ export const Navbar = () => {
 
               {!!session?.user ? (
                 <div className="flex items-center space-x-4">
+                  <NotificationBadgeNavbar />
                   <ProfileImage user={session.user} />
                   <Button
                     onClick={() => signOut({ callbackUrl: '/' })}

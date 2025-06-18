@@ -9,13 +9,9 @@ const Footer = () => {
                 <h3 className="font-bold text-gray-800 mb-4 text-lg">Company</h3>
                 <ul>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">About</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Press</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Careers</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Blog</Link></li>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">FAQs</Link></li>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Privacy</Link></li>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Terms</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Accessibility</Link></li>
                 </ul>
             </div>
             <div>
@@ -24,9 +20,6 @@ const Footer = () => {
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Contact</Link></li>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Instagram</Link></li>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Facebook</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Twitter</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Youtube</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">TikTok</Link></li>
                 </ul>
             </div>
             <div>
@@ -36,10 +29,6 @@ const Footer = () => {
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Guarantee</Link></li>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Refer friends</Link></li>
                     <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Gift Cards</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">CA Do Not Sell My Info</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Limit Use of Sensitive Personal Info</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Clothing Brands</Link></li>
-                    <li className="mb-2"><Link href="#" className="hover:underline text-gray-700">Affiliates</Link></li>
                 </ul>
             </div>
             <div>

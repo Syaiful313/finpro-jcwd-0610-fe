@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils"; // pastikan kamu punya helper className ini
+import { cn } from "@/lib/utils";
 
 export function NavDocuments({
   items,

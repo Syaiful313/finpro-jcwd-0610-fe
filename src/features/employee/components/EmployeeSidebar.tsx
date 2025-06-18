@@ -106,15 +106,15 @@ const getNavDataByRole = (role: Role) => {
           icon: LayoutDashboardIcon,
         },
         {
-          title: "Order List",
+          title: "Order Queue",
           url: "/employee/orders",
           icon: ListIcon,
         },
-        {
-          title: "Queue",
-          url: "/employee/orders/queue",
-          icon: UsersIcon,
-        },
+        // {
+        //   title: "Queue",
+        //   url: "/employee/orders/queue",
+        //   icon: UsersIcon,
+        // },
         {
           title: "Bypass Request",
           url: "/employee/orders/bypass",

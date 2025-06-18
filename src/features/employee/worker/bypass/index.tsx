@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useBreadcrumb } from "../../components/BreadCrumbContext";
+import ListOfBypass from "./components/ListOfBypass";
 
 const BypassPage = () => {
   const { setBreadcrumbs } = useBreadcrumb();
@@ -12,7 +13,11 @@ const BypassPage = () => {
       { label: "Bypass" },
     ]);
   }, [setBreadcrumbs]);
-  return <div>Bypass</div>;
+  return (
+    <div>
+      <ListOfBypass />
+    </div>
+  );
 };
 
 export default BypassPage;

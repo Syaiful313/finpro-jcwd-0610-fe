@@ -56,7 +56,7 @@ const useGetDriverJobs = (queries?: useGetDriverJobsProps) => {
   const { data: session, status: sessionStatus } = useSession();
 
   return useQuery({
-    queryKey: ["driverJobs", queries], // Ubah key agar lebih spesifik
+    queryKey: ["driverJobs", queries],
     enabled: sessionStatus === "authenticated" && !!session,
     queryFn: async () => {
       const { data } = await axiosInstance.get<PageableResponse<ActiveJobs>>(

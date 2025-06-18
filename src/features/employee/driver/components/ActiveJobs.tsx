@@ -20,6 +20,7 @@ const ActiveJobs = () => {
     error,
     refetch,
   } = useGetDriverJobs({ status: "active" });
+  console.log("activeJobsData", activeJobsData);
 
   const requests = activeJobsData?.data || [];
   const totalRequests = activeJobsData?.meta?.total || 0;

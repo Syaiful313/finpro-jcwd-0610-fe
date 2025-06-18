@@ -1,23 +1,24 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import {
   ArrowLeft,
-  Phone,
-  Copy,
-  Navigation,
   Camera,
-  MapPin,
-  Clock,
-  Package,
-  User,
-  Map,
   CheckCircle,
+  Clock,
+  Copy,
+  Map,
+  MapPin,
+  Navigation,
+  Package,
+  Phone,
+  User,
 } from "lucide-react";
 import Image from "next/image";
+import type React from "react";
+import { useEffect, useState } from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,29 +29,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
+import useCompleteDelivery from "@/hooks/api/employee/driver/useCompleteDelivery";
+import useCompletePickUp from "@/hooks/api/employee/driver/useCompletePickUp";
+import useStartDelivery from "@/hooks/api/employee/driver/useStartDelivery";
+import useStartPickUp from "@/hooks/api/employee/driver/useStartPickUp";
 import {
-  Job,
   DriverJobResponse,
+  Job,
   OrderStatus,
   formatFullAddress,
   getCustomerName,
-  formatCurrency,
-  formatDateTime,
 } from "@/types/detailApi";
-import { toast } from "sonner";
-import useStartPickUp from "@/hooks/api/employee/driver/useStartPickUp";
-import useStartDelivery from "@/hooks/api/employee/driver/useStartDelivery";
-import useCompletePickUp from "@/hooks/api/employee/driver/useCompletePickUp";
-import useCompleteDelivery from "@/hooks/api/employee/driver/useCompleteDelivery";
 import { DriverTaskStatus } from "@/types/enum";
-import SimpleMap from "../../driver/components/SimpleMap";
+import { formatDate } from "@/utils/formatDate";
+import formatRupiah from "@/utils/RupiahFormat";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useBreadcrumb } from "../../components/BreadCrumbContext";
+import SimpleMap from "../../driver/components/SimpleMap";
 
 interface DriverOrderDetailPageProps {
   jobData: DriverJobResponse;
@@ -496,7 +496,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4 text-gray-500" />
-              <span>{formatDateTime(job.pickUpScheduleOutlet)}</span>
+              <span>{formatDate(job.pickUpScheduleOutlet)}</span>
             </div>
             <Badge variant="outline">{jobData.type.toUpperCase()}</Badge>
           </div>
@@ -551,12 +551,12 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
               <div className="flex justify-between">
                 <span className="text-gray-600">Delivery Fee</span>
                 <span className="font-medium">
-                  {formatCurrency(job.order.totalDeliveryFee)}
+                  {formatRupiah(job.order.totalDeliveryFee)}
                 </span>
               </div>
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total Price</span>
-                <span>{formatCurrency(job.order.totalPrice)}</span>
+                <span>{formatRupiah(job.order.totalPrice)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Payment Status</span>

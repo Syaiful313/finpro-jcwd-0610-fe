@@ -11,7 +11,6 @@ export type ActiveJobs = {
     actualPickupTime: string | null;
     addressLine: string;
     city: string;
-
     createdAt: string;
     district: string;
     notificationId: number;

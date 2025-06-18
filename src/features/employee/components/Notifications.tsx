@@ -52,7 +52,6 @@ const formatNotificationMessage = (notification: DriverNotification) => {
   return notification.message;
 };
 
-// Helper function to get notification category
 const getNotificationCategory = (notifType: NotifType) => {
   switch (notifType) {
     case NotifType.NEW_PICKUP_REQUEST:
@@ -72,7 +71,6 @@ const getNotificationCategory = (notifType: NotifType) => {
   }
 };
 
-// User Avatar Component
 const CustomerAvatar = ({
   notification,
 }: {
@@ -145,7 +143,6 @@ const NotificationItem = ({
   );
 };
 
-// Loading Skeleton Component
 const NotificationSkeleton = () => (
   <div className="p-3">
     <div className="flex gap-3">
@@ -158,7 +155,6 @@ const NotificationSkeleton = () => (
   </div>
 );
 
-// Main NotificationDropdown Component
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -208,7 +204,6 @@ export default function NotificationDropdown() {
         <ScrollArea className="h-80">
           <div className="p-1">
             {isLoading ? (
-              // Loading state
               Array.from({ length: 3 }).map((_, index) => (
                 <div key={index}>
                   <NotificationSkeleton />
@@ -216,14 +211,12 @@ export default function NotificationDropdown() {
                 </div>
               ))
             ) : error ? (
-              // Error state
               <div className="p-4 text-center">
                 <p className="text-muted-foreground text-sm">
                   Failed to load notifications
                 </p>
               </div>
             ) : !data?.data || data.data.length === 0 ? (
-              // Empty state
               <div className="p-4 text-center">
                 <Bell className="text-muted-foreground/50 mx-auto mb-2 h-8 w-8" />
                 <p className="text-muted-foreground text-sm">
@@ -231,7 +224,6 @@ export default function NotificationDropdown() {
                 </p>
               </div>
             ) : (
-              // Notifications list
               data.data.map((notification, index) => (
                 <div key={notification.id}>
                   <NotificationItem notification={notification} />

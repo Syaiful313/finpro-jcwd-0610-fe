@@ -1,3 +1,4 @@
+
 'use client';
 import useLogin from "@/hooks/api/auth/useLogin";
 import { useFormik } from 'formik';
@@ -34,7 +35,6 @@ const LoginPage = () => {
         validationSchema: LoginSchema,
         onSubmit: (values) => {
             login(values);
-            console.log('Form submitted with:', values);
         },
     });
 
@@ -129,11 +129,6 @@ const LoginPage = () => {
                             className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
                             onClick={() => signIn('google', { callbackUrl: '/' })}
                         >Continue with Google</button>
-                        <button
-                            type="button"
-                            className="w-full flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
-                            onClick={() => signIn('github', { callbackUrl: '/' })}
-                        >Continue with Github</button>
                     </div>
                 </div>
             </div>

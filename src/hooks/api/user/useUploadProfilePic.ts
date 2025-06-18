@@ -1,10 +1,11 @@
 import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 const useUploadProfilePic = (userId: number) => {
   const axiosInstance = useAxios();
+  const queryClient = useQueryClient();
   const { update, data: session } = useSession();
   return useMutation({
     mutationFn: async (payload: FormData) => {
@@ -24,6 +25,7 @@ const useUploadProfilePic = (userId: number) => {
           profilePic: data.profilePic,
         },
       })
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error) => {
       toast.error(error.message);
