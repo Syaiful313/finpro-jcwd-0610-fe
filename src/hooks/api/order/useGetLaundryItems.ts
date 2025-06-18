@@ -20,18 +20,19 @@ interface LaundryItemResponse {
 const useGetLaundryItems = () => {
   return useQuery({
     queryKey: ["laundry-items"],
-    queryFn: async () => {
+    queryFn: async (): Promise<LaundryItem[]> => {
       const { data } = await axiosInstance.get<LaundryItemResponse>(
         "/orders/laundry-items",
       );
-      
-      console.log('Hook response:', data); // Debug log
-      
-      // Response format: { success: true, message: "...", data: [...] }
-      return data.data; // Return array langsung
+
+      if (!data.success) {
+        throw new Error(data.message || "Failed to fetch laundry items");
+      }
+
+      return data.data;
     },
     retry: 3,
-    staleTime: 5 * 60 * 1000, // 5 menit
+    staleTime: 5 * 60 * 1000,
   });
 };
 

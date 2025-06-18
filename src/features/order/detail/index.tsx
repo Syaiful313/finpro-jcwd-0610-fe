@@ -69,7 +69,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
         <div className="border-b pb-6 mb-6">
             <p className="text-sm text-gray-500 mb-1">Delivery Address</p>
             <p className="text-base">
-            {order.address_line}, {order.district}, {order.city}, {order.province}, {order.postalCode}
+            {order.addressLine}, {order.district}, {order.city}, {order.province}, {order.postalCode}
             </p>
         </div>
 
