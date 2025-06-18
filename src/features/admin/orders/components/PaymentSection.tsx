@@ -3,10 +3,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  AlertCircle,
   CalendarClock,
   ChevronDown,
   ChevronUp,
-  CreditCard,
+  ExternalLink,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -15,8 +16,27 @@ interface PaymentInfo {
   status: string;
   method?: string;
   date: string | null;
-  transactionId?: string;
+  transactionId?: string | null;
   dueDate?: string;
+
+  breakdown?: {
+    itemsTotal: number;
+    deliveryFee: number;
+    grandTotal: number;
+  };
+  xendit?: {
+    xenditId: string;
+    invoiceUrl?: string;
+    successRedirectUrl?: string;
+    expiryDate?: string;
+    xenditStatus?: string;
+    isExpired: boolean;
+  };
+  actions?: {
+    canPay: boolean;
+    canRefund: boolean;
+    canGenerateNewInvoice: boolean;
+  };
 }
 
 export function PaymentSection({ payment }: { payment: PaymentInfo }) {
@@ -30,7 +50,7 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleString("id-ID", {
       day: "numeric",
@@ -44,8 +64,10 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
   const getPaymentStatusInIndonesian = (status: string) => {
     switch (status) {
       case "Paid":
+      case "PAID":
         return "Lunas";
       case "Pending":
+      case "WAITING_PAYMENT":
         return "Menunggu";
       case "Failed":
         return "Gagal";
@@ -55,6 +77,38 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
         return "Dikembalikan";
       default:
         return status;
+    }
+  };
+
+  const getPaymentStatusBadge = (status: string) => {
+    const isPaid = status === "Paid" || status === "PAID";
+    return (
+      <Badge className={isPaid ? "bg-green-500" : "bg-yellow-500"}>
+        {getPaymentStatusInIndonesian(status)}
+      </Badge>
+    );
+  };
+
+  const getPaymentMethodDisplay = (method?: string) => {
+    if (!method || method === "Pending") return "Menunggu";
+
+    switch (method) {
+      case "BANK_TRANSFER":
+        return "Transfer Bank";
+      case "E_WALLET":
+        return "E-Wallet";
+      case "CREDIT_CARD":
+        return "Kartu Kredit";
+      case "QRIS":
+        return "QRIS";
+      case "VIRTUAL_ACCOUNT":
+        return "Virtual Account";
+      case "RETAIL_OUTLET":
+        return "Retail Outlet";
+      case "ONLINE_PAYMENT":
+        return "Pembayaran Online";
+      default:
+        return method;
     }
   };
 
@@ -77,6 +131,7 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
 
       {isExpanded && (
         <div className="space-y-4">
+          {/* Total Amount */}
           <div className="flex items-center justify-between rounded-md border p-4">
             <div className="flex items-center gap-2">
               <span className="text-lg font-medium">Total Biaya</span>
@@ -86,33 +141,44 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
             </span>
           </div>
 
+          {/* Payment Breakdown (if available) */}
+          {payment.breakdown && (
+            <div className="rounded-md border p-4">
+              <h3 className="mb-3 font-medium">Rincian Biaya</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Biaya Laundry</span>
+                  <span>{formatRupiah(payment.breakdown.itemsTotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Biaya Antar</span>
+                  <span>{formatRupiah(payment.breakdown.deliveryFee)}</span>
+                </div>
+                <hr className="my-2" />
+                <div className="flex justify-between font-medium">
+                  <span>Total</span>
+                  <span>{formatRupiah(payment.breakdown.grandTotal)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Payment Status */}
           <div className="rounded-md border p-4">
             <div className="mb-4 flex items-center justify-between">
               <span className="font-medium">Status Pembayaran</span>
-              <Badge
-                className={
-                  payment.status === "Paid" ? "bg-green-500" : "bg-yellow-500"
-                }
-              >
-                {getPaymentStatusInIndonesian(payment.status)}
-              </Badge>
+              {getPaymentStatusBadge(payment.status)}
             </div>
 
             <div className="space-y-3 text-sm">
-              {payment.method && (
-                <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    <span>Metode Pembayaran</span>
-                  </div>
-                  <span className="font-medium">{payment.method}</span>
-                </div>
-              )}
-
               <div className="flex items-center justify-between">
                 <div className="text-muted-foreground flex items-center gap-2">
                   <CalendarClock className="h-4 w-4" />
-                  <span>Tanggal Pembayaran</span>
+                  <span>
+                    {payment.status === "Paid" || payment.status === "PAID"
+                      ? "Tanggal Pembayaran"
+                      : "Tanggal Pembuatan"}
+                  </span>
                 </div>
                 <span className="font-medium">{formatDate(payment.date)}</span>
               </div>
@@ -139,6 +205,65 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
               )}
             </div>
           </div>
+
+          {/* Xendit Payment Details (if available) */}
+          {payment.xendit && (
+            <div className="rounded-md border p-4">
+              <h3 className="mb-3 font-medium">Detail Pembayaran Online</h3>
+
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Xendit ID</span>
+                  <span className="font-mono text-xs">
+                    {payment.xendit.xenditId}
+                  </span>
+                </div>
+
+                {payment.xendit.expiryDate && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Kadaluarsa</span>
+                    <span
+                      className={`text-xs ${payment.xendit.isExpired ? "text-red-600" : "text-gray-600"}`}
+                    >
+                      {formatDate(payment.xendit.expiryDate)}
+                      {payment.xendit.isExpired && (
+                        <span className="ml-2 text-red-600">(Expired)</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+
+                {payment.xendit.invoiceUrl && !payment.xendit.isExpired && (
+                  <div className="mt-3">
+                    <a
+                      href={payment.xendit.invoiceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      <span>Buka Halaman Pembayaran</span>
+                    </a>
+                  </div>
+                )}
+
+                {payment.xendit.isExpired && (
+                  <div className="mt-3 rounded-md bg-red-50 p-3">
+                    <div className="flex items-center gap-2 text-red-800">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        Invoice Kadaluarsa
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-red-600">
+                      Silakan hubungi customer service untuk membuat invoice
+                      baru
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

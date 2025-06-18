@@ -35,7 +35,7 @@ const PaginationSection: FC<PaginationSectionProps> = ({
   return (
     <Pagination>
       <PaginationContent>
-        <PaginationItem>
+        <PaginationItem className="cursor-pointer">
           <PaginationPrevious onClick={handlePrev} />
         </PaginationItem>
 
@@ -43,7 +43,7 @@ const PaginationSection: FC<PaginationSectionProps> = ({
           <PaginationLink>{page}</PaginationLink>
         </PaginationItem>
 
-        <PaginationItem>
+        <PaginationItem className="cursor-pointer">
           <PaginationNext onClick={handleNext} />
         </PaginationItem>
       </PaginationContent>

@@ -58,7 +58,7 @@ const useProcessOrder = () => {
     }: {
       orderId: string;
       payload: ProcessOrderPayload;
-    }) => {
+    }): Promise<ProcessOrderResponse> => {
       const { data } = await axiosInstance.patch<ProcessOrderResponse>(
         `/orders/${orderId}/process`,
         payload,
@@ -66,19 +66,29 @@ const useProcessOrder = () => {
       return data;
     },
 
-    onSuccess: async () => {
-      toast.success("Pesanan berhasil diproses!");
+    onSuccess: async (data) => {
+      if (data.success) {
+        toast.success(data.message || "Pesanan berhasil diproses!");
+      }
+
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["orders"] }),
         queryClient.invalidateQueries({ queryKey: ["pending-process-orders"] }),
-        queryClient.invalidateQueries({ queryKey: ["orders", "list"] }),
+        queryClient.invalidateQueries({ queryKey: ["order-detail"] }),
         queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
       ]);
+
       router.push("/admin/orders");
     },
 
-    onError: (error: AxiosError<any>) => {
-      toast.error(error.response?.data?.message || "Gagal memproses pesanan");
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      const errorMessage =
+        error.response?.data?.message || "Gagal memproses pesanan";
+      toast.error(errorMessage);
+
+      if (error.response?.data?.errors) {
+        console.error("Validation errors:", error.response.data.errors);
+      }
     },
   });
 };
