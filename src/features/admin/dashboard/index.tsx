@@ -1,5 +1,4 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { PermintaanBypassTable } from "./components/BypassRequest";
 import { ChartAreaInteractive } from "./components/ChartAreaInteractive";
 import { PesananTerbaruTable } from "./components/OrdersNew";
 import { SectionCards } from "./components/SectionCard";
@@ -20,7 +19,6 @@ export default function DashboardPage() {
                 <ChartAreaInteractive />
               </div>
               <PesananTerbaruTable />
-              <PermintaanBypassTable />
             </div>
           </div>
         </div>

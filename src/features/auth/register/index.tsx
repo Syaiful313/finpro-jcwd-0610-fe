@@ -1,11 +1,12 @@
 'use client';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import Link from 'next/link';
 import { signIn, useSession } from 'next-auth/react';
 import useRegister from '@/hooks/api/auth/useRegister';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { SignupSchema } from './schema';
+import { toast } from 'sonner';
 
 const RegisterPage = () => {
     const router = useRouter();
@@ -16,23 +17,6 @@ const RegisterPage = () => {
         if (status === "authenticated") { router.replace("/user/profile") }
     }, [status, router]); 
 
-    const SignupSchema = Yup.object().shape({
-        firstName: Yup.string()
-            .min(2, 'Minimum of first name is 2 characters')
-            .required('First name is required'),
-        lastName: Yup.string()
-            .min(2, 'Minimum of last name is 2 characters')
-            .required('Last name is required'),
-        phoneNumber: Yup.string()
-            .matches(/^[0-9]+$/, 'Invalid phone number')
-            .min(10, 'Phone number must be at least 10 digits')
-            .max(15, 'Phone number must be at most 15 digits')
-            .required('Phone number is required'),
-        email: Yup.string()
-            .email('Invalid email address')
-            .required('Email is required'),
-    });
-
     const formik = useFormik({
         initialValues: {
             firstName: '',
@@ -41,25 +25,25 @@ const RegisterPage = () => {
             email: '',
         },
         validationSchema: SignupSchema,
-        onSubmit: (values) => {
-            console.log("sending data", values)
-            register(values);
+        onSubmit: async (values, actions) => {
+            try { await register(values) } 
+            catch (error) {
+                toast.error("error");
+                actions.resetForm(); 
+            }
         },
     });
 
     return (
-        <div className="min-h-screen bg-white flex justify-center px-4 lg:px-8 py-32 lg:py-48">
-            <div className="max-w-2xl w-full space-y-8 bg-white px-10 rounded-lg">
+        <div className="min-h-screen bg-white flex justify-center px-4 lg:px-8 py-32 lg:py-36">
+            <div className="max-w-2xl w-full space-y-10 bg-white px-10 rounded-lg">
                 <div className="text-center">
-                    <h2 className="text-2xl md:text-4xl font-extrabold text-gray-900">Create your account</h2>
+                    <h2 className="text-3xl md:text-3xl font-extrabold text-primary">Register to order pickup</h2>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <button onClick={() => signIn('google', { callbackUrl: '/' })}
                             className="flex-1 flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
                     >Sign up with Google</button>
-                    <button onClick={() => signIn('github', { callbackUrl: '/' })}
-                            className="flex-1 flex justify-center items-center py-2 px-4 border border-primary rounded-md shadow-sm text-md font-medium text-primary bg-white hover:cursor-pointer hover:bg-gray-50"
-                    >Sign up with Github</button>
                 </div>
                 <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -137,7 +121,7 @@ const RegisterPage = () => {
                     Already have an account?{' '}
                     <Link href="/login" className="font-medium text-primary hover:text-blue-500">Log in.</Link>
                 </div>
-                <p className="mt-8 text-center text-sm text-gray-500">
+                <p className="text-center text-sm text-gray-500">
                     By selecting continue, you agree to receive service and marketing auto-sent texts from Bubblify, and you also agree to our {' '}
                     <Link href="/terms" className="font-medium text-primary hover:text-blue-600">Terms</Link>
                     {' '} and {' '}

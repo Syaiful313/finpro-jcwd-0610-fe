@@ -7,7 +7,7 @@ import useUpdateUser from "@/hooks/api/user/useUpdateUser";
 import useUploadProfilePic from "@/hooks/api/user/useUploadProfilePic";
 import { Address } from "@/types/address";
 import { Form, Formik } from "formik";
-import { motion } from 'framer-motion'; // Import motion
+import { motion } from 'framer-motion'; 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { AddressesForm } from "./components/address/AddressForm";
 import { EditForm } from "./components/general/EditForm";
+import Loading from "./components/Loading";
 
 interface PayloadCreateAddress {
     addressName: string;
@@ -33,9 +34,6 @@ interface PayloadCreateAddress {
     isPrimary: boolean;
 }
 
-interface PayloadCreateAddressList {
-  addresses: PayloadCreateAddress[];
-}
 
 const ProfilePage = () => {
     const [showEditForm, setShowEditForm] = useState(false);
@@ -54,16 +52,16 @@ const ProfilePage = () => {
     const { mutate: updateUser } = useUpdateUser(userId!);
     const { mutate: uploadProfilePic } = useUploadProfilePic(userId!);
     const { mutate: createAddress } = useCreateAddress(userId!);
-    const { mutate: deleteAddress } = useDeleteAddress();
-    const { mutate: editAddress } = useEditAddress();
-    const defaultProfileImgUrl = "/logo.svg";
+    const { mutate: deleteAddress } = useDeleteAddress(userId!);
+    const { mutate: editAddress } = useEditAddress(userId!);
+    const defaultProfileImgUrl = `https://ui-avatars.com/api/?name=${user?.firstName}&background=DDDDDD&color=555555&bold=true&rounded=true`;
 
-    useEffect(() => {
+    useEffect(() => { 
         if (session.status === "loading") return;
-        if (!userId) {
+        if (!userId || session.status === "unauthenticated") {
             router.push("/login");
         } 
-    }, [userId]);
+    }, [userId, session.status]);
 
     const handleOpenEditForm = () => setShowEditForm(true);
 
@@ -118,18 +116,22 @@ const ProfilePage = () => {
         setShowAddressForm(true);
     };
 
-    if (session.status === "loading") return <div>Loading...</div>;
-    if (!user) return <div>User not found</div>;
+    const isValidProfilePic =
+        user?.profilePic &&
+        user.profilePic !== 'null' &&
+        user.profilePic !== 'undefined';
+
+    if (session.status === "loading") return <Loading/>
 
     return (
   <>
     {showEditForm && (
       <EditForm
         onClose={() => setShowEditForm(false)}
-        initialFirstName={user.firstName}
-        initialLastName={user.lastName}
-        initialEmail={user.email}
-        initialPhoneNumber={user.phoneNumber}
+        initialFirstName={user?.firstName}
+        initialLastName={user?.lastName}
+        initialEmail={user?.email}
+        initialPhoneNumber={user?.phoneNumber}
         onSave={handleSave}
       />
     )}
@@ -228,7 +230,7 @@ const ProfilePage = () => {
         <ProfileSidebar activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
 
         <div className="flex-1 flex flex-col items-center p-4 overflow-y-auto h-screen">
-            <HeadSection user={user} />
+            {!!user && <HeadSection user={user} />}
 
             {activeIndex === 0 && (
             <>
@@ -254,7 +256,7 @@ const ProfilePage = () => {
                     onClick={triggerFileInput}
                     >
                     <img
-                        src={user.profilePic || defaultProfileImgUrl}
+                        src={isValidProfilePic ? user.profilePic : defaultProfileImgUrl}
                         alt="Profile"
                         className="w-full h-full object-cover"
                     />
@@ -275,7 +277,7 @@ const ProfilePage = () => {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                     <span className="text-gray-600 font-semibold">First Name</span>
                     <div className="flex items-center">
-                    <span className="text-gray-800 mr-2">{user.firstName}</span>
+                    <span className="text-gray-800 mr-2">{user?.firstName}</span>
                     <div
                         onClick={handleOpenEditForm}
                         className="cursor-pointer"
@@ -292,7 +294,7 @@ const ProfilePage = () => {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                     <span className="text-gray-600 font-semibold">Last Name</span>
                     <div className="flex items-center">
-                    <span className="text-gray-800 mr-2">{user.lastName}</span>
+                    <span className="text-gray-800 mr-2">{user?.lastName}</span>
                     <div
                         onClick={handleOpenEditForm}
                         className="cursor-pointer"
@@ -316,7 +318,7 @@ const ProfilePage = () => {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                     <span className="text-gray-600 font-semibold">Email</span>
                     <div className="flex items-center">
-                    <span className="text-gray-800 mr-2">{user.email}</span>
+                    <span className="text-gray-800 mr-2">{user?.email}</span>
                     <div
                         onClick={handleOpenEditForm}
                         className="cursor-pointer"
@@ -333,7 +335,7 @@ const ProfilePage = () => {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                     <span className="text-gray-600 font-semibold">Phone</span>
                     <div className="flex items-center">
-                    <span className="text-gray-800 mr-2">{user.phoneNumber}</span>
+                    <span className="text-gray-800 mr-2">{user?.phoneNumber}</span>
                     <div
                         onClick={handleOpenEditForm}
                         className="cursor-pointer"
@@ -387,7 +389,7 @@ const ProfilePage = () => {
 
                 
                 {['Home', 'Work'].map((type) => {
-                const address = user.addresses?.find((addr) => addr.addressName === type);
+                const address = user?.addresses?.find((addr) => addr.addressName === type);
                 return (
                     <div
                     key={type}
@@ -423,7 +425,7 @@ const ProfilePage = () => {
                     onKeyDown={(e) => e.key === 'Enter' && setShowOthers((v) => !v)}
                 >
                     <span className="text-gray-800 mr-2">
-                    {(user.addresses ?? []).filter(
+                    {(user?.addresses ?? []).filter(
                         (addr) => addr.addressName !== 'Home' && addr.addressName !== 'Work'
                     ).length > 0
                         ? 'Other addresses'
@@ -433,7 +435,7 @@ const ProfilePage = () => {
                 </div>
                 </div>
                 {showOthers &&
-                user.addresses
+                user?.addresses
                     ?.filter((addr) => addr.addressName !== 'Home' && addr.addressName !== 'Work')
                     .map((addr, idx) => (
                     <div

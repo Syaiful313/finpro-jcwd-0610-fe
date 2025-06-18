@@ -34,7 +34,6 @@ const LoginPage = () => {
     validationSchema: LoginSchema,
     onSubmit: (values) => {
       login(values);
-      console.log("Form submitted with:", values);
     },
   });
 
@@ -181,13 +180,6 @@ const LoginPage = () => {
               onClick={() => signIn("google", { callbackUrl: "/" })}
             >
               Continue with Google
-            </button>
-            <button
-              type="button"
-              className="border-primary text-md text-primary flex w-full items-center justify-center rounded-md border bg-white px-4 py-2 font-medium shadow-sm hover:cursor-pointer hover:bg-gray-50"
-              onClick={() => signIn("github", { callbackUrl: "/" })}
-            >
-              Continue with Github
             </button>
           </div>
         </div>

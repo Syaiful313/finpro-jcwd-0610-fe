@@ -6,19 +6,33 @@ import { useRouter } from 'next/navigation';
 import { BadgeCheck, Calendar, ChevronLeft, ChevronRight, Clock, PackageCheck, Plus, Search } from 'lucide-react';
 import useGetOrdersUser from '@/hooks/api/order/useGetOrdersUser';
 import { Order } from '@/types/order';
+import { useQueryState } from 'nuqs';
 
 interface OrderListProps {
   userId: number;
 }
 
 const OrderList: FC<OrderListProps> = ({ userId }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [limit] = useState(5);
+  const [currentPage, setCurrentPage] = useQueryState('page', {
+    defaultValue: 1,
+    parse: Number,
+    serialize: (v) => String(v),
+  });  const [limit] = useState(5);
+
+  const [searchTerm, setSearchTerm] = useQueryState('search', {
+    defaultValue: '',
+  });
+
+  const [startDate, setStartDate] = useQueryState('startDate', {
+    defaultValue: '',
+  });
+
+  const [endDate, setEndDate] = useQueryState('endDate', {
+    defaultValue: '',
+  });
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const { data, isLoading } = useGetOrdersUser({ userId, page: currentPage, limit });
   const router = useRouter();
 
@@ -28,6 +42,10 @@ const OrderList: FC<OrderListProps> = ({ userId }) => {
       setTotal(data.total);
     }
   }, [data]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
@@ -81,15 +99,9 @@ const OrderList: FC<OrderListProps> = ({ userId }) => {
       </div>
 
       {isLoading || filteredOrders.length === 0 ? (
-        <ul className="space-y-4 animate-pulse">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <li key={idx} className="p-4 border border-primary rounded-xl shadow">
-              <div className="h-4 bg-slate-50 rounded w-1/2 mb-2" />
-              <div className="h-4 bg-slate-50 rounded w-1/3 mb-2" />
-              <div className="h-4 bg-slate-50 rounded w-1/4" />
-            </li>
-          ))}
-        </ul>
+        <div className="flex justify-center items-center py-10">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
       ) : (
         <ul className="space-y-4">
           {filteredOrders.map((order) => (
