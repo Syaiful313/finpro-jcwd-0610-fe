@@ -152,7 +152,7 @@ const data = {
     },
     {
       name: "Laporan Performa",
-      url: "#",
+      url: "/admin/employee-performances",
       icon: BarChartIcon,
       roles: ["ADMIN", "OUTLET_ADMIN"],
     },

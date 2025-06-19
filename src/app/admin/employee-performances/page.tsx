@@ -1,15 +1,15 @@
-import OrdersPage from "@/features/admin/orders";
+import EmployeePerformancePage from "@/features/admin/employee-performance";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-const Orders = async () => {
+const EmployeePerformance = async () => {
   const session = await auth();
 
   if (!session) return redirect("/login");
   if (session.user?.role !== "ADMIN" && session.user?.role !== "OUTLET_ADMIN")
     redirect("/");
   
-  return <OrdersPage />;
+  return <EmployeePerformancePage />;
 };
 
-export default Orders;
+export default EmployeePerformance;
