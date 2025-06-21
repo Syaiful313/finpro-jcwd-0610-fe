@@ -12,19 +12,17 @@ export const getOrderStatusConfig = (status: string): StatusConfig => {
       className: "bg-blue-50 text-blue-700 border-blue-200",
     },
     BEING_WASHED: {
-      // Status ini secara teknis tidak akan pernah menjadi antrian,
-      // tapi kita beri label yang benar jika muncul.
       label: "Ready to Iron",
       variant: "outline",
-      className: "bg-yellow-50 text-yellow-700 border-yellow-200",
+      className: "bg-teal-50 text-teal-700 border-teal-200",
     },
     BEING_IRONED: {
-      label: "Ready to Pack", // DIUBAH: Siap Disetrika
+      label: "Ready to Pack",
       variant: "outline",
       className: "bg-purple-50 text-purple-700 border-purple-200",
     },
     BEING_PACKED: {
-      label: "Customer Confirm Payment", // DIUBAH: Siap Dipacking
+      label: "Customer Confirm Payment",
       variant: "outline",
       className: "bg-teal-50 text-teal-700 border-teal-200",
     },
@@ -57,6 +55,16 @@ export const getOrderStatusConfig = (status: string): StatusConfig => {
       label: "In Progress",
       variant: "outline",
       className: "bg-orange-50 text-orange-700 border-orange-200",
+    },
+    WAITING_PAYMENT: {
+      label: "Waiting for Payment",
+      variant: "outline",
+      className: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    },
+    READY_FOR_DELIVERY: {
+      label: "Ready for Delivery",
+      variant: "outline",
+      className: "bg-blue-50 text-blue-700 border-blue-200",
     },
   };
 

@@ -20,8 +20,6 @@ import { FileBarChart, FileText } from "lucide-react";
 const ListOfWorkerHistory = () => {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [take, setTake] = useQueryState("take", parseAsInteger.withDefault(10));
-
-  // Filter states
   const [dateFrom, setDateFrom] = useQueryState("dateFrom", parseAsString);
   const [dateTo, setDateTo] = useQueryState("dateTo", parseAsString);
   const [workerType, setWorkerType] = useQueryState(

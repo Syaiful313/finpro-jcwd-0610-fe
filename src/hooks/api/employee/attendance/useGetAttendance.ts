@@ -1,4 +1,5 @@
 import useAxios from "@/hooks/useAxios";
+import { axiosInstance } from "@/lib/axios";
 import { Attendance } from "@/types/attendance";
 import { PageableResponse, PaginationQueries } from "@/types/pagination";
 import { useQuery } from "@tanstack/react-query";
@@ -8,15 +9,15 @@ interface GetAttendanceProps extends PaginationQueries {
   search?: string;
   employeeId?: number;
   perPage?: number;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 const useGetAttendance = (queries?: GetAttendanceProps) => {
-  const axiosInstance = useAxios();
-  const { data: session, status: sessionStatus } = useSession();
+  console.log("--> useGetAttendance HOOK CALLED with queries:", queries);
 
   return useQuery({
     queryKey: ["attendance", queries],
-    enabled: sessionStatus === "authenticated" && !!session,
     queryFn: async () => {
       const { data } = await axiosInstance.get<PageableResponse<Attendance>>(
         "/attendance",
@@ -24,13 +25,11 @@ const useGetAttendance = (queries?: GetAttendanceProps) => {
       );
       return data;
     },
-    staleTime: 30 * 1000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    staleTime: 8 * 60 * 60 * 1000,
+    gcTime: 9 * 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     refetchOnReconnect: true,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };
 

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardHeader,
@@ -18,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertTriangle } from "lucide-react";
-import { VerificationItem } from "@/hooks/api/employee/worker/useProcessOrder";
+import type { VerificationItem } from "@/hooks/api/employee/worker/useProcessOrder";
 
 interface ItemVerificationCardProps {
   orderData: any;
@@ -47,50 +49,76 @@ export default function ItemVerificationCard({
   isCompleted,
   bypassStatus,
 }: ItemVerificationCardProps) {
+  const renderStatusIcon = () => {
+    return isCompleted ? (
+      <CheckCircle className="h-5 w-5 text-green-500" />
+    ) : (
+      <AlertTriangle className="h-5 w-5 text-amber-500" />
+    );
+  };
+
+  const renderStatusBadges = () => {
+    const badges = [];
+
+    if (isCompleted) {
+      badges.push(
+        <Badge key="completed" variant="default" className="ml-2">
+          Completed
+        </Badge>,
+      );
+    }
+
+    if (bypassStatus === "PENDING") {
+      badges.push(
+        <Badge
+          key="pending"
+          variant="outline"
+          className="ml-2 border-orange-300 bg-orange-100 text-orange-700"
+        >
+          Bypass Pending
+        </Badge>,
+      );
+    }
+
+    if (bypassStatus === "REJECTED") {
+      badges.push(
+        <Badge
+          key="rejected"
+          variant="outline"
+          className="ml-2 border-red-300 bg-red-100 text-red-700"
+        >
+          Bypass Rejected
+        </Badge>,
+      );
+    }
+
+    return badges;
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {isCompleted ? (
-            <CheckCircle className="h-5 w-5 text-green-500" />
-          ) : (
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
-          )}
+          {renderStatusIcon()}
           Item Verification
-          {isCompleted && (
-            <Badge variant="default" className="ml-2">
-              Completed
-            </Badge>
-          )}
-          {bypassStatus === "PENDING" && (
-            <Badge
-              variant="outline"
-              className="ml-2 border-orange-300 bg-orange-100 text-orange-700"
-            >
-              Bypass Pending
-            </Badge>
-          )}
-          {bypassStatus === "REJECTED" && (
-            <Badge
-              variant="outline"
-              className="ml-2 border-red-300 bg-red-100 text-red-700"
-            >
-              Bypass Rejected
-            </Badge>
-          )}
+          {renderStatusBadges()}
         </CardTitle>
+
         <CardDescription>
           {isCompleted
             ? "Items have been verified."
             : "Please verify all items before proceeding."}
         </CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-4">
+        {/* Verification Items */}
         {verificationItems.map((item, index) => (
           <div
             key={index}
             className="grid grid-cols-1 gap-4 rounded-lg border p-4 md:grid-cols-2"
           >
+            {/* Item Type Selection */}
             <div className="space-y-2.5">
               <Label>Item Type</Label>
               <Select
@@ -115,6 +143,8 @@ export default function ItemVerificationCard({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Quantity Input */}
             <div className="space-y-2.5">
               <Label>Quantity</Label>
               <Input
@@ -129,6 +159,8 @@ export default function ItemVerificationCard({
             </div>
           </div>
         ))}
+
+        {/* Action Buttons */}
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -138,6 +170,7 @@ export default function ItemVerificationCard({
           >
             Add Item
           </Button>
+
           <Button
             onClick={handleStartProcess}
             className="flex-1"
@@ -146,6 +179,8 @@ export default function ItemVerificationCard({
             {isPending ? "Processing..." : "Verify Items"}
           </Button>
         </div>
+
+        {/* Success Alert */}
         {isCompleted && (
           <Alert className="border-green-500 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-500" />

@@ -17,6 +17,8 @@ import {
 import Image from "next/image";
 import type React from "react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -38,8 +40,8 @@ import useCompletePickUp from "@/hooks/api/employee/driver/useCompletePickUp";
 import useStartDelivery from "@/hooks/api/employee/driver/useStartDelivery";
 import useStartPickUp from "@/hooks/api/employee/driver/useStartPickUp";
 import {
-  DriverJobResponse,
-  Job,
+  type DriverJobResponse,
+  type Job,
   OrderStatus,
   formatFullAddress,
   getCustomerName,
@@ -47,8 +49,6 @@ import {
 import { DriverTaskStatus } from "@/types/enum";
 import { formatDate } from "@/utils/formatDate";
 import formatRupiah from "@/utils/RupiahFormat";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useBreadcrumb } from "../../components/BreadCrumbContext";
 import SimpleMap from "../../driver/components/SimpleMap";
 
@@ -65,12 +65,21 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
   const [job, setJob] = useState<Job>(jobData.job);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
   const [isStartJobDialogOpen, setIsStartJobDialogOpen] = useState(false);
+
   const router = useRouter();
+  const { setBreadcrumbs } = useBreadcrumb();
+
   const startPickUpMutation = useStartPickUp();
   const startDeliveryMutation = useStartDelivery();
   const completePickUpMutation = useCompletePickUp(job.id);
   const completeDeliveryMutation = useCompleteDelivery(job.id);
-  const { setBreadcrumbs } = useBreadcrumb();
+
+  const startJobMutation =
+    jobData.type === "pickup" ? startPickUpMutation : startDeliveryMutation;
+  const completeJobMutation =
+    jobData.type === "pickup"
+      ? completePickUpMutation
+      : completeDeliveryMutation;
 
   useEffect(() => {
     setBreadcrumbs([
@@ -79,14 +88,6 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
       { label: "Details" },
     ]);
   }, [setBreadcrumbs]);
-
-  const startJobMutation =
-    jobData.type === "pickup" ? startPickUpMutation : startDeliveryMutation;
-
-  const completeJobMutation =
-    jobData.type === "pickup"
-      ? completePickUpMutation
-      : completeDeliveryMutation;
 
   const initialValues: CompleteJobFormValues = {
     notes: job.notes || "",
@@ -129,8 +130,6 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
     },
   });
 
-  console.log("Job Data:", jobData);
-
   const getStatusColor = (status: DriverTaskStatus | OrderStatus) => {
     switch (status) {
       case DriverTaskStatus.PENDING:
@@ -142,7 +141,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
       case DriverTaskStatus.IN_PROGRESS:
       case OrderStatus.ARRIVED_AT_CUSTOMER:
       case OrderStatus.BEING_DELIVERED_TO_CUSTOMER:
-        return "bg-green-500";
+        return "bg-primary";
       case DriverTaskStatus.COMPLETED:
       case OrderStatus.COMPLETED:
       case OrderStatus.DELIVERED_TO_CUSTOMER:
@@ -213,7 +212,6 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
   const startJob = async () => {
     try {
       await startJobMutation.mutateAsync(job.id);
-
       setJob((prev) => ({
         ...prev,
         status: DriverTaskStatus.IN_PROGRESS,
@@ -231,7 +229,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
 
     if (job.status === DriverTaskStatus.COMPLETED) {
       return (
-        <div className="fixed right-0 bottom-0 left-0 bg-white p-4 md:static">
+        <div className="fixed right-0 bottom-0 left-0 bg-white p-4 md:static md:bg-transparent md:p-0">
           <div className="flex items-center justify-center gap-2 text-green-600 md:p-5">
             <CheckCircle className="h-5 w-5" />
             <span className="font-lg md:font-xl">
@@ -245,7 +243,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
     switch (job.status) {
       case DriverTaskStatus.ASSIGNED:
         return (
-          <div className="fixed right-0 bottom-0 left-0 space-y-2 border-t bg-white p-4">
+          <div className="fixed right-0 bottom-0 left-0 space-y-2 border-t bg-white p-4 md:static md:mx-4 md:mb-4 md:border-t-0 md:bg-transparent md:p-0">
             <Dialog
               open={isStartJobDialogOpen}
               onOpenChange={setIsStartJobDialogOpen}
@@ -293,7 +291,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
 
       case DriverTaskStatus.IN_PROGRESS:
         return (
-          <div className="fixed right-0 bottom-0 left-0 border-t bg-white p-4">
+          <div className="fixed right-0 bottom-0 left-0 border-t bg-white p-4 md:static md:mx-4 md:mb-4 md:border-t-0 md:bg-transparent md:p-0">
             <Dialog
               open={isCompleteDialogOpen}
               onOpenChange={setIsCompleteDialogOpen}
@@ -338,7 +336,11 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
                       <div className="mt-2">
                         <div className="relative inline-block">
                           <Image
-                            src={URL.createObjectURL(formik.values.photo)}
+                            src={
+                              URL.createObjectURL(formik.values.photo) ||
+                              "/placeholder.svg" ||
+                              "/placeholder.svg"
+                            }
                             alt="Selected photo"
                             width={200}
                             height={150}
@@ -407,7 +409,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 md:pb-0">
       {/* Header */}
       <div className="border-b bg-white p-4">
         <div className="flex items-center gap-3">
@@ -420,7 +422,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex gap-3">
-            <h1 className="text-lg font-semibold">#{job.order.orderNumber}</h1>
+            <h1 className="text-lg font-semibold">{job.order.orderNumber}</h1>
             <Badge className={`${getStatusColor(job.status)} text-white`}>
               {getStatusText(job.status)}
             </Badge>
@@ -433,29 +435,52 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.ASSIGNED ? "bg-blue-500" : "bg-green-500"}`}
+              className={`h-3 w-3 rounded-full ${
+                job.status === DriverTaskStatus.ASSIGNED
+                  ? "bg-blue-500"
+                  : "bg-primary"
+              }`}
             />
             <span className="text-sm font-medium">Assigned</span>
           </div>
           <div className="mx-4 h-0.5 flex-1 bg-gray-200">
             <div
-              className={`h-full transition-all duration-500 ${job.status === DriverTaskStatus.IN_PROGRESS || job.status === DriverTaskStatus.COMPLETED ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
+              className={`h-full transition-all duration-500 ${
+                job.status === DriverTaskStatus.IN_PROGRESS ||
+                job.status === DriverTaskStatus.COMPLETED
+                  ? "bg-primary w-full"
+                  : "w-0 bg-gray-200"
+              }`}
             />
           </div>
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.IN_PROGRESS ? "bg-green-500" : job.status === DriverTaskStatus.COMPLETED ? "bg-green-500" : "bg-gray-300"}`}
+              className={`h-3 w-3 rounded-full ${
+                job.status === DriverTaskStatus.IN_PROGRESS
+                  ? "bg-primary"
+                  : job.status === DriverTaskStatus.COMPLETED
+                    ? "bg-primary"
+                    : "bg-gray-300"
+              }`}
             />
             <span className="text-sm font-medium">In Progress</span>
           </div>
           <div className="mx-4 h-0.5 flex-1 bg-gray-200">
             <div
-              className={`h-full transition-all duration-500 ${job.status === DriverTaskStatus.COMPLETED ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
+              className={`h-full transition-all duration-500 ${
+                job.status === DriverTaskStatus.COMPLETED
+                  ? "bg-primary w-full"
+                  : "w-0 bg-gray-200"
+              }`}
             />
           </div>
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.COMPLETED ? "bg-green-500" : "bg-gray-300"}`}
+              className={`h-3 w-3 rounded-full ${
+                job.status === DriverTaskStatus.COMPLETED
+                  ? "bg-primary"
+                  : "bg-gray-300"
+              }`}
             />
             <span className="text-sm font-medium">Completed</span>
           </div>
@@ -542,7 +567,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-gray-600">Order Number</span>
-                <span className="font-medium">#{job.order.orderNumber}</span>
+                <span className="font-medium">{job.order.orderNumber}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Weight</span>

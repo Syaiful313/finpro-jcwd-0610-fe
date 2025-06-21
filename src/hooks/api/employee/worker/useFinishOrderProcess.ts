@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 interface useFinishOrderProps {
   orderId: string;
-  notes?: string; // notes bersifat opsional
+  notes?: string;
 }
 
 const useFinishOrderProcess = () => {
@@ -27,6 +27,9 @@ const useFinishOrderProcess = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["WorkerStationOrder"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["worker-notifications"],
       });
     },
     onError: (error: AxiosError<any>) => {

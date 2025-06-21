@@ -8,11 +8,8 @@ import {
 } from "@/features/employee/components/BreadCrumbContext";
 import { EmployeeHeader } from "@/features/employee/components/EmployeeHeader";
 import { EmployeeSidebar } from "@/features/employee/components/EmployeeSidebar";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePathname } from "next/navigation";
-
 import type React from "react";
-import { useEffect, useState } from "react";
 
 interface WorkerLayoutProps {
   children: React.ReactNode;
@@ -20,13 +17,10 @@ interface WorkerLayoutProps {
 
 export default function EmployeeLayout({ children }: WorkerLayoutProps) {
   const pathname = usePathname();
-  const isMobile = useMediaQuery("(max-width: 767px)");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const shouldHideBottomNav = (currentPath: string): boolean => {
     const pathsWithoutBottomNav = [
       "/employee/orders/order-detail",
-      "/employee/profile/edit",
       "/employee/orders/process",
     ];
 
@@ -46,28 +40,10 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
 
   const shouldShowBottomNav = !shouldHideBottomNav(pathname);
 
-  useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    } else {
-      setSidebarOpen(true);
-    }
-  }, [isMobile]);
-
   return (
     <BreadcrumbProvider>
-      {isMobile ? (
-        <main
-          className={`min-h-screen bg-[#fafafa] ${shouldShowBottomNav ? "pb-20" : "pb-0"}`}
-        >
-          <div className="flex-1">
-            <div className="mx-auto max-w-(--breakpoint-xl) bg-[#fafafa]">
-              {children}
-            </div>
-          </div>
-          {shouldShowBottomNav && <BottomNav />}
-        </main>
-      ) : (
+      {/* desktop */}
+      <div className="hidden md:block">
         <SidebarProvider>
           <EmployeeSidebar role="WORKER" variant="inset" />
           <SidebarInset>
@@ -81,7 +57,23 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
             </main>
           </SidebarInset>
         </SidebarProvider>
-      )}
+      </div>
+
+      {/* mobile */}
+      <div className="block md:hidden">
+        <main
+          className={`min-h-screen bg-[#fafafa] ${
+            shouldShowBottomNav ? "pb-20" : "pb-0"
+          }`}
+        >
+          <div className="flex-1">
+            <div className="mx-auto max-w-(--breakpoint-xl) bg-[#fafafa]">
+              {children}
+            </div>
+          </div>
+          {shouldShowBottomNav && <BottomNav />}
+        </main>
+      </div>
     </BreadcrumbProvider>
   );
 }

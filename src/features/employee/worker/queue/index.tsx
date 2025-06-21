@@ -1,21 +1,29 @@
 "use client";
 
-import { useEffect } from "react";
-import { useBreadcrumb } from "../../components/BreadCrumbContext";
-import TryStation from "./components/TryStation";
+import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
+import useAxios from "@/hooks/useAxios";
+import { useSession } from "next-auth/react";
+import Loader from "../../components/Loader";
+import NotClockIn from "../../components/NotClockIn";
+import ListOfStationOrder from "./components/ListOfStationOrder";
 
 const QueuePage = () => {
-  const { setBreadcrumbs } = useBreadcrumb();
-  useEffect(() => {
-    setBreadcrumbs([
-      { label: "Dashboard", href: "/employee" },
-      { label: "Orders", href: "/employee/orders" },
-      { label: "Queue" },
-    ]);
-  }, [setBreadcrumbs]);
+  const { data: todayAttendanceResponse, isLoading } = useGetTodayAttendance();
+  const hasClockedIn = todayAttendanceResponse?.meta?.hasClockedIn ?? false;
+  const hasClockedOut = todayAttendanceResponse?.meta?.hasClockedOut ?? false;
+  const isCurrentlyWorking = hasClockedIn && !hasClockedOut;
+
+  if (isLoading)
+    return (
+      <div>
+        <Loader />
+      </div>
+    );
+  if (!isCurrentlyWorking) return <NotClockIn />;
+
   return (
     <div>
-      <TryStation />
+      <ListOfStationOrder />
     </div>
   );
 };

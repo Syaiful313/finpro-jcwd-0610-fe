@@ -105,7 +105,6 @@ export type FullAddress = {
   fullAddress: string;
 };
 
-// Helper function to format full address
 export const formatFullAddress = (order: Order): FullAddress => {
   const fullAddress = `${order.addressLine}, ${order.district}, ${order.city}, ${order.province} ${order.postalCode}`;
 
@@ -119,7 +118,6 @@ export const formatFullAddress = (order: Order): FullAddress => {
   };
 };
 
-// Helper function to get customer name
 export const getCustomerName = (job: Job): string => {
   return `${job.order.user.firstName} ${job.order.user.lastName}`.trim();
 };

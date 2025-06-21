@@ -146,7 +146,6 @@ export default function useProcessOrderLogic({
           queryClient.invalidateQueries({
             queryKey: ["WorkerOrderDetails", uuid],
           });
-          setTimeout(() => refetch(), 500);
         },
         onError: (err: any) => {
           const message =
@@ -181,7 +180,6 @@ export default function useProcessOrderLogic({
             queryKey: ["ListOfBypass"],
             exact: false,
           });
-          setTimeout(() => refetch(), 500);
         },
         onError: (err: any) =>
           toast.error(
@@ -252,7 +250,6 @@ export default function useProcessOrderLogic({
     currentStep !== "process" || isProcessingCompleted;
 
   return {
-    // State & Data
     isLoading,
     error,
     orderData,
@@ -265,20 +262,14 @@ export default function useProcessOrderLogic({
     isCompletionInProgress,
     isVerificationSectionDisabled,
     isProcessingSectionDisabled,
-
-    // Verification State
     verificationItems,
     addVerificationItem,
     updateVerificationItem,
     handleStartProcess,
     isStartProcessPending: startOrderProcessMutation.isPending,
-
-    // Processing State
     processingNotes,
     setProcessingNotes,
     handleCompleteOrder,
-
-    // Bypass Modal State
     showBypassModal,
     setShowBypassModal,
     bypassRequest,

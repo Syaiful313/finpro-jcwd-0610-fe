@@ -53,7 +53,6 @@ export default function PickupHistoryPage() {
     dateFrom: dateFromFilter ? format(dateFromFilter, "yyyy-MM-dd") : "",
     dateTo: dateToFilter ? format(dateToFilter, "yyyy-MM-dd") : "",
   });
-  // console.log("completedPickupJobsData", completedPickupJobsData);
 
   const hasNext = completedPickupJobsData?.meta?.hasNext || false;
   const hasPrevious = completedPickupJobsData?.meta?.hasPrevious || false;

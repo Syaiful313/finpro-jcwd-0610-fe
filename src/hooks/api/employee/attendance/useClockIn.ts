@@ -1,13 +1,18 @@
 import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const useClockIn = () => {
   const axiosInstance = useAxios();
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       const { data } = await axiosInstance.post("/attendance/clock-in");
       return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attendanceToday"] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["claimed-requests"] });
     },
   });
 };

@@ -12,6 +12,7 @@ import OriginalOrderItems from "./OriginalOrderItem";
 import ItemVerificationCard from "./ItemVerificationCard";
 import ProcessingCard from "./ProcessingCard";
 import BypassRequestModal from "./BypassReqModal";
+import Loader from "@/features/employee/components/Loader";
 
 interface ProcessOrderProps {
   uuid: string;
@@ -48,9 +49,8 @@ export default function ProcessOrderDetailPage({ uuid }: ProcessOrderProps) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-center">
-        <div className="border-primary mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-        <p>Loading order details...</p>
+      <div>
+        <Loader />
       </div>
     );
   }

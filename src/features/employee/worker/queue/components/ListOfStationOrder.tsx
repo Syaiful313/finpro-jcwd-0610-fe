@@ -1,7 +1,7 @@
 "use client";
 
+import PaginationSection from "@/components/PaginationSection";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -9,20 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import useGetStationOrder from "@/hooks/api/employee/worker/useGetStationOrder";
-import { cn } from "@/lib/utils";
-import { Popover } from "@radix-ui/react-popover";
+import formatRupiah from "@/utils/RupiahFormat";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { CalendarIcon, Filter, Package } from "lucide-react";
+import { Eye, MapPin, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   parseAsInteger,
@@ -30,18 +22,19 @@ import {
   parseAsString,
   useQueryState,
 } from "nuqs";
-import { useEffect, useState } from "react";
-
-const WORK_TYPES = [
-  { value: "all", label: "All Work Types" },
-  { value: "washing", label: "Washing" },
-  { value: "ironing", label: "Ironing" },
-  { value: "packing", label: "Packing" },
-];
+import StationOrderFilters from "./OrderStationFilter";
+import { getOrderStatusConfig } from "@/utils/StationOrder";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import Image from "next/image";
+import NotClockIn from "@/features/employee/components/NotClockIn";
+import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
+import Loader from "@/features/employee/components/Loader";
 
 const ListOfStationOrder = () => {
   const router = useRouter();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+
   const [queryDateFrom, setQueryDateFrom] = useQueryState(
     "dateFrom",
     parseAsIsoDateTime,
@@ -54,21 +47,9 @@ const ListOfStationOrder = () => {
     "workerType",
     parseAsString.withDefault("all"),
   );
-  const [localDateFrom, setLocalDateFrom] = useState<Date | undefined>(
-    queryDateFrom ?? undefined,
-  );
-  const [localDateTo, setLocalDateTo] = useState<Date | undefined>(
-    queryDateTo ?? undefined,
-  );
-  const [localWorkerType, setLocalWorkerType] =
-    useState<string>(queryWorkerType);
 
   const itemsPerPage = 4;
-  useEffect(() => {
-    setLocalDateFrom(queryDateFrom ?? undefined);
-    setLocalDateTo(queryDateTo ?? undefined);
-    setLocalWorkerType(queryWorkerType);
-  }, [queryDateFrom, queryDateTo, queryWorkerType]);
+
   const {
     data: stationOrder,
     isPending,
@@ -81,36 +62,42 @@ const ListOfStationOrder = () => {
     page: page,
     sortBy: "createdAt",
     sortOrder: "desc",
-    status: "completed",
     dateFrom: queryDateFrom ? format(queryDateFrom, "yyyy-MM-dd") : "",
     dateTo: queryDateTo ? format(queryDateTo, "yyyy-MM-dd") : "",
-    workerType: queryWorkerType as "washing" | "ironing" | "packing" | "all",
+    workerType:
+      queryWorkerType === "all"
+        ? undefined
+        : (queryWorkerType as "washing" | "ironing" | "packing"),
   });
+
   const hasNext = stationOrder?.meta?.hasNext || false;
   const hasPrevious = stationOrder?.meta?.hasPrevious || false;
-  const totalHistory = stationOrder?.meta?.total || 0;
+  const totalOrder = stationOrder?.meta?.total || 0;
+  const totalPages = Math.ceil(totalOrder / itemsPerPage);
 
-  const handleApplyFilters = () => {
-    setQueryDateFrom(localDateFrom === undefined ? null : localDateFrom);
-    setQueryDateTo(localDateTo === undefined ? null : localDateTo);
-    setQueryWorkerType(localWorkerType);
+  const handleApplyFilters = ({
+    dateFrom,
+    dateTo,
+    workerType,
+  }: {
+    dateFrom: Date | null | undefined;
+    dateTo: Date | null | undefined;
+    workerType: string;
+  }) => {
+    setQueryDateFrom(dateFrom === undefined ? null : dateFrom);
+    setQueryDateTo(dateTo === undefined ? null : dateTo);
+    setQueryWorkerType(workerType);
     setPage(1);
   };
-  const clearFilters = () => {
-    setQueryDateFrom(null);
-    setQueryDateTo(null);
-    setQueryWorkerType("all");
+
+  const handleClearFilters = () => {
     setPage(1);
-    setLocalDateFrom(undefined);
-    setLocalDateTo(undefined);
-    setLocalWorkerType("all");
   };
 
   return (
     <div>
-      {" "}
       <div className="space-y-6 p-3 md:p-6">
-        <Card>
+        <Card className="min-h-screen">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl font-bold">
               <Package className="h-6 w-6" />
@@ -122,122 +109,197 @@ const ListOfStationOrder = () => {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Filters */}
-            <div className="bg-muted/50 grid grid-cols-1 gap-4 rounded-lg p-4 md:grid-cols-4">
-              {/* Start Date */}
-              <div className="space-y-2">
-                <div className="text-sm font-medium">Start Date</div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {localDateFrom ? (
-                        format(localDateFrom, "PPP", { locale: id })
-                      ) : (
-                        <span>Pick start date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={localDateFrom}
-                      onSelect={setLocalDateFrom}
-                      initialFocus
-                      locale={id}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+            <StationOrderFilters
+              onApply={handleApplyFilters}
+              onClear={handleClearFilters}
+              isPending={isPending}
+            />
+          </CardContent>
 
-              {/* End Date */}
-              <div className="space-y-2">
-                <h6 className="text-sm font-medium">End Date</h6>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {localDateTo ? (
-                        format(localDateTo, "PPP", { locale: id })
-                      ) : (
-                        <span>Pick end date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={localDateTo ?? undefined}
-                      onSelect={setLocalDateTo}
-                      initialFocus
-                      locale={id}
-                      disabled={(date) =>
-                        localDateFrom ? date < localDateFrom : false
+          {/* card */}
+          <div className="space-y-4">
+            {isPending ? (
+              <div>
+                <Loader />
+              </div>
+            ) : isError ? (
+              <div className="p-4 text-center text-red-500">
+                Error: {error?.message || "Failed to fetch orders."}
+              </div>
+            ) : (
+              <div className="p-3 md:p-6">
+                {!isLoading && !isError && (
+                  <div className="mb-6 flex items-center justify-between">
+                    <p className="text-muted-foreground text-sm">
+                      Showing {stationOrder.data.length} of {totalOrder} order
+                      requests
+                    </p>
+                    {totalPages > 0 && (
+                      <p className="text-muted-foreground text-sm">
+                        Page {page} of {totalPages}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {stationOrder?.data?.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {stationOrder.data.map((order) => {
+                      const statusConfig = getOrderStatusConfig(
+                        order.orderStatus,
+                      );
+                      let nextWorkerTypeForProcessing:
+                        | "washing"
+                        | "ironing"
+                        | "packing"
+                        | undefined;
+
+                      const sortedWorkProcesses = [
+                        ...(order.orderWorkProcess || []),
+                      ].sort(
+                        (a, b) =>
+                          new Date(b.createdAt).getTime() -
+                          new Date(a.createdAt).getTime(),
+                      );
+
+                      const lastCompletedWorkProcess = sortedWorkProcesses.find(
+                        (p) => p.completedAt !== null,
+                      );
+                      const currentIncompleteWorkProcess =
+                        sortedWorkProcesses.find((p) => p.completedAt === null);
+
+                      if (currentIncompleteWorkProcess) {
+                        nextWorkerTypeForProcessing =
+                          currentIncompleteWorkProcess.workerType.toLowerCase() as
+                            | "washing"
+                            | "ironing"
+                            | "packing";
+                      } else if (lastCompletedWorkProcess) {
+                        if (
+                          lastCompletedWorkProcess.workerType.toLowerCase() ===
+                          "washing"
+                        ) {
+                          nextWorkerTypeForProcessing = "ironing";
+                        } else if (
+                          lastCompletedWorkProcess.workerType.toLowerCase() ===
+                          "ironing"
+                        ) {
+                          nextWorkerTypeForProcessing = "packing";
+                        }
+                      } else {
+                        if (order.orderStatus === "ARRIVED_AT_OUTLET") {
+                          nextWorkerTypeForProcessing = "washing";
+                        }
                       }
+
+                      return (
+                        <Card
+                          key={order.uuid}
+                          className="transition-shadow hover:shadow-md"
+                        >
+                          <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-lg font-semibold">
+                                {order.orderNumber}
+                              </CardTitle>
+                              <Badge
+                                variant={statusConfig.variant}
+                                className={`text-xs ${statusConfig.className || ""}`}
+                              >
+                                {statusConfig.label}
+                              </Badge>
+                            </div>
+                            <CardDescription className="text-sm">
+                              {order.user.firstName} {order.user.lastName}
+                            </CardDescription>
+                          </CardHeader>
+
+                          <CardContent className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-600">
+                                Total Price:
+                              </span>
+                              <span className="text-sm font-semibold">
+                                {formatRupiah(order.totalPrice || 0)}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">
+                                {order.outlet.outletName}
+                              </span>
+                            </div>
+
+                            <div className="text-xs text-gray-500">
+                              Order Date:{" "}
+                              {format(new Date(order.createdAt), "PPP, p", {
+                                locale: id,
+                              })}
+                            </div>
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={() => {
+                                if (nextWorkerTypeForProcessing) {
+                                  router.push(
+                                    `/employee/orders/process/${order.uuid}?station=${nextWorkerTypeForProcessing}`,
+                                  );
+                                } else {
+                                  toast.info(
+                                    "This order is not currently awaiting a worker station process or has completed all worker stages.",
+                                  );
+                                  router.push(
+                                    `/employee/orders/detail/${order.uuid}`,
+                                  );
+                                }
+                              }}
+                              disabled={!nextWorkerTypeForProcessing}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center">
+                    <CardContent className="flex flex-col items-center justify-center">
+                      <Image
+                        src="/laundry-worker.svg"
+                        alt="No claimed orders"
+                        width={200}
+                        height={200}
+                        className="mb-6"
+                      />
+                      <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                        No Order Queue Found
+                      </h3>
+                      <p className="max-w-md text-gray-600">
+                        Please check back later, or if you've applied filters,
+                        try clearing them.
+                      </p>
+                    </CardContent>
+                  </div>
+                )}
+                <div className="mt-6">
+                  {totalOrder > 0 && (
+                    <PaginationSection
+                      page={page}
+                      take={itemsPerPage}
+                      total={stationOrder?.meta?.total || 0}
+                      onChangePage={setPage}
+                      hasNext={hasNext}
+                      hasPrevious={hasPrevious}
                     />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* workertype */}
-              <div className="space-y-2">
-                <h6 className="text-sm font-medium">Work Type</h6>
-                <Select
-                  value={localWorkerType}
-                  onValueChange={(value: string) => setLocalWorkerType(value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue>
-                      {localWorkerType === "all"
-                        ? "Select Work Type"
-                        : WORK_TYPES.find(
-                            (type) => type.value === localWorkerType,
-                          )?.label || "Select Work Type"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="washing">Washing</SelectItem>
-                    <SelectItem value="ironing">Ironing</SelectItem>
-                    <SelectItem value="packing">Packing</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Actions */}
-              <div className="space-y-2">
-                <h6 className="text-sm font-medium">Actions</h6>
-                <div className="flex justify-end gap-2">
-                  <Button
-                    className="flex-1"
-                    onClick={handleApplyFilters}
-                    disabled={isPending}
-                  >
-                    <Filter className="mr-2 h-4 w-4" />
-                    {isPending ? "Loading..." : "Filter"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={clearFilters}
-                    disabled={isPending}
-                  >
-                    Clear
-                  </Button>
+                  )}
                 </div>
               </div>
-            </div>
-          </CardContent>
+            )}
+          </div>
         </Card>
       </div>
     </div>
