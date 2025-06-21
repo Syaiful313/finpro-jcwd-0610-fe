@@ -4,7 +4,7 @@ export interface Notification {
     orderStatus?: string;
     notifType: string;
     role?: string;
-    isRead: boolean;
+    readByUserIds: number[];
     createdAt: string;
     updatedAt?: string;
     orderId?: string;
