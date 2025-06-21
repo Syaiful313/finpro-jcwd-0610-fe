@@ -7,7 +7,7 @@ const useMarkAllNotif = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const { data } = await axiosInstance.patch(`/notification/read`);
+      const { data } = await axiosInstance.post(`/notification/read-all`);
       return data;
     },
     onSuccess: async () => {
