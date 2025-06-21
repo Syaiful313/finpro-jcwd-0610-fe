@@ -1,5 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface ResendEmailVerifPayload {
@@ -7,6 +7,7 @@ interface ResendEmailVerifPayload {
 }
 
 const useResendEmailVerif = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: ResendEmailVerifPayload) => {
       const { data } = await axiosInstance.post("/auth/reverify", payload);
@@ -14,6 +15,7 @@ const useResendEmailVerif = () => {
     },
     onSuccess: () => {
       toast.success('Please check your email to verify');
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || 'Something went wrong';

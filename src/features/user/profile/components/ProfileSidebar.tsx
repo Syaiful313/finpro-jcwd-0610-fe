@@ -59,7 +59,7 @@ const ProfileSidebar:FC<ProfileSidebarProps> = ({ activeIndex, setActiveIndex })
             <li>
               <button
                 className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-red-500 transition-colors duration-200"
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={() => signOut({ callbackUrl: '/login' })}
               >
                 <LogOut className="w-5 h-5 mr-3" />
                   <span className="text-sm font-medium">Log out</span>

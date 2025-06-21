@@ -2,58 +2,94 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import {
-  Calendar,
-  CalendarCheck,
-  Clock,
-  ClockFading,
-  ListCheck,
-  User,
-} from "lucide-react";
+import { Calendar, Clock, ClockFading, ListCheck, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import AttendanceCard from "./components/AttendanceCard";
 import { useBreadcrumb } from "./components/BreadCrumbContext";
-import NotificationDropdown from "./components/Notifications";
 import RecentAttendance from "./components/RecentAttendance";
-import UserGreeting from "./components/UserGreeting";
-import { isAdmin, isDriver, isOutletAdmin, isWorker } from "@/utils/AuthRole";
-import { toast } from "sonner";
 import RecentOrder from "./components/RecentOrder";
+import UserGreeting from "./components/UserGreeting";
+import NotificationDropdown from "./notifications/Notifications";
+import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
+import useAxios from "@/hooks/useAxios";
 import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
+import useGetDriverJobs from "@/hooks/api/employee/driver/useGetDriverJob";
+import { isDriver } from "@/utils/AuthRole";
 
-const RecentSection: React.FC = () => {
+const EmployeePage: React.FC = () => {
+  console.log("PARENT RENDER: EmployeePage is rendering...");
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const { setBreadcrumbs } = useBreadcrumb();
+
+  // const { data: attendanceData, isLoading: isTodayAttendanceLoading } =
+  //   useGetTodayAttendance();
+  // const todayAttendance = attendanceData?.data?.[0] || null;
+  // const hasClockedIn = !!todayAttendance && todayAttendance.clockOutAt === null;
+  const { data: todayAttendanceData, isLoading: isTodayAttendanceLoading } =
+    useGetTodayAttendance();
+
+  const recentQueries = useMemo(
+    () => ({
+      page: 1,
+      take: 6,
+      sortBy: "clockOutAt",
+      sortOrder: "desc",
+    }),
+    [],
+  );
+  const {
+    data: recentAttendanceData,
+    isPending: isRecentAttendanceLoading,
+    isError: isRecentAttendanceError,
+  } = useGetAttendance(recentQueries);
+  const recentAttendance = recentAttendanceData?.data || [];
+
+  const driverJobQueries = useMemo(
+    () =>
+      ({
+        status: "active",
+      }) as const,
+    [],
+  );
+  const {
+    data: activeJobsData,
+    isLoading: isActiveJobsLoading,
+    isError: isActiveJobsError,
+    error: activeJobsErrorObject,
+    refetch: refetchActiveJobs,
+  } = useGetDriverJobs(driverJobQueries);
+  const activeJobs = activeJobsData?.data || [];
+  const totalActiveJobs = activeJobsData?.meta?.total || 0;
+
+  useEffect(() => {
+    setBreadcrumbs([{ label: "Dashboard", href: "/employee" }]);
+  }, []);
+
   const isAuthenticated = status === "authenticated";
-
-  const { data: attendanceData } = useGetAttendance({
-    page: 1,
-    take: 6,
-    sortBy: "clockOutAt",
-  });
-
-  const latestAttendance = attendanceData?.data?.[0];
-  const hasClockedIn = !!latestAttendance?.clockInAt;
-  const hasClockedOut = !!latestAttendance?.clockOutAt;
-
-  const isCurrentlyWorking = hasClockedIn && !hasClockedOut;
+  const isCurrentlyWorking =
+    todayAttendanceData?.meta?.hasClockedIn &&
+    !todayAttendanceData?.meta?.hasClockedOut;
   const showRecentOrder = isAuthenticated && isCurrentlyWorking;
+  const showRecentJobs =
+    isAuthenticated && (isDriver(session) || isCurrentlyWorking);
 
-  return showRecentOrder ? <RecentOrder /> : <RecentAttendance />;
-};
+  return (
+    <div className="min-h-screen md:p-6 dark:bg-gray-900">
+      <div className="relative bg-gradient-to-br from-[#0051b3] to-[#0080FF] md:h-50 md:rounded-lg">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10 md:hidden"
+          style={{ backgroundImage: "url(/laundry.webp)" }}
+        />
+        <div
+          className="absolute inset-0 hidden rounded-lg bg-cover bg-center bg-no-repeat opacity-15 md:block"
+          style={{ backgroundImage: "url(/banner.svg)" }}
+        />
 
-const MobileLayout: React.FC = () => (
-  <div>
-    <div className="relative bg-gradient-to-br from-[#0051b3] to-[#0080FF]">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
-        style={{ backgroundImage: "url(/laundry.webp)" }}
-      />
-      <div className="relative z-10">
-        <div className="h-47">
-          <div className="p-4">
+        <div className="relative z-10">
+          <div className="block h-47 p-4 md:hidden">
             <div className="flex items-center justify-between gap-3 p-2">
               <UserGreeting isMobile={true} />
               <div className="mt-4">
@@ -61,86 +97,82 @@ const MobileLayout: React.FC = () => (
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-    <div className="relative z-10 -mt-6 min-h-[75vh] rounded-t-4xl bg-white">
-      <AttendanceCard isMobile={true} />
-      <div className="mx-2 p-4">
-        <RecentSection />
-      </div>
-    </div>
-  </div>
-);
 
-const DesktopLayout: React.FC = () => {
-  const { data: session } = useSession();
-  const router = useRouter();
-  return (
-    <div className="min-h-screen p-6 dark:bg-gray-900">
-      <div className="relative h-50 rounded-lg bg-gradient-to-br from-[#0051b3] to-[#0080FF]">
-        <div
-          className="absolute inset-0 rounded-lg bg-cover bg-center bg-no-repeat opacity-15"
-          style={{ backgroundImage: "url(/banner.svg)" }}
-        />
-        <div className="relative z-10 px-6 py-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mt-4 flex items-center justify-between space-x-2 px-6">
-              <UserGreeting isMobile={false} />
-              <Avatar className="h-25 w-25 border-4 border-white/20">
-                <AvatarImage
-                  src={`${session?.user?.profilePic}`}
-                  alt="avatar"
-                />
-                <AvatarFallback className="bg-white text-xl font-bold text-[#0080FF]">
-                  J
-                </AvatarFallback>
-              </Avatar>
+          <div className="hidden px-6 py-8 md:block">
+            <div className="mx-auto max-w-7xl">
+              <div className="mt-4 flex items-center justify-between space-x-2 px-6">
+                <UserGreeting isMobile={false} />
+                <Avatar className="h-25 w-25 border-4 border-white/20">
+                  <AvatarImage
+                    src={`${session?.user?.profilePic}`}
+                    alt="avatar"
+                    className="object-cover"
+                  />
+                </Avatar>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl py-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="relative z-10 -mt-6 min-h-[75vh] rounded-t-4xl bg-white md:mx-auto md:mt-0 md:min-h-0 md:max-w-7xl md:rounded-t-none md:bg-transparent md:py-8">
+        <div className="block md:hidden">
+          <AttendanceCard
+            isMobile={true}
+            attendance={todayAttendanceData}
+            isLoading={isTodayAttendanceLoading}
+          />
+          <div className="mx-2 p-4">
+            {showRecentOrder ? (
+              <RecentOrder
+                isLoadingJobs={isActiveJobsLoading}
+                activeJobs={activeJobs}
+                totalActiveJobs={totalActiveJobs}
+                isErrorJobs={isActiveJobsError}
+                errorJobs={activeJobsErrorObject}
+                refetchJobs={refetchActiveJobs}
+                isLoadingAttendance={isRecentAttendanceLoading}
+                recentAttendance={recentAttendance}
+                isErrorAttendance={isRecentAttendanceError}
+              />
+            ) : (
+              <RecentAttendance
+                isLoading={isRecentAttendanceLoading}
+                attendance={recentAttendance}
+                isError={isRecentAttendanceError}
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="hidden md:grid md:grid-cols-1 md:gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <AttendanceCard isMobile={false} />
-            <RecentSection />
+            <AttendanceCard
+              isMobile={false}
+              attendance={todayAttendanceData}
+              isLoading={isTodayAttendanceLoading}
+            />
+            {showRecentOrder ? (
+              <RecentOrder
+                isLoadingJobs={isActiveJobsLoading}
+                activeJobs={activeJobs}
+                totalActiveJobs={totalActiveJobs}
+                isErrorJobs={isActiveJobsError}
+                errorJobs={activeJobsErrorObject}
+                refetchJobs={refetchActiveJobs}
+                isLoadingAttendance={isRecentAttendanceLoading}
+                recentAttendance={recentAttendance}
+                isErrorAttendance={isRecentAttendanceError}
+              />
+            ) : (
+              <RecentAttendance
+                isLoading={isRecentAttendanceLoading}
+                attendance={recentAttendance}
+              />
+            )}
           </div>
 
           <div className="space-y-6">
-            <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
-              <div className="flex items-center gap-2 text-2xl font-semibold">
-                <CalendarCheck /> This Week
-              </div>
-              <div className="space-y-4">
-                <div className="bg-primary/10 dark:bg-primary/20 flex items-center justify-between rounded-lg p-3">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Days Present
-                  </span>
-                  <span className="text-primary dark:text-primary text-lg font-bold">
-                    4/5
-                  </span>
-                </div>
-                <div className="bg-primary/10 dark:bg-primary/20 flex items-center justify-between rounded-lg p-3">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Hours Worked
-                  </span>
-                  <span className="text-primary dark:text-primary text-lg font-bold">
-                    32h
-                  </span>
-                </div>
-                <div className="bg-primary/10 dark:bg-primary/20 flex items-center justify-between rounded-lg p-3">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Total Order
-                  </span>
-                  <span className="text-primary dark:text-primary text-lg font-bold">
-                    78
-                  </span>
-                </div>
-              </div>
-            </div>
-
             <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
               <div className="flex items-center gap-2 text-2xl font-semibold">
                 <ListCheck /> Today's Schedule
@@ -199,23 +231,6 @@ const DesktopLayout: React.FC = () => {
       </div>
     </div>
   );
-};
-const EmployeePage: React.FC = () => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const { setBreadcrumbs } = useBreadcrumb();
-  const isMobile: boolean = useMediaQuery("(max-width: 767px)");
-
-  if (status === "authenticated" && !(isWorker(session) || isDriver(session))) {
-    router.push("/admin/dashboard");
-    toast.error("You are not authorized to access this page.");
-  }
-
-  useEffect(() => {
-    setBreadcrumbs([{ label: "Dashboard", href: "/employee" }]);
-  }, [setBreadcrumbs]);
-
-  return isMobile ? <MobileLayout /> : <DesktopLayout />;
 };
 
 export default EmployeePage;

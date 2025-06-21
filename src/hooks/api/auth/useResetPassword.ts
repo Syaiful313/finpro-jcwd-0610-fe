@@ -19,7 +19,7 @@ const useResetPassword = (token: string) => {
       return data;
     },
     onSuccess: () => {
-        toast.success('Password reset successfully. You can now log in.');
+        toast.success('Password reset successfully. You can now log in');
         router.push('/login');
     },
     onError: (error: any) => {

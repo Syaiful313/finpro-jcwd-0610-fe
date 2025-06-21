@@ -21,7 +21,7 @@ const UserGreeting: FC<UserGreetingProps> = ({ isMobile }) => {
       </h1>
       <div className="flex items-center gap-4">
         <Badge
-          className={`bg-white text-[#0080FF] hover:bg-white/90 ${isMobile ? "max-w-20 px-1.5 text-sm" : "text-lg"}`}
+          className={`text-primary bg-white hover:bg-white/90 ${isMobile ? "max-w-20 px-1.5 text-sm" : "text-lg"}`}
         >
           {isWorkerRole ? (
             <User className={`mr-1 ${isMobile ? "h-5 w-8" : "h-3 w-3"}`} />

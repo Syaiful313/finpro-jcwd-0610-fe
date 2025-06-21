@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Link from "next/link";
 import React from "react";
-import NotificationDropdown from "./Notifications";
+import NotificationDropdown from "../notifications/Notifications";
 
 type BreadcrumbItemType = {
   label: string;

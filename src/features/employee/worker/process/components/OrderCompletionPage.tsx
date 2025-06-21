@@ -30,6 +30,7 @@ export default function OrderCompletionPage() {
   const station = searchParams.get("station") as WorkerType;
 
   const { data: orderData, isLoading, error } = useGetDetailOrderByUuid(uuid);
+
   useEffect(() => {
     setBreadcrumbs([
       { label: "Dashboard", href: "/employee" },
@@ -37,6 +38,7 @@ export default function OrderCompletionPage() {
       { label: "completed" },
     ]);
   }, [setBreadcrumbs]);
+
   const workerConfigs = {
     washing: {
       title: "Washing Station",
@@ -89,8 +91,9 @@ export default function OrderCompletionPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-lg">
+    <div className="flex w-full items-center justify-center p-4">
+      {/* Mobile Card Layout */}
+      <Card className="w-full max-w-lg shadow-lg md:hidden">
         <CardContent className="p-8 text-center">
           <CheckCircle className="text-primary mx-auto mb-4 h-16 w-16" />
 
@@ -102,25 +105,27 @@ export default function OrderCompletionPage() {
             Order #{orderData.orderNumber} has been processed successfully.
           </p>
 
-          {station === "packing" &&
-          orderData.paymentStatus === "WAITING_PAYMENT" ? (
-            <Badge
-              variant="secondary"
-              className="flex items-center justify-center gap-2 bg-amber-100 p-2 text-sm text-amber-800"
-            >
-              <CreditCard className="h-4 w-4" />
-              Waiting for Customer Payment
-            </Badge>
-          ) : (
-            <Badge className="bg-primary flex items-center justify-center gap-2 p-2 text-sm text-white">
-              {station === "packing" ? (
-                <Truck className="h-4 w-4" />
-              ) : (
-                <IconComponent className="h-4 w-4" />
-              )}
-              {currentConfig.nextTitle}
-            </Badge>
-          )}
+          <div className="mb-4 flex items-center justify-center gap-2">
+            {station === "packing" &&
+            orderData.paymentStatus === "WAITING_PAYMENT" ? (
+              <Badge
+                variant="secondary"
+                className="flex items-center justify-center gap-2 bg-amber-100 p-2 text-sm text-amber-800"
+              >
+                <CreditCard className="h-4 w-4" />
+                Waiting for Customer Payment
+              </Badge>
+            ) : (
+              <Badge className="bg-primary flex items-center justify-center gap-2 p-2 text-sm text-white">
+                {station === "packing" ? (
+                  <Truck className="h-4 w-4" />
+                ) : (
+                  <IconComponent className="h-4 w-4" />
+                )}
+                {currentConfig.nextTitle}
+              </Badge>
+            )}
+          </div>
 
           <div className="mt-2 text-sm text-gray-600">
             Customer: {orderData.user.firstName} {orderData.user.lastName} (
@@ -144,6 +149,70 @@ export default function OrderCompletionPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Desktop Layout */}
+      <div className="hidden w-full max-w-4xl md:block">
+        <div className="rounded-lg bg-white p-8 shadow-sm">
+          {/* Success Icon and Message */}
+          <div className="mb-8 text-center">
+            <CheckCircle className="text-primary mx-auto mb-6 h-20 w-20" />
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">
+              {currentConfig.title} Process Completed!
+            </h2>
+            <p className="text-lg text-gray-600">
+              Order #{orderData.orderNumber} has been processed successfully.
+            </p>
+          </div>
+
+          {/* Status Badge */}
+          <div className="mb-8 flex justify-center">
+            {station === "packing" &&
+            orderData.paymentStatus === "WAITING_PAYMENT" ? (
+              <Badge
+                variant="secondary"
+                className="flex items-center gap-3 bg-amber-100 px-4 py-2 text-base text-amber-800"
+              >
+                <CreditCard className="h-5 w-5" />
+                Waiting for Customer Payment
+              </Badge>
+            ) : (
+              <Badge className="bg-primary flex items-center gap-3 px-4 py-2 text-base text-white">
+                {station === "packing" ? (
+                  <Truck className="h-5 w-5" />
+                ) : (
+                  <IconComponent className="h-5 w-5" />
+                )}
+                {currentConfig.nextTitle}
+              </Badge>
+            )}
+          </div>
+
+          {/* Customer Info */}
+          <div className="mb-8 text-center text-gray-600">
+            Customer: {orderData.user.firstName} {orderData.user.lastName} (
+            {orderData.user.phoneNumber})
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              size="lg"
+              className="px-8 hover:cursor-pointer"
+              onClick={() => handleNavigate("/employee")}
+            >
+              Back to Dashboard
+            </Button>
+            <Button
+              size="lg"
+              className="px-8 hover:cursor-pointer"
+              onClick={() => handleNavigate("/employee/orders")}
+            >
+              View Order Queue
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

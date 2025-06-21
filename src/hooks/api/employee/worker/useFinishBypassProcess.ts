@@ -35,6 +35,9 @@ const useFinishBypassProcess = () => {
       queryClient.invalidateQueries({
         queryKey: ["WorkerStationOrder"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["worker-notifications"],
+      });
     },
   });
 };

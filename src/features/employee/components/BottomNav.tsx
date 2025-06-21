@@ -6,8 +6,11 @@ import {
   History,
   Home,
   ListCheck,
+  Package,
+  Truck,
   User,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -18,47 +21,9 @@ const BottomNav: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-
-  const navItems = [
-    {
-      id: "/",
-      icon: DoorClosedLocked,
-      label: "Profile",
-      href: "/employee/orders/bypass",
-    },
-    {
-      id: "orders",
-      icon: ListCheck,
-      label: "Orders",
-      href: "/employee/orders",
-    },
-    {
-      id: "home",
-      icon: Home,
-      label: "Home",
-      href: "/employee",
-    },
-    {
-      id: "history",
-      icon: History,
-      label: "Job History",
-      href: "/employee/job-history",
-    },
-    {
-      id: "attendance",
-      icon: BarChart3,
-      label: "Attendance",
-      href: "/employee/attendance",
-    },
-  ];
+  const { data: session, status } = useSession();
 
   const isActive = useCallback((path: string) => pathname === path, [pathname]);
-
-  useEffect(() => {
-    setMounted(true);
-    const currentIndex = navItems.findIndex((item) => pathname === item.href);
-    setActiveIndex(currentIndex >= 0 ? currentIndex : 2);
-  }, [pathname]);
 
   const handleTabClick = useCallback(
     (index: number, href: string) => {
@@ -79,7 +44,103 @@ const BottomNav: React.FC = () => {
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
   const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
+  useEffect(() => {
+    setMounted(true);
+    if (session) {
+      const navItems = [
+        {
+          id: "/",
+          icon: session.user.role === "WORKER" ? DoorClosedLocked : Truck,
+          label: session.user.role === "WORKER" ? "Profile" : "Delivery",
+          href:
+            session.user.role === "WORKER"
+              ? "/employee/orders/bypass"
+              : "/employee/orders/delivery",
+        },
+        {
+          id: "orders",
+          icon: session.user.role === "WORKER" ? ListCheck : Package,
+          label: session.user.role === "WORKER" ? "Orders" : "Pick Up",
+          href:
+            session.user.role === "WORKER"
+              ? "/employee/orders"
+              : "/employee/orders/pick-up",
+        },
+        {
+          id: "home",
+          icon: Home,
+          label: "Home",
+          href: "/employee",
+        },
+        {
+          id: "history",
+          icon: History,
+          label: "Job History",
+          href: "/employee/job-history",
+        },
+        {
+          id: "attendance",
+          icon: BarChart3,
+          label: "Attendance",
+          href: "/employee/attendance",
+        },
+      ];
+
+      const currentIndex = navItems.findIndex((item) => pathname === item.href);
+      setActiveIndex(currentIndex >= 0 ? currentIndex : 2);
+    }
+  }, [pathname, session]);
+
+  if (status === "loading") return null;
+
+  if (
+    !session ||
+    (session.user.role !== "WORKER" && session.user.role !== "DRIVER")
+  ) {
+    router.push("/login");
+    return null;
+  }
+
   if (!mounted) return null;
+
+  const navItems = [
+    {
+      id: "/",
+      icon: session.user.role === "WORKER" ? DoorClosedLocked : Truck,
+      label: session.user.role === "WORKER" ? "Bypass" : "Delivery",
+      href:
+        session.user.role === "WORKER"
+          ? "/employee/orders/bypass"
+          : "/employee/orders/delivery",
+    },
+    {
+      id: "orders",
+      icon: session.user.role === "WORKER" ? ListCheck : Package,
+      label: session.user.role === "WORKER" ? "Orders" : "Pick Up",
+      href:
+        session.user.role === "WORKER"
+          ? "/employee/orders"
+          : "/employee/orders/pick-up",
+    },
+    {
+      id: "home",
+      icon: Home,
+      label: "Home",
+      href: "/employee",
+    },
+    {
+      id: "history",
+      icon: History,
+      label: "Job History",
+      href: "/employee/job-history",
+    },
+    {
+      id: "attendance",
+      icon: BarChart3,
+      label: "Attendance",
+      href: "/employee/attendance",
+    },
+  ];
 
   return (
     <div

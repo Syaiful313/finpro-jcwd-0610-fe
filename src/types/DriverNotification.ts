@@ -14,13 +14,14 @@ export interface NotificationOrder {
   };
 }
 
-export interface DriverNotification {
+export interface NotificationResponse {
   id: number;
   message: string;
   orderStatus: OrderStatus | null;
   notifType: NotifType;
   role: Role | null;
   isRead: boolean;
+  readByUserIds: number[];
   createdAt: string;
   updatedAt: string | null;
   orderId: string | null;

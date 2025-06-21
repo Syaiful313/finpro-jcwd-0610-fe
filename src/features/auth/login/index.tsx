@@ -2,30 +2,15 @@
 'use client';
 import useLogin from "@/hooks/api/auth/useLogin";
 import { useFormik } from 'formik';
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import * as Yup from 'yup';
+import { useState } from "react";
+import { LoginSchema } from "./schema";
+import { SessionProvider } from "next-auth/react";
 
 const LoginPage = () => {
-    const router = useRouter();
-    const { status } = useSession();   
     const { mutate: login } = useLogin();
     const [showPassword, setShowPassword] = useState(false);
-
-    // useEffect(() => {
-    //     if (status === "authenticated") { router.replace("/user/profile") }
-    // }, [status, router]); 
-    
-    const LoginSchema = Yup.object().shape({
-        email: Yup.string()
-            .email('Invalid email address')
-            .required('Email is required'),
-        password: Yup.string()
-            .min(6, 'Password must be at least 6 characters')
-            .required('Password is required'),
-    });
 
     const formik = useFormik({
         initialValues: {
@@ -43,6 +28,7 @@ const LoginPage = () => {
     };
 
     return (
+        <SessionProvider>
         <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 py-32">
             <div className="flex justify-center px-4 sm:px-6 lg:px-8 pt-4 md:pt-10">
                 <div className="max-w-2xl w-full space-y-8 px-10 rounded-lg">
@@ -133,6 +119,7 @@ const LoginPage = () => {
                 </div>
             </div>
         </div>
+        </SessionProvider>
     );
 };
 export default LoginPage;

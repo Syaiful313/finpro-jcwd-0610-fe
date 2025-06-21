@@ -74,14 +74,7 @@ export default function ProcessOrderDetail({ uuid }: ProcessOrderProps) {
   )
     ? urlWorkerType
     : "washing";
-  useEffect(() => {
-    console.log(
-      "ProcessOrderDetail: URL searchParams:",
-      searchParams.toString(),
-    );
-    console.log("ProcessOrderDetail: Read workerType from URL:", urlWorkerType);
-    console.log("ProcessOrderDetail: Final workerType variable:", workerType);
-  }, [searchParams, urlWorkerType, workerType]);
+  useEffect(() => {}, [searchParams, urlWorkerType, workerType]);
   const {
     data: orderData,
     isLoading,
@@ -326,7 +319,6 @@ export default function ProcessOrderDetail({ uuid }: ProcessOrderProps) {
   };
 
   const completeOrder = async () => {
-    console.log("Mengecek data untuk bypass:", currentBypassRequest);
     const itemsData = verificationItems
       .filter((item) => item.type && item.quantity)
       .map((item) => {
@@ -341,8 +333,6 @@ export default function ProcessOrderDetail({ uuid }: ProcessOrderProps) {
 
     const isBypassCompletion =
       currentBypassRequest?.bypassStatus === "APPROVED";
-    console.log("Apakah statusnya APPROVED?", isBypassCompletion);
-    console.log("Apakah ada ID?", currentBypassRequest?.id);
 
     if (isBypassCompletion && currentBypassRequest?.id) {
       finishBypassOrderMutation.mutate(
@@ -357,7 +347,7 @@ export default function ProcessOrderDetail({ uuid }: ProcessOrderProps) {
               `Bypassed order process completed at ${currentConfig.title}!`,
             );
             queryClient.invalidateQueries({
-              queryKey: ["WorkerStationOrder", uuid],
+              queryKey: ["WorkerStationOrder"],
             });
             queryClient.invalidateQueries({
               queryKey: ["WorkerOrderDetails", uuid],
@@ -389,7 +379,7 @@ export default function ProcessOrderDetail({ uuid }: ProcessOrderProps) {
           onSuccess: () => {
             toast.success(`Order process completed at ${currentConfig.title}!`);
             queryClient.invalidateQueries({
-              queryKey: ["WorkerStationOrder", uuid],
+              queryKey: ["WorkerStationOrder"],
             });
             queryClient.invalidateQueries({
               queryKey: ["WorkerOrderDetails", uuid],
@@ -402,7 +392,6 @@ export default function ProcessOrderDetail({ uuid }: ProcessOrderProps) {
           onError: (error: any) => {
             const errorMessage = error?.response?.data?.message;
             toast.error(errorMessage);
-            console.log("Error completing order process:", errorMessage);
           },
         },
       );
@@ -423,35 +412,9 @@ export default function ProcessOrderDetail({ uuid }: ProcessOrderProps) {
     currentStep === "bypass_pending" ||
     currentStep === "bypass_rejected";
 
-  console.log("🛑 DEBUG STATUS TOMBOL COMPLETE 🛑");
-  console.log({
-    "Nilai `currentStep` sekarang": currentStep,
-    "HASIL KONDISI 1 (currentStep !== 'process')": currentStep !== "process",
-
-    "Nilai `isProcessingCompleted()` sekarang": isProcessingCompleted(),
-    "HASIL KONDISI 2 (isProcessingCompleted())": isProcessingCompleted(),
-
-    "Nilai `isCompletionInProgress` sekarang": isCompletionInProgress,
-    "HASIL KONDISI 3 (isCompletionInProgress)": isCompletionInProgress,
-
-    "👉 HASIL AKHIR (Tombol Disabled?)":
-      currentStep !== "process" ||
-      isProcessingCompleted() ||
-      isCompletionInProgress,
-  });
-  console.log("----------------------------------------------------");
   return (
     <div className="min-h-screen w-full md:p-6">
       <Card className="md:block">
-        {/* Debug Information - Remove in production */}
-        {/* <div className="-mt-6 bg-yellow-100 p-2 text-xs">
-          <strong>Debug:</strong> Current Step: {currentStep} | Worker Type:{" "}
-          {workerType} | Work Processes Count:{" "}
-          {orderData?.orderWorkProcess?.length || 0} | Verification Completed:{" "}
-          {isVerificationCompleted() ? "Yes" : "No"} | Processing Completed:{" "}
-          {isProcessingCompleted() ? "Yes" : "No"}
-        </div> */}
-
         {/* Header */}
         <header className="sticky top-0 z-50 -mt-6 overflow-hidden rounded-t-xl border-b bg-white shadow-sm md:relative md:shadow-none">
           <div className="flex items-center gap-3 p-4">

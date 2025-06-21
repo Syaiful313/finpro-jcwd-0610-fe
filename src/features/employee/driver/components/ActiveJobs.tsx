@@ -1,29 +1,31 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { TruckIcon, Box, MapPin, Loader2 } from "lucide-react";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Box, Loader2, MapPin, TruckIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import useGetDriverJobs from "@/hooks/api/employee/driver/useGetDriverJob";
+import Loader from "../../components/Loader";
 
-const ActiveJobs = () => {
-  const isMobile = useMediaQuery("(max-width: 767px)");
+interface ActiveJobsProps {
+  isLoading: boolean;
+  isError: boolean;
+  error: any;
+  requests: any[];
+  totalRequests: number;
+  refetch: () => void;
+}
+
+const ActiveJobs = ({
+  isLoading,
+  isError,
+  error,
+  requests,
+  totalRequests,
+  refetch,
+}: ActiveJobsProps) => {
   const router = useRouter();
-
-  const {
-    data: activeJobsData,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useGetDriverJobs({ status: "active" });
-  console.log("activeJobsData", activeJobsData);
-
-  const requests = activeJobsData?.data || [];
-  const totalRequests = activeJobsData?.meta?.total || 0;
 
   const handleViewDetails = (orderUuid: string) => {
     router.push(`/employee/orders/order-detail/${orderUuid}`);
@@ -46,16 +48,12 @@ const ActiveJobs = () => {
           </p>
         </div>
         <div className="mt-6 flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <span className="ml-2 text-gray-600">
-            Loading claimed requests...
-          </span>
+          <Loader />
         </div>
       </section>
     );
   }
 
-  // Error state
   if (isError) {
     return (
       <section>
@@ -113,7 +111,9 @@ const ActiveJobs = () => {
             disabled={isLoading}
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <div>
+                <Loader />
+              </div>
             ) : (
               "Refresh"
             )}
@@ -145,151 +145,163 @@ const ActiveJobs = () => {
               Claim Orders
             </button>
           </div>
-        ) : isMobile ? (
-          <div className="space-y-4">
-            {requests.map((request) => (
-              <div
-                key={request.order.uuid}
-                className="rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <div className="mb-3 flex items-start justify-between">
-                  <h3 className="font-semibold text-gray-900">
-                    {`${request.order.user.firstName} ${request.order.user.lastName}` ||
-                      "Unknown Customer"}
-                  </h3>
-                  <Button
-                    onClick={() => handleViewDetails(request.order.uuid)}
-                    variant={"outline"}
-                    className="rounded-md border px-3 py-1 text-sm transition-colors hover:bg-blue-50"
-                    aria-label={`View details for ${request.order.user.firstName || "customer"}'s order`}
-                  >
-                    View Details
-                  </Button>
-                </div>
-
-                <div className="mb-2 flex items-center text-xs text-gray-600">
-                  <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <span className="items-center text-xs">
-                    {request.order.addressLine ||
-                      request.order.city ||
-                      request.order.district ||
-                      "Location not specified"}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="mt-2">
-                      <Badge
-                        variant={
-                          request.jobType === "pickup" ? "default" : "secondary"
-                        }
-                        className="flex items-center gap-1 text-xs"
-                      >
-                        {request.jobType === "pickup" ? <TruckIcon /> : <Box />}
-                        {request.jobType || "Delivery"}
-                      </Badge>
-                    </div>
-                    {request.status && (
-                      <div className="mt-2">
-                        <Badge variant="outline" className="text-xs">
-                          Status: {request.status}
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {request.order.totalWeight || 0} Kg
-                  </span>
-                </div>
-
-                {/* Additional info if available */}
-              </div>
-            ))}
-          </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg">
-            <table className="min-w-full table-auto border border-gray-200 bg-white">
-              <thead className="border-b bg-gray-50">
-                <tr>
-                  <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
-                    Customer
-                  </th>
-                  <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
-                    Location
-                  </th>
-                  <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
-                    Order Type
-                  </th>
-                  <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
-                    Items
-                  </th>
-                  <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
-                    Status
-                  </th>
-                  <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {requests.map((request) => (
-                  <tr
-                    key={request.order.orderNumber}
-                    className="hover:bg-gray-50"
-                  >
-                    <td className="px-2 py-4 text-xs font-medium text-gray-900">
-                      {`${request.order.user.firstName} ${request.order.user.lastName}` ||
+          <>
+            <div className="space-y-4 md:hidden">
+              {requests.map((requests) => (
+                <div
+                  key={requests.order.uuid}
+                  className="rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <div className="mb-3 flex items-start justify-between">
+                    <h3 className="font-semibold text-gray-900">
+                      {`${requests.order.user.firstName} ${requests.order.user.lastName}` ||
                         "Unknown Customer"}
-                    </td>
-                    <td className="px-2 py-4 text-xs text-gray-600">
-                      <div className="line-clamp-1 flex items-center">
-                        <MapPin className="h-3 w-3 text-gray-500" />
-                        {request.order.addressLine ||
-                          request.order.city ||
-                          request.order.district ||
-                          "Location not specified"}
-                      </div>
-                    </td>
-                    <td className="px-2 py-4 text-sm">
-                      <Badge
-                        variant={
-                          request.jobType === "pickup" ? "default" : "secondary"
-                        }
-                        className="flex items-center gap-1"
-                      >
-                        {request.jobType === "pickup" ? (
-                          <TruckIcon className="h-3 w-3" />
-                        ) : (
-                          <Box className="h-3 w-3" />
-                        )}
-                        {request.jobType || "Delivery"}
-                      </Badge>
-                    </td>
-                    <td className="px-2 py-4 text-sm text-gray-600">
-                      {request.order.totalWeight || 0} Kg
-                    </td>
-                    <td className="px-2 py-4 text-sm">
-                      {request.status && (
-                        <Badge variant="outline" className="text-xs">
-                          {request.status}
+                    </h3>
+                    <Button
+                      onClick={() => handleViewDetails(requests.order.uuid)}
+                      variant={"outline"}
+                      className="rounded-md border px-3 py-1 text-sm transition-colors hover:bg-blue-50"
+                      aria-label={`View details for ${
+                        requests.order.user.firstName || "customer"
+                      }'s order`}
+                    >
+                      View Details
+                    </Button>
+                  </div>
+
+                  <div className="mb-2 flex items-center text-xs text-gray-600">
+                    <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span className="items-center text-xs">
+                      {requests.order.addressLine ||
+                        requests.order.city ||
+                        requests.order.district ||
+                        "Location not specified"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="mt-2">
+                        <Badge
+                          variant={
+                            requests.jobType === "pickup"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="flex items-center gap-1 text-xs"
+                        >
+                          {requests.jobType === "pickup" ? (
+                            <TruckIcon />
+                          ) : (
+                            <Box />
+                          )}
+                          {requests.jobType || "Delivery"}
                         </Badge>
+                      </div>
+                      {requests.status && (
+                        <div className="mt-2">
+                          <Badge variant="outline" className="text-xs">
+                            Status: {requests.status}
+                          </Badge>
+                        </div>
                       )}
-                    </td>
-                    <td className="px-2 py-4">
-                      <Button
-                        onClick={() => handleViewDetails(request.order.uuid)}
-                        variant="link"
-                        aria-label={`View details for ${request.order.user.firstName || "customer"}'s order`}
-                      >
-                        View Details
-                      </Button>
-                    </td>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      {requests.order.totalWeight || 0} Kg
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto rounded-lg md:block">
+              <table className="min-w-full table-auto border border-gray-200 bg-white">
+                <thead className="border-b bg-gray-50">
+                  <tr>
+                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                      Customer
+                    </th>
+                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                      Location
+                    </th>
+                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                      Order Type
+                    </th>
+                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                      Items
+                    </th>
+                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                      Status
+                    </th>
+                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {requests.map((request) => (
+                    <tr
+                      key={request.order.orderNumber}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="px-2 py-4 text-xs font-medium text-gray-900">
+                        {`${request.order.user.firstName} ${request.order.user.lastName}` ||
+                          "Unknown Customer"}
+                      </td>
+                      <td className="px-2 py-4 text-xs text-gray-600">
+                        <div className="line-clamp-1 flex items-center">
+                          <MapPin className="h-3 w-3 text-gray-500" />
+                          {request.order.addressLine ||
+                            request.order.city ||
+                            request.order.district ||
+                            "Location not specified"}
+                        </div>
+                      </td>
+                      <td className="px-2 py-4 text-sm">
+                        <Badge
+                          variant={
+                            request.jobType === "pickup"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="flex items-center gap-1"
+                        >
+                          {request.jobType === "pickup" ? (
+                            <TruckIcon className="h-3 w-3" />
+                          ) : (
+                            <Box className="h-3 w-3" />
+                          )}
+                          {request.jobType || "Delivery"}
+                        </Badge>
+                      </td>
+                      <td className="px-2 py-4 text-sm text-gray-600">
+                        {request.order.totalWeight || 0} Kg
+                      </td>
+                      <td className="px-2 py-4 text-sm">
+                        {request.status && (
+                          <Badge variant="outline" className="text-xs">
+                            {request.status}
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-2 py-4">
+                        <Button
+                          onClick={() => handleViewDetails(request.order.uuid)}
+                          variant="link"
+                          aria-label={`View details for ${
+                            request.order.user.firstName || "customer"
+                          }'s order`}
+                        >
+                          View Details
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </section>
