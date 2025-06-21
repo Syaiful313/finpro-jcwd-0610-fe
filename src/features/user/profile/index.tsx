@@ -21,22 +21,12 @@ import ConfirmDialog from "./components/ConfirmDialog";
 import { AddressesForm } from "./components/address/AddressForm";
 import { EditForm } from "./components/general/EditForm";
 import Loading from "./components/Loading";
-
-interface PayloadCreateAddress {
-    addressName: string;
-    addressLine: string;
-    district: string;
-    city: string;
-    province: string;
-    postalCode: string;
-    latitude: number;
-    longitude: number;
-    isPrimary: boolean;
-}
-
+import NotifListSection from "./components/notification/NotifList";
+import { useSearchParams } from "next/navigation";
 
 const ProfilePage = () => {
     const [showEditForm, setShowEditForm] = useState(false);
+    const searchParams = useSearchParams();
     const [showAddressForm, setShowAddressForm] = useState(false);
     const [showPasswordForm, setShowPasswordForm] = useState(false); 
     const [showOthers, setShowOthers] = useState(false);
@@ -56,12 +46,19 @@ const ProfilePage = () => {
     const { mutate: editAddress } = useEditAddress(userId!);
     const defaultProfileImgUrl = `https://ui-avatars.com/api/?name=${user?.firstName}&background=DDDDDD&color=555555&bold=true&rounded=true`;
 
-    useEffect(() => { 
-        if (session.status === "loading") return;
-        if (!userId || session.status === "unauthenticated") {
-            router.push("/login");
-        } 
-    }, [userId, session.status]);
+    // useEffect(() => { 
+    //     if (session.status === "loading") return;
+    //     if (!userId || session.status === "unauthenticated") {
+    //         router.push("/login");
+    //     } 
+    // }, [userId, session.status]);
+
+    useEffect(() => {
+        const show = searchParams.get("show");
+        if (show === "notifications") {
+            setActiveIndex(4);
+        }
+    }, [searchParams]);
 
     const handleOpenEditForm = () => setShowEditForm(true);
 
@@ -116,10 +113,9 @@ const ProfilePage = () => {
         setShowAddressForm(true);
     };
 
-    const isValidProfilePic =
-        user?.profilePic &&
-        user.profilePic !== 'null' &&
-        user.profilePic !== 'undefined';
+    const isValidProfilePic = user?.profilePic && user.profilePic !== 'null' && user.profilePic !== 'undefined';
+
+    const primaryAddress = user?.addresses?.find((addr) => addr.isPrimary);
 
     if (session.status === "loading") return <Loading/>
 
@@ -252,8 +248,10 @@ const ProfilePage = () => {
                     </span>
                     </div>
                     <div
-                    className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 group cursor-pointer"
-                    onClick={triggerFileInput}
+                    className={`relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 group ${
+                        user?.provider === "GOOGLE" ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                    }`}
+                    onClick={user?.provider === "GOOGLE" ? () => {} : triggerFileInput}
                     >
                     <img
                         src={isValidProfilePic ? user.profilePic : defaultProfileImgUrl}
@@ -279,11 +277,13 @@ const ProfilePage = () => {
                     <div className="flex items-center">
                     <span className="text-gray-800 mr-2">{user?.firstName}</span>
                     <div
-                        onClick={handleOpenEditForm}
-                        className="cursor-pointer"
+                        onClick={user?.provider === "GOOGLE" ? undefined : handleOpenEditForm}
+                        className={`cursor-pointer ${user?.provider === "GOOGLE" ? "opacity-50 cursor-not-allowed" : ""}`}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && handleOpenEditForm()}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && user?.provider !== "GOOGLE") handleOpenEditForm();
+                        }}
                     >
                         {arrowRightIcon}
                     </div>
@@ -296,11 +296,13 @@ const ProfilePage = () => {
                     <div className="flex items-center">
                     <span className="text-gray-800 mr-2">{user?.lastName}</span>
                     <div
-                        onClick={handleOpenEditForm}
-                        className="cursor-pointer"
+                        onClick={user?.provider === "GOOGLE" ? undefined : handleOpenEditForm}
+                        className={`cursor-pointer ${user?.provider === "GOOGLE" ? "opacity-50 cursor-not-allowed" : ""}`}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && handleOpenEditForm()}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && user?.provider !== "GOOGLE") handleOpenEditForm();
+                        }}
                     >
                         {arrowRightIcon}
                     </div>
@@ -320,11 +322,13 @@ const ProfilePage = () => {
                     <div className="flex items-center">
                     <span className="text-gray-800 mr-2">{user?.email}</span>
                     <div
-                        onClick={handleOpenEditForm}
-                        className="cursor-pointer"
+                        onClick={user?.provider === "GOOGLE" ? undefined : handleOpenEditForm}
+                        className={`cursor-pointer ${user?.provider === "GOOGLE" ? "opacity-50 cursor-not-allowed" : ""}`}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && handleOpenEditForm()}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && user?.provider !== "GOOGLE") handleOpenEditForm();
+                        }}
                     >
                         {arrowRightIcon}
                     </div>
@@ -355,8 +359,12 @@ const ProfilePage = () => {
                     <span className="text-gray-800 mr-2">******</span>
                     <div
                         onClick={handleOpenPasswordForm}
-                        className="cursor-pointer"
+                        className={`cursor-pointer ${user?.provider === "GOOGLE" ? "opacity-50 cursor-not-allowed" : ""}`}
                         role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && user?.provider !== "GOOGLE") handleOpenPasswordForm();
+                        }}
                     >
                         {arrowRightIcon}
                     </div>
@@ -387,6 +395,24 @@ const ProfilePage = () => {
                     </button>
                 </div>
 
+                {primaryAddress && (
+                    <div className="flex items-center justify-between bg-secondary px-6 py-4 border-b border-primary">
+                        <span className="text-primary font-semibold">Primary Address</span>
+                        <div
+                        className="flex items-center cursor-pointer"
+                        onClick={() => handleOpenEditAddressForm(primaryAddress)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && handleOpenEditAddressForm(primaryAddress)}
+                        >
+                        <span className="text-primary mr-2">
+                            {`${primaryAddress.addressName}: ${primaryAddress.addressLine}, ${primaryAddress.city}`}
+                        </span>
+                        {arrowRightIcon}
+                        </div>
+                    </div>
+                )}
+
                 
                 {['Home', 'Work'].map((type) => {
                 const address = user?.addresses?.find((addr) => addr.addressName === type);
@@ -404,9 +430,7 @@ const ProfilePage = () => {
                         onKeyDown={(e) => e.key === 'Enter' && handleOpenAddressForm()}
                     >
                         <span className="text-gray-800 mr-2">
-                        {address
-                            ? `${address.addressLine}, ${address.city}`
-                            : 'Not set'}
+                        {address ? `${address.addressLine}, ${address.city}` : 'Not set'}
                         </span>
                         {arrowRightIcon}
                     </div>
@@ -469,6 +493,12 @@ const ProfilePage = () => {
             {activeIndex === 2 && userId && (
             <div className="w-full max-w-4xl mb-8">
                 <OrderList userId={userId} />
+            </div>
+            )}
+
+            {activeIndex === 4 && userId && (
+            <div className="w-full max-w-4xl mb-8">
+                <NotifListSection/>
             </div>
             )}
         </div>

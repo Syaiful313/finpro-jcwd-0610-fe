@@ -27,8 +27,10 @@ const useUploadProfilePic = (userId: number) => {
       })
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message || error.message || "An unexpected error occurred";
+
+      toast.error(errorMessage);
       console.error("Update user error", error);
     },
   });

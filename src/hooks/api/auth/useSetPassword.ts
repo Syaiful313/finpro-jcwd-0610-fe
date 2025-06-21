@@ -19,7 +19,7 @@ export const useSetPassword = (token: string) => {
       return data;
     },
     onSuccess: () => {
-      toast.success("Password set successfully! You can now log in.");
+      toast.success("Password set successfully! You can now log in");
       router.push('/login');
     },
     onError: (error: any) => {

@@ -1,4 +1,4 @@
-import useGetNotificationUser from "@/hooks/api/user/useGetNotificationUser";
+import useGetNotificationUser from "@/hooks/api/user/notification/useGetNotificationUser";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell } from "lucide-react"
 import { useSession } from "next-auth/react";
@@ -11,8 +11,6 @@ const NotificationBadgeNavbar = () => {
     const queryClient = useQueryClient();
     const { data: session } = useSession();
     const { data: notifications, isLoading } = useGetNotificationUser({ limit: 5 });
-
-    console.log(notifications);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -29,7 +27,7 @@ const NotificationBadgeNavbar = () => {
 
     if (!session) return null;
 
-    const unread = notifications?.some((n) => !n.isRead);
+    const unread = notifications?.some((n) =>!n.readByUserIds.includes(Number(session.user.id)));
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -64,7 +62,7 @@ const NotificationBadgeNavbar = () => {
                 )}
                 </ul>
                 <div className="p-2 text-center">
-                    <Link href="/user/profile" className="text-blue-600 hover:underline text-sm">
+                    <Link href="/user/profile?show=notifications" className="text-blue-600 hover:underline text-sm">
                     View All
                     </Link>
                 </div>
