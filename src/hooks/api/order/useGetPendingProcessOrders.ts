@@ -52,15 +52,8 @@ interface GetPendingProcessOrdersQueries extends PaginationQueries {
   customerName?: string;
 }
 
-interface UseGetPendingProcessOrdersOptions {
-  enabled?: boolean;
-  refetchInterval?: number;
-  staleTime?: number;
-}
-
 const useGetPendingProcessOrders = (
   queries?: GetPendingProcessOrdersQueries,
-  options?: UseGetPendingProcessOrdersOptions,
 ) => {
   const axiosInstance = useAxios();
 
@@ -94,16 +87,8 @@ const useGetPendingProcessOrders = (
         },
       };
     },
-    enabled: options?.enabled !== false,
-    refetchInterval: options?.refetchInterval || 30000,
-    staleTime: options?.staleTime || 60000,
-    retry: 3,
   });
 };
 
 export default useGetPendingProcessOrders;
-export type {
-  GetPendingProcessOrdersQueries,
-  PendingProcessOrder,
-  UseGetPendingProcessOrdersOptions,
-};
+export type { GetPendingProcessOrdersQueries, PendingProcessOrder };

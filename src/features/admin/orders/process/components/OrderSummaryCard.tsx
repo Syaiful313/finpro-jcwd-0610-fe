@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Calculator, Info, Loader2, Save, Truck } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface DeliveryEstimation {
   success: boolean;
@@ -23,6 +22,7 @@ interface OrderSummaryCardProps {
   isValid: boolean;
   orderItemsLength: number;
   formatCurrency: (amount: number) => string;
+  onNavigateBack?: () => void;
 }
 
 export function OrderSummaryCard({
@@ -36,9 +36,8 @@ export function OrderSummaryCard({
   isValid,
   orderItemsLength,
   formatCurrency,
+  onNavigateBack,
 }: OrderSummaryCardProps) {
-  const router = useRouter();
-
   return (
     <Card>
       <CardHeader className="pb-3 sm:pb-6">
@@ -84,17 +83,14 @@ export function OrderSummaryCard({
               >
                 {deliveryEstimation.success ? (
                   <span className="flex flex-col items-end">
-                    <span>
-                      {formatCurrency(deliveryEstimation.fee!)}
-                    </span>
+                    <span>{formatCurrency(deliveryEstimation.fee!)}</span>
                     <span className="text-muted-foreground text-xs">
                       ({deliveryEstimation.distance}km)
                     </span>
                   </span>
                 ) : (
                   <span className="text-xs">
-                    {deliveryEstimation.error ||
-                      "Data tidak lengkap"}
+                    {deliveryEstimation.error || "Data tidak lengkap"}
                   </span>
                 )}
               </span>
@@ -105,9 +101,7 @@ export function OrderSummaryCard({
 
           <div className="flex justify-between">
             <span className="font-medium">
-              {deliveryEstimation.success
-                ? "Total:"
-                : "Estimasi Total:"}
+              {deliveryEstimation.success ? "Total:" : "Estimasi Total:"}
             </span>
             <span className="text-lg font-bold">
               {deliveryEstimation.success
@@ -119,9 +113,7 @@ export function OrderSummaryCard({
 
         <Alert
           className={
-            deliveryEstimation.success
-              ? ""
-              : "border-yellow-200 bg-yellow-50"
+            deliveryEstimation.success ? "" : "border-yellow-200 bg-yellow-50"
           }
         >
           <Info className="h-4 w-4" />
@@ -129,9 +121,8 @@ export function OrderSummaryCard({
             {deliveryEstimation.success ? (
               <>
                 Estimasi ongkos kirim berdasarkan jarak{" "}
-                {deliveryEstimation.distance}km ke alamat
-                customer. Total akhir mungkin sedikit berbeda saat
-                pemrosesan.
+                {deliveryEstimation.distance}km ke alamat customer. Total akhir
+                mungkin sedikit berbeda saat pemrosesan.
               </>
             ) : (
               <>
@@ -145,11 +136,7 @@ export function OrderSummaryCard({
         <div className="space-y-2">
           <Button
             type="submit"
-            disabled={
-              isProcessing ||
-              !isValid ||
-              orderItemsLength === 0
-            }
+            disabled={isProcessing || !isValid || orderItemsLength === 0}
             className="w-full"
             size="lg"
           >
@@ -169,7 +156,7 @@ export function OrderSummaryCard({
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.back()}
+            onClick={onNavigateBack}
             className="w-full"
             disabled={isProcessing}
           >
