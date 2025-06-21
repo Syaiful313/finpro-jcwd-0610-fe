@@ -14,11 +14,6 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
   const safeString = (value?: string): string => value || "N/A";
   const toNullIfUndefined = (value?: string): string | null =>
     value ? value : null;
-  const workerToUndefined = (worker?: {
-    name: string;
-  }): { name: string } | undefined => worker || undefined;
-  const workerToNull = (worker?: { name: string }): { name: string } | null =>
-    worker || null;
 
   const generateStatusHistory = (): StatusHistoryItem[] => {
     const history: StatusHistoryItem[] = [];
@@ -33,83 +28,37 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
       notes: "Order created by customer",
     });
 
-    if (orderDetail.workProcesses) {
-      orderDetail.workProcesses.forEach((process) => {
-        if (process.workerType === "WASHING") {
+    if (orderDetail.timeline) {
+      orderDetail.timeline.forEach((event) => {
+        if (event.type === "WORK_PROCESS") {
+          const workerName = event.metadata?.worker || "Unknown Worker";
+
           history.push({
-            status: "BEING_WASHED",
-            timestamp: process.createdAt,
+            status: event.event.includes("Started")
+              ? getStatusFromEvent(event.event)
+              : event.event,
+            timestamp: event.timestamp,
             updatedBy: {
-              name: process.worker?.name || "Unknown",
+              name: workerName,
               role: "worker",
             },
-            notes: process.notes,
+            notes: event.description,
           });
-
-          if (process.completedAt) {
-            history.push({
-              status: "BEING_WASHED",
-              timestamp: process.completedAt,
-              updatedBy: {
-                name: process.worker?.name || "Unknown",
-                role: "worker",
-              },
-              notes: "Washing completed",
-            });
-          }
-        }
-
-        if (process.workerType === "IRONING") {
-          history.push({
-            status: "BEING_IRONED",
-            timestamp: process.createdAt,
-            updatedBy: {
-              name: process.worker?.name || "Unknown",
-              role: "worker",
-            },
-            notes: process.notes,
-          });
-
-          if (process.completedAt) {
-            history.push({
-              status: "BEING_IRONED",
-              timestamp: process.completedAt,
-              updatedBy: {
-                name: process.worker?.name || "Unknown",
-                role: "worker",
-              },
-              notes: "Ironing completed",
-            });
-          }
-        }
-
-        if (process.workerType === "PACKING") {
-          history.push({
-            status: "BEING_PACKED",
-            timestamp: process.createdAt,
-            updatedBy: {
-              name: process.worker?.name || "Unknown",
-              role: "worker",
-            },
-            notes: process.notes,
-          });
-
-          if (process.completedAt) {
-            history.push({
-              status: "BEING_PACKED",
-              timestamp: process.completedAt,
-              updatedBy: {
-                name: process.worker?.name || "Unknown",
-                role: "worker",
-              },
-              notes: "Packing completed",
-            });
-          }
         }
       });
     }
 
-    return history;
+    return history.sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
+  };
+
+  const getStatusFromEvent = (event: string): string => {
+    if (event.includes("Washing")) return "BEING_WASHED";
+    if (event.includes("Ironing")) return "BEING_IRONED";
+    if (event.includes("Packing")) return "BEING_PACKED";
+    return event;
   };
 
   const transformedOrder = {
@@ -117,100 +66,83 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
     status: safeString(orderDetail.orderStatus),
     createdAt: orderDetail.createdAt,
     outletName: safeString(orderDetail.outlet?.outletName),
+
     payment: {
-      totalAmount: orderDetail.totalPrice || orderDetail.pricing?.total || 0,
-      status: orderDetail.paymentStatus === "PAID" ? "Paid" : "Pending",
-      method: "Credit Card",
-      date: toNullIfUndefined(orderDetail.createdAt),
-      transactionId: "TRX" + Math.random().toString(36).substr(2, 9),
+      totalAmount:
+        orderDetail.payment?.totalAmount || orderDetail.pricing?.total || 0,
+      status: orderDetail.payment?.statusInfo?.isPaid ? "Paid" : "Pending",
+      method: orderDetail.payment?.statusInfo?.paymentMethod || "Pending",
+      date: orderDetail.payment?.paidAt || null,
+      transactionId: orderDetail.payment?.xendit?.xenditId || null,
+
+      breakdown: orderDetail.payment?.breakdown,
+      xendit: orderDetail.payment?.xendit,
+      actions: orderDetail.payment?.actions,
     },
+
     items: (orderDetail.items || []).map((item) => ({
       id: item.id.toString(),
-      name: safeString(item.name),
+      name: safeString(item.laundryItem?.name),
       description:
-        `${item.category || ""} ${[item.color, item.brand].filter(Boolean).join(", ")}`.trim(),
+        `${item.laundryItem?.category || ""} ${[item.color, item.brand, item.materials].filter(Boolean).join(", ")}`.trim(),
       price: item.pricePerUnit || 0,
       quantity: item.quantity || item.weight || 1,
-      weight: item.weight || item.quantity || 0,
+      weight: item.weight || 0,
+      pricingType: item.laundryItem?.pricingType,
+      details: item.details || [],
     })),
+
     customer: {
       name: safeString(orderDetail.customer?.name),
       phone: safeString(orderDetail.customer?.phoneNumber),
       email: orderDetail.customer?.email,
       verified: true,
     },
+
     pickupAddress: {
-      address: safeString(orderDetail.address?.fullAddress),
+      address: safeString(orderDetail.deliveryAddress?.fullAddress),
       scheduledTime: toNullIfUndefined(
         orderDetail.schedule?.scheduledPickupTime,
       ),
       actualTime: toNullIfUndefined(orderDetail.schedule?.actualPickupTime),
-      driver: orderDetail.pickupInfo?.[0]?.driver
+      driver: orderDetail.pickup?.jobs?.[0]?.driver
         ? {
-            name: safeString(orderDetail.pickupInfo[0].driver.name),
+            name: safeString(orderDetail.pickup.jobs[0].driver),
+            phone: orderDetail.pickup.jobs[0].driverPhone,
           }
         : undefined,
     },
+
     deliveryAddress: {
-      address: safeString(orderDetail.address?.fullAddress),
+      address: safeString(orderDetail.deliveryAddress?.fullAddress),
       scheduledTime: toNullIfUndefined(
         orderDetail.schedule?.scheduledDeliveryTime,
       ),
       actualTime: toNullIfUndefined(orderDetail.schedule?.actualDeliveryTime),
-      driver: orderDetail.deliveryInfo?.[0]?.driver
+      driver: orderDetail.delivery?.jobs?.[0]?.driver
         ? {
-            name: safeString(orderDetail.deliveryInfo[0].driver.name),
+            name: safeString(orderDetail.delivery.jobs[0].driver),
+            phone: orderDetail.delivery.jobs[0].driverPhone,
           }
         : undefined,
+      deliveryInfo: orderDetail.delivery?.info,
     },
+
     processingInfo: {
-      washing: {
-        status: getProcessStatus("WASHING", orderDetail.workProcesses || []),
-        worker: workerToNull(
-          getProcessWorker("WASHING", orderDetail.workProcesses || []),
-        ),
-        startTime: toNullIfUndefined(
-          getProcessTime("WASHING", orderDetail.workProcesses || [], "start"),
-        ),
-        endTime: toNullIfUndefined(
-          getProcessTime("WASHING", orderDetail.workProcesses || [], "end"),
-        ),
-        notes: toNullIfUndefined(
-          getProcessNotes("WASHING", orderDetail.workProcesses || []),
-        ),
-      },
-      ironing: {
-        status: getProcessStatus("IRONING", orderDetail.workProcesses || []),
-        worker: workerToNull(
-          getProcessWorker("IRONING", orderDetail.workProcesses || []),
-        ),
-        startTime: toNullIfUndefined(
-          getProcessTime("IRONING", orderDetail.workProcesses || [], "start"),
-        ),
-        endTime: toNullIfUndefined(
-          getProcessTime("IRONING", orderDetail.workProcesses || [], "end"),
-        ),
-        notes: toNullIfUndefined(
-          getProcessNotes("IRONING", orderDetail.workProcesses || []),
-        ),
-      },
-      packing: {
-        status: getProcessStatus("PACKING", orderDetail.workProcesses || []),
-        worker: workerToNull(
-          getProcessWorker("PACKING", orderDetail.workProcesses || []),
-        ),
-        startTime: toNullIfUndefined(
-          getProcessTime("PACKING", orderDetail.workProcesses || [], "start"),
-        ),
-        endTime: toNullIfUndefined(
-          getProcessTime("PACKING", orderDetail.workProcesses || [], "end"),
-        ),
-        notes: toNullIfUndefined(
-          getProcessNotes("PACKING", orderDetail.workProcesses || []),
-        ),
-      },
+      washing: getProcessInfo("WASHING", orderDetail.workProcess),
+      ironing: getProcessInfo("IRONING", orderDetail.workProcess),
+      packing: getProcessInfo("PACKING", orderDetail.workProcess),
+
+      current: orderDetail.workProcess?.current,
+      completed: orderDetail.workProcess?.completed,
+      progress: orderDetail.workProcess?.progress,
     },
+
     statusHistory: generateStatusHistory(),
+
+    timeline: orderDetail.timeline,
+    delivery: orderDetail.delivery,
+    pickup: orderDetail.pickup,
   };
 
   return (
@@ -236,6 +168,60 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
               processingInfo={transformedOrder.processingInfo}
             />
           </div>
+
+          {/* New sections for additional data */}
+          {orderDetail.delivery?.info && (
+            <div className="bg-card mb-4 rounded-lg border p-4 shadow-sm">
+              <h3 className="mb-3 text-lg font-semibold">
+                Delivery Information
+              </h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Distance:</span>
+                  <span className="ml-2 font-medium">
+                    {orderDetail.delivery.info.distance} km
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Delivery Fee:</span>
+                  <span className="ml-2 font-medium">
+                    Rp{" "}
+                    {orderDetail.delivery.info.actualFee?.toLocaleString(
+                      "id-ID",
+                    )}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Base Fee:</span>
+                  <span className="ml-2">
+                    Rp{" "}
+                    {orderDetail.delivery.info.baseFee?.toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Per KM:</span>
+                  <span className="ml-2">
+                    Rp{" "}
+                    {orderDetail.delivery.info.perKmFee?.toLocaleString(
+                      "id-ID",
+                    )}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-muted-foreground">
+                    Within Service Radius:
+                  </span>
+                  <span
+                    className={`ml-2 font-medium ${orderDetail.delivery.info.withinServiceRadius ? "text-green-600" : "text-red-600"}`}
+                  >
+                    {orderDetail.delivery.info.withinServiceRadius
+                      ? "Yes"
+                      : "No"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="md:col-span-4">
@@ -256,38 +242,56 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
   );
 }
 
-function getProcessStatus(type: string, workProcesses: any[]): string {
-  const process = workProcesses.find((wp) => wp.workerType === type);
-  if (!process) return "Pending";
-  if (process.completedAt) return "Completed";
-  return "In Progress";
-}
+function getProcessInfo(
+  type: "WASHING" | "IRONING" | "PACKING",
+  workProcess?: OrderDetail["workProcess"],
+) {
+  if (workProcess?.current?.type === type) {
+    return {
+      status: "In Progress",
+      worker: workProcess.current.worker
+        ? { name: workProcess.current.worker }
+        : null,
+      startTime: workProcess.current.startedAt || null,
+      endTime: null,
+      notes: workProcess.current.notes || null,
+    };
+  }
 
-function getProcessWorker(
-  type: string,
-  workProcesses: any[],
-): { name: string } | undefined {
-  const process = workProcesses.find((wp) => wp.workerType === type);
-  if (!process?.worker?.name) return undefined;
-  return { name: process.worker.name };
-}
+  const completedProcess = workProcess?.completed?.find((p) => p.type === type);
+  if (completedProcess) {
+    return {
+      status: "Completed",
+      worker: completedProcess.worker
+        ? { name: completedProcess.worker }
+        : null,
+      startTime: completedProcess.startedAt || null,
+      endTime: completedProcess.completedAt || null,
+      notes: completedProcess.notes || null,
+    };
+  }
 
-function getProcessTime(
-  type: string,
-  workProcesses: any[],
-  timeType: "start" | "end",
-): string | undefined {
-  const process = workProcesses.find((wp) => wp.workerType === type);
-  if (!process) return undefined;
+  const stage = workProcess?.progress?.stages?.find((s) => s.stage === type);
+  if (stage) {
+    return {
+      status:
+        stage.status === "COMPLETED"
+          ? "Completed"
+          : stage.status === "IN_PROGRESS"
+            ? "In Progress"
+            : "Pending",
+      worker: stage.worker ? { name: stage.worker } : null,
+      startTime: stage.startedAt || null,
+      endTime: stage.completedAt || null,
+      notes: null,
+    };
+  }
 
-  const time = timeType === "start" ? process.createdAt : process.completedAt;
-  return time || undefined;
-}
-
-function getProcessNotes(
-  type: string,
-  workProcesses: any[],
-): string | undefined {
-  const process = workProcesses.find((wp) => wp.workerType === type);
-  return process?.notes || undefined;
+  return {
+    status: "Pending",
+    worker: null,
+    startTime: null,
+    endTime: null,
+    notes: null,
+  };
 }

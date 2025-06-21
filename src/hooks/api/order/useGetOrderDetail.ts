@@ -8,19 +8,23 @@ interface OrderDetail {
   orderNumber: string;
   orderStatus: string;
   paymentStatus: string;
-  totalWeight?: number;
-  totalPrice?: number;
   createdAt: string;
   updatedAt: string;
 
-  customer?: {
+  customer: {
     id: number;
     name: string;
     email: string;
     phoneNumber?: string;
   };
 
-  address?: {
+  outlet: {
+    id: number;
+    outletName: string;
+    address?: string;
+  };
+
+  deliveryAddress: {
     fullAddress: string;
     district: string;
     city: string;
@@ -28,99 +32,180 @@ interface OrderDetail {
     postalCode: string;
   };
 
-  outlet?: {
-    id: number;
-    outletName: string;
-    address: string;
-  };
-
-  schedule?: {
+  schedule: {
     scheduledPickupTime?: string;
     actualPickupTime?: string;
     scheduledDeliveryTime?: string;
     actualDeliveryTime?: string;
   };
 
-  pricing?: {
-    items?: { total: number };
-    delivery?: { fee: number };
-    total: number;
-  };
-
-  items?: Array<{
+  items: Array<{
     id: number;
-    name: string;
-    category: string;
+    laundryItem: {
+      id: number;
+      name: string;
+      category: string;
+      pricingType: "PER_PIECE" | "PER_KG";
+    };
     quantity?: number;
     weight?: number;
     pricePerUnit: number;
-    totalPrice: number;
     color?: string;
     brand?: string;
     materials?: string;
-    pricingType: "PER_PIECE" | "PER_KG";
-    details?: Array<{
+    totalPrice: number;
+    details: Array<{
       id: number;
       name: string;
       qty: number;
     }>;
-  }>;
-
-  workProcesses?: Array<{
-    id: number;
-    workerType: string;
-    worker?: {
-      id: number;
-      name: string;
-    };
-    notes?: string;
-    completedAt?: string;
     createdAt: string;
-    bypass?: any;
   }>;
 
-  pickupInfo?: Array<{
-    id: number;
+  pricing: {
+    items: number;
+    delivery: number;
+    total: number;
+    breakdown: Array<{
+      name: string;
+      category: string;
+      pricingType: string;
+      quantity?: number;
+      weight?: number;
+      pricePerUnit: number;
+      totalPrice: number;
+    }>;
+  };
+
+  payment: {
     status: string;
-    driver?: {
-      id: number;
-      name: string;
-      phoneNumber?: string;
+    totalAmount: number;
+    paidAt?: string;
+    breakdown: {
+      itemsTotal: number;
+      deliveryFee: number;
+      grandTotal: number;
     };
-    photos?: string;
-    scheduledOutlet?: string;
-    notes?: string;
-    createdAt: string;
-    updatedAt: string;
-  }>;
+    xendit?: {
+      xenditId: string;
+      invoiceUrl?: string;
+      successRedirectUrl?: string;
+      expiryDate?: string;
+      xenditStatus?: string;
+      isExpired: boolean;
+    };
+    actions: {
+      canPay: boolean;
+      canRefund: boolean;
+      canGenerateNewInvoice: boolean;
+    };
+    statusInfo: {
+      isPaid: boolean;
+      isWaitingPayment: boolean;
+      isOverdue: boolean;
+      paymentMethod?: string;
+      timeRemaining?: string;
+    };
+  };
 
-  deliveryInfo?: Array<{
-    id: number;
-    status: string;
-    driver?: {
-      id: number;
-      name: string;
-      phoneNumber?: string;
+  delivery: {
+    info?: {
+      distance: number;
+      calculatedFee: number;
+      actualFee: number;
+      baseFee: number;
+      perKmFee: number;
+      withinServiceRadius: boolean;
     };
-    photos?: string;
-    notes?: string;
-    createdAt: string;
-    updatedAt: string;
+    totalWeight?: number;
+    jobs: Array<{
+      id: number;
+      status: string;
+      driver?: string;
+      driverPhone?: string;
+      photos?: string;
+      notes?: string;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+  };
+
+  pickup: {
+    jobs: Array<{
+      id: number;
+      status: string;
+      driver?: string;
+      driverPhone?: string;
+      photos: string[];
+      scheduledOutlet?: string;
+      notes?: string;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+  };
+
+  workProcess: {
+    current?: {
+      id: number;
+      type: string;
+      station: string;
+      worker?: string;
+      workerPhone?: string;
+      startedAt: string;
+      notes?: string;
+      bypass?: any;
+    };
+    completed: Array<{
+      id: number;
+      type: string;
+      station: string;
+      worker?: string;
+      workerPhone?: string;
+      startedAt: string;
+      completedAt: string;
+      duration?: string;
+      notes?: string;
+      bypass?: any;
+    }>;
+    progress: {
+      stages: Array<{
+        stage: string;
+        label: string;
+        status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+        startedAt?: string;
+        completedAt?: string;
+        worker?: string;
+      }>;
+      summary: {
+        completed: number;
+        inProgress: number;
+        pending: number;
+        total: number;
+        percentage: number;
+      };
+    };
+  };
+
+  timeline: Array<{
+    id: string;
+    event: string;
+    type: string;
+    status: "COMPLETED" | "IN_PROGRESS" | "PENDING";
+    timestamp: string;
+    description: string;
+    metadata?: any;
   }>;
 }
 
 interface ApiResponse {
   success: boolean;
   message: string;
-  data: any;
+  data: OrderDetail;
 }
-
-const nullToUndefined = <T>(value: T | null): T | undefined => {
-  return value === null ? undefined : value;
-};
 
 const useGetOrderDetail = (orderId: string) => {
   const axiosInstance = useAxios();
+
   return useQuery({
     queryKey: ["order-detail", orderId],
     queryFn: async (): Promise<OrderDetail> => {
@@ -135,124 +220,12 @@ const useGetOrderDetail = (orderId: string) => {
           );
         }
 
-        const rawData = response.data.data;
-        if (!rawData) {
+        const data = response.data.data;
+        if (!data) {
           throw new Error("No order data found");
         }
 
-        const transformedData: OrderDetail = {
-          uuid: rawData.uuid || orderId,
-          orderNumber: rawData.orderNumber || "N/A",
-          orderStatus: rawData.orderStatus || "UNKNOWN",
-          paymentStatus: rawData.paymentStatus || "UNKNOWN",
-          createdAt: rawData.createdAt || new Date().toISOString(),
-          updatedAt: rawData.updatedAt || new Date().toISOString(),
-
-          totalWeight: nullToUndefined(rawData.totalWeight),
-          totalPrice: nullToUndefined(rawData.totalPrice),
-
-          customer: rawData.customer
-            ? {
-                id: rawData.customer.id || 0,
-                name: rawData.customer.name || "N/A",
-                email: rawData.customer.email || "N/A",
-                phoneNumber: nullToUndefined(rawData.customer.phoneNumber),
-              }
-            : undefined,
-
-          address: rawData.address
-            ? {
-                fullAddress: rawData.address.fullAddress || "",
-                district: rawData.address.district || "",
-                city: rawData.address.city || "",
-                province: rawData.address.province || "",
-                postalCode: rawData.address.postalCode || "",
-              }
-            : undefined,
-
-          outlet: rawData.outlet
-            ? {
-                id: rawData.outlet.id || 0,
-                outletName: rawData.outlet.outletName || "N/A",
-                address: rawData.outlet.address || "N/A",
-              }
-            : undefined,
-
-          schedule: rawData.schedule
-            ? {
-                scheduledPickupTime: nullToUndefined(
-                  rawData.schedule.scheduledPickupTime,
-                ),
-                actualPickupTime: nullToUndefined(
-                  rawData.schedule.actualPickupTime,
-                ),
-                scheduledDeliveryTime: nullToUndefined(
-                  rawData.schedule.scheduledDeliveryTime,
-                ),
-                actualDeliveryTime: nullToUndefined(
-                  rawData.schedule.actualDeliveryTime,
-                ),
-              }
-            : undefined,
-
-          pricing: rawData.pricing,
-
-          items: Array.isArray(rawData.items)
-            ? rawData.items.map((item: any) => ({
-                ...item,
-                quantity: nullToUndefined(item.quantity),
-                weight: nullToUndefined(item.weight),
-                color: nullToUndefined(item.color),
-                brand: nullToUndefined(item.brand),
-                materials: nullToUndefined(item.materials),
-                details: Array.isArray(item.details) ? item.details : [],
-              }))
-            : [],
-
-          workProcesses: Array.isArray(rawData.workProcesses)
-            ? rawData.workProcesses.map((process: any) => ({
-                ...process,
-                notes: nullToUndefined(process.notes),
-                completedAt: nullToUndefined(process.completedAt),
-                worker: process.worker
-                  ? {
-                      ...process.worker,
-                    }
-                  : undefined,
-              }))
-            : [],
-
-          pickupInfo: Array.isArray(rawData.pickupInfo)
-            ? rawData.pickupInfo.map((pickup: any) => ({
-                ...pickup,
-                photos: nullToUndefined(pickup.photos),
-                scheduledOutlet: nullToUndefined(pickup.scheduledOutlet),
-                notes: nullToUndefined(pickup.notes),
-                driver: pickup.driver
-                  ? {
-                      ...pickup.driver,
-                      phoneNumber: nullToUndefined(pickup.driver.phoneNumber),
-                    }
-                  : undefined,
-              }))
-            : [],
-
-          deliveryInfo: Array.isArray(rawData.deliveryInfo)
-            ? rawData.deliveryInfo.map((delivery: any) => ({
-                ...delivery,
-                photos: nullToUndefined(delivery.photos),
-                notes: nullToUndefined(delivery.notes),
-                driver: delivery.driver
-                  ? {
-                      ...delivery.driver,
-                      phoneNumber: nullToUndefined(delivery.driver.phoneNumber),
-                    }
-                  : undefined,
-              }))
-            : [],
-        };
-
-        return transformedData;
+        return data;
       } catch (error: any) {
         console.error("Error fetching order detail:", error);
 

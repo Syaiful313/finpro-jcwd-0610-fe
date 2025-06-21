@@ -49,7 +49,6 @@ import {
   useQueryState,
 } from "nuqs";
 import { useEffect, useState } from "react";
-import { useDebounceValue } from "usehooks-ts";
 import { PendingOrdersTable } from "./PendingOrdersTable";
 
 const PAGE_SIZE = 10;
@@ -127,7 +126,8 @@ const formatDate = (dateString: string) => {
   }
 };
 
-const formatCurrency = (amount: number) => {
+const formatCurrency = (amount?: number) => {
+  if (!amount) return "Rp 0";
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -423,7 +423,6 @@ export function OrderManagementTable() {
   const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
   const hasAccess = isAdmin || isOutletAdmin;
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -529,6 +528,32 @@ export function OrderManagementTable() {
           </span>
           <p className="mt-2 text-xs text-gray-500 sm:text-sm">
             You don't have permission to view this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading && !ordersData) {
+    return (
+      <div className="flex h-64 items-center justify-center px-1">
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2 text-sm sm:text-base">
+          Memuat data pesanan...
+        </span>
+      </div>
+    );
+  }
+
+  if (error && !ordersData) {
+    return (
+      <div className="flex h-64 items-center justify-center px-1">
+        <div className="text-center">
+          <span className="text-sm text-red-500 sm:text-base">
+            Kesalahan memuat data
+          </span>
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+            {error.message || "Terjadi kesalahan tidak dikenal"}
           </p>
         </div>
       </div>
@@ -649,9 +674,7 @@ export function OrderManagementTable() {
               <div className="flex gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button
-                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600"
-                    >
+                    <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600">
                       <Filter className="h-4 w-4" />
                       <span className="truncate">
                         {status
@@ -765,7 +788,9 @@ export function OrderManagementTable() {
                     type="date"
                     placeholder="Tanggal Akhir"
                     value={endDate || ""}
-                    onChange={(e) => handleDateRangeChange("end", e.target.value)}
+                    onChange={(e) =>
+                      handleDateRangeChange("end", e.target.value)
+                    }
                     className="h-12 flex-1 rounded-xl border-2 border-gray-200 bg-gray-50 px-3 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
@@ -792,16 +817,16 @@ export function OrderManagementTable() {
           {isOutletAdmin && (
             <div className="mb-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full max-w-lg grid-cols-2 h-12 p-1 bg-gray-100 rounded-xl">
-                  <TabsTrigger 
-                    value="all" 
-                    className="h-10 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900"
+                <TabsList className="grid h-12 w-full max-w-lg grid-cols-2 rounded-xl bg-gray-100 p-1">
+                  <TabsTrigger
+                    value="all"
+                    className="h-10 rounded-lg text-sm font-medium text-gray-600 transition-all hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
                   >
                     Semua Pesanan
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="pending" 
-                    className="h-10 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900"
+                  <TabsTrigger
+                    value="pending"
+                    className="h-10 rounded-lg text-sm font-medium text-gray-600 transition-all hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
                   >
                     Pending Proses
                   </TabsTrigger>

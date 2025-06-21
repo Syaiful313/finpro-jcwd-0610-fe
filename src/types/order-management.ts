@@ -1,83 +1,9 @@
-export interface Order {
-  uuid: string;
-  orderNumber: string;
-  orderStatus: string;
-  scheduledPickupTime: string | null;
-  actualPickupTime: string | null;
-  scheduledDeliveryTime: string | null;
-  actualDeliveryTime: string | null;
-  totalDeliveryFee: number;
-  totalWeight: number;
-  totalPrice: number;
-  paymentStatus: string;
-  createdAt: string;
-  updatedAt: string;
-  customer: {
-    id: number;
-    name: string;
-    email: string;
-    phoneNumber: string | null;
-  };
-  outlet: {
-    id: number;
-    outletName: string;
-    address: string;
-  };
-  address: {
-    fullAddress: string;
-    district: string;
-    city: string;
-    province: string;
-    postalCode: string;
-  };
-  tracking: {
-    currentStatus: string;
-    currentWorker: {
-      id: number;
-      name: string;
-      workType: string;
-      startedAt: string;
-    } | null;
-    completedProcesses: Array<{
-      id: number;
-      workerType: string;
-      worker: string;
-      completedAt: string;
-      notes: string | null;
-    }>;
-    pickupInfo: {
-      status: string;
-      driver: string;
-      photos: string | null;
-      notes: string | null;
-    } | null;
-    deliveryInfo: {
-      status: string;
-      driver: string;
-      photos: string | null;
-      notes: string | null;
-    } | null;
-  };
-  items: Array<{
-    id: number;
-    name: string;
-    category: string;
-    quantity: number | null;
-    weight: number | null;
-    pricePerUnit: number;
-    totalPrice: number;
-    pricingType: string;
-  }>;
-}
-
-// get orders
-
 export interface OrderSummary {
   uuid: string;
   orderNumber: string;
   orderStatus: string;
-  totalWeight: number;
-  totalPrice: number;
+  totalWeight?: number;
+  totalPrice?: number;
   paymentStatus: string;
   createdAt: string;
   updatedAt: string;
@@ -95,13 +21,14 @@ export interface CustomerSummary {
 export interface OutletSummary {
   id: number;
   outletName: string;
+  isActive?: boolean;
 }
 
 export interface OrderTracking {
-  currentWorker: CurrentWorker | null;
+  currentWorker?: CurrentWorker;
   processHistory: ProcessHistory[];
-  pickup: PickupInfo | null;
-  delivery: DeliveryInfo | null;
+  pickup?: PickupInfo;
+  delivery?: DeliveryInfo;
   timeline: TimelineEvent[];
 }
 
@@ -151,41 +78,86 @@ export interface TimelineEvent {
   hasBypass?: boolean;
 }
 
-// order detail 
+export interface OrderDetail {
+  uuid: string;
+  orderNumber: string;
+  orderStatus: string;
+  paymentStatus: string;
+  createdAt: string;
+  updatedAt: string;
 
-export interface OrderDetail extends OrderSummary {
-  scheduledPickupTime?: string;
-  actualPickupTime?: string;
-  scheduledDeliveryTime?: string;
-  actualDeliveryTime?: string;
-  address: CustomerAddress;
+  customer: DetailedCustomer;
+  outlet: DetailedOutlet;
+  deliveryAddress: CustomerAddress;
+  schedule: OrderSchedule;
   items: OrderItem[];
-  workProcesses: WorkProcess[];
-  pickupInfo: PickupJobDetail[];
-  deliveryInfo: DeliveryJobDetail[];
+  pricing: OrderPricing;
+  payment: PaymentInfo;
+  delivery: DeliveryInfo;
+  pickup: PickupInfo;
+  workProcess: WorkProcessInfo;
+  timeline: DetailedTimelineEvent[];
+}
+
+export interface DetailedCustomer {
+  id: number;
+  name: string;
+  email: string;
+  phoneNumber?: string;
+  addresses?: CustomerAddress[];
+  primaryAddress?: CustomerAddress;
+}
+
+export interface DetailedOutlet {
+  id: number;
+  outletName: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  serviceRadius?: number;
+  deliveryBaseFee?: number;
+  deliveryPerKm?: number;
+  isActive?: boolean;
 }
 
 export interface CustomerAddress {
+  id?: number;
+  addressName?: string;
   fullAddress: string;
   district: string;
   city: string;
   province: string;
   postalCode: string;
+  latitude?: number;
+  longitude?: number;
+  isPrimary?: boolean;
+}
+
+export interface OrderSchedule {
+  scheduledPickupTime?: string;
+  actualPickupTime?: string;
+  scheduledDeliveryTime?: string;
+  actualDeliveryTime?: string;
 }
 
 export interface OrderItem {
   id: number;
-  name: string;
-  category: string;
+  laundryItem: {
+    id: number;
+    name: string;
+    category: string;
+    basePrice?: number;
+    pricingType: "PER_PIECE" | "PER_KG";
+  };
   quantity?: number;
   weight?: number;
   pricePerUnit: number;
-  totalPrice: number;
   color?: string;
   brand?: string;
   materials?: string;
-  pricingType: string;
+  totalPrice: number;
   details: OrderItemDetail[];
+  createdAt: string;
 }
 
 export interface OrderItemDetail {
@@ -194,17 +166,128 @@ export interface OrderItemDetail {
   qty: number;
 }
 
-export interface WorkProcess {
-  id: number;
-  workerType: string;
-  worker: {
-    id: number;
+export interface OrderPricing {
+  items: number;
+  delivery: number;
+  total: number;
+  breakdown: Array<{
     name: string;
+    category: string;
+    pricingType: string;
+    quantity?: number;
+    weight?: number;
+    pricePerUnit: number;
+    totalPrice: number;
+  }>;
+}
+
+export interface PaymentInfo {
+  status: string;
+  totalAmount: number;
+  paidAt?: string;
+  breakdown: {
+    itemsTotal: number;
+    deliveryFee: number;
+    grandTotal: number;
   };
-  notes?: string;
-  completedAt?: string;
-  createdAt: string;
-  bypass?: BypassInfo;
+  xendit?: {
+    xenditId: string;
+    invoiceUrl?: string;
+    successRedirectUrl?: string;
+    expiryDate?: string;
+    xenditStatus?: string;
+    isExpired: boolean;
+  };
+  actions: {
+    canPay: boolean;
+    canRefund: boolean;
+    canGenerateNewInvoice: boolean;
+  };
+  statusInfo: {
+    isPaid: boolean;
+    isWaitingPayment: boolean;
+    isOverdue: boolean;
+    paymentMethod?: string;
+    timeRemaining?: string;
+  };
+}
+
+export interface DeliveryInfo {
+  info?: {
+    distance: number;
+    calculatedFee: number;
+    actualFee: number;
+    baseFee: number;
+    perKmFee: number;
+    withinServiceRadius: boolean;
+  };
+  totalWeight?: number;
+  jobs: Array<{
+    id: number;
+    status: string;
+    driver?: string;
+    driverPhone?: string;
+    photos?: string;
+    notes?: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+}
+
+export interface PickupInfo {
+  jobs: Array<{
+    id: number;
+    status: string;
+    driver?: string;
+    driverPhone?: string;
+    photos: string[];
+    scheduledOutlet?: string;
+    notes?: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+}
+
+export interface WorkProcessInfo {
+  current?: {
+    id: number;
+    type: string;
+    station: string;
+    worker?: string;
+    workerPhone?: string;
+    startedAt: string;
+    notes?: string;
+    bypass?: BypassInfo;
+  };
+  completed: Array<{
+    id: number;
+    type: string;
+    station: string;
+    worker?: string;
+    workerPhone?: string;
+    startedAt: string;
+    completedAt: string;
+    duration?: string;
+    notes?: string;
+    bypass?: BypassInfo;
+  }>;
+  progress: {
+    stages: Array<{
+      stage: string;
+      label: string;
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+      startedAt?: string;
+      completedAt?: string;
+      worker?: string;
+    }>;
+    summary: {
+      completed: number;
+      inProgress: number;
+      pending: number;
+      total: number;
+      percentage: number;
+    };
+  };
 }
 
 export interface BypassInfo {
@@ -213,33 +296,129 @@ export interface BypassInfo {
   adminNote?: string;
   bypassStatus: string;
   createdAt: string;
+  updatedAt?: string;
+  approvedByEmployee?: {
+    id: number;
+    user: {
+      firstName: string;
+      lastName: string;
+    };
+  };
 }
 
-export interface PickupJobDetail {
-  id: number;
-  status: string;
-  driver: {
-    id: number;
-    name: string;
-    phoneNumber?: string;
-  };
-  photos?: string;
-  scheduledOutlet: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
+export interface DetailedTimelineEvent {
+  id: string;
+  event: string;
+  type: string;
+  status: "COMPLETED" | "IN_PROGRESS" | "PENDING";
+  timestamp: string;
+  description: string;
+  metadata?: any;
 }
 
-export interface DeliveryJobDetail {
-  id: number;
-  status: string;
-  driver: {
-    id: number;
-    name: string;
-    phoneNumber?: string;
-  };
-  photos?: string;
-  notes?: string;
+export interface PendingProcessOrder {
+  uuid: string;
+  orderNumber: string;
+  orderStatus: string;
+  scheduledPickupTime?: string;
+  actualPickupTime?: string;
   createdAt: string;
   updatedAt: string;
+  customer: {
+    id: number;
+    name: string;
+    email: string;
+    phoneNumber?: string;
+  };
+  address: {
+    fullAddress: string;
+    district: string;
+    city: string;
+    province: string;
+    postalCode: string;
+  };
+  customerCoordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  outlet: {
+    id: number;
+    outletName: string;
+    latitude: number;
+    longitude: number;
+    deliveryBaseFee: number;
+    deliveryPerKm: number;
+    serviceRadius: number;
+  };
+  pickupInfo?: {
+    driver?: string;
+    driverPhone?: string;
+    scheduledOutlet?: string;
+    notes?: string;
+    completedAt: string;
+  };
 }
+
+export interface LaundryItem {
+  id: number;
+  name: string;
+  category: string;
+  basePrice: number;
+  pricingType: "PER_PIECE" | "PER_KG";
+}
+
+export interface ProcessOrderItem {
+  laundryItemId: number;
+  quantity?: number;
+  weight?: number;
+  color?: string;
+  brand?: string;
+  materials?: string;
+  orderItemDetails?: Array<{
+    name: string;
+    qty: number;
+  }>;
+}
+
+export interface ProcessOrderPayload {
+  totalWeight: number;
+  orderItems: ProcessOrderItem[];
+}
+
+export interface ProcessOrderResponse {
+  success: boolean;
+  message: string;
+  data: {
+    orderId: string;
+    orderNumber: string;
+    totalWeight: number;
+    laundryItemsTotal: number;
+    deliveryFee: number;
+    totalPrice: number;
+    orderStatus: string;
+  };
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  meta?: {
+    page: number;
+    perPage: number;
+    total: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  message: string;
+  errors?: Record<string, string[]>;
+}
+
+export interface Order extends OrderSummary {}
+export interface WorkProcess extends WorkProcessInfo {}
+export interface PickupJobDetail extends PickupInfo {}
+export interface DeliveryJobDetail extends DeliveryInfo {}
