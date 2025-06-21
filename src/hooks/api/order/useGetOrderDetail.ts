@@ -247,8 +247,8 @@ const useGetOrderDetail = (orderId: string) => {
       }
       return failureCount < 3;
     },
-    staleTime: 30000,
-    gcTime: 300000,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 

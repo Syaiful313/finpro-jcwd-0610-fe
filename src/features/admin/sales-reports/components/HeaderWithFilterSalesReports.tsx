@@ -102,7 +102,7 @@ export function HeaderWithFilterSalesReports() {
     <div className="space-y-3 sm:space-y-6">
       {/* Mobile Header */}
       <div className="block sm:hidden">
-        <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+        <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg dark:from-blue-600 dark:to-blue-700">
           {/* Header content */}
           <div className="px-5 py-14">
             <h1 className="text-2xl font-bold">Laporan Pendapatan</h1>
@@ -119,14 +119,14 @@ export function HeaderWithFilterSalesReports() {
         </div>
 
         {/* Filter section - overlapping white card */}
-        <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+        <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
           {/* Date Range Picker */}
           <div className="mb-3">
             <DatePickerWithRange
               date={currentDateRange}
               onDateChange={handleDateRangeChange}
               placeholder="Pilih rentang tanggal"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm placeholder:text-gray-500 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm placeholder:text-gray-500 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 dark:focus:border-blue-400 dark:focus:bg-gray-800 dark:focus:ring-blue-400/20"
             />
           </div>
 
@@ -138,12 +138,16 @@ export function HeaderWithFilterSalesReports() {
                 setFilters({ period: value as "daily" | "monthly" | "yearly" })
               }
             >
-              <SelectTrigger className="flex-1 rounded-xl border-2 border-gray-200 bg-gray-50">
+              <SelectTrigger className="flex-1 rounded-xl border-2 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:border-gray-700 dark:bg-gray-800">
                 {REPORT_PERIODS.map((period) => (
-                  <SelectItem key={period.value} value={period.value}>
+                  <SelectItem
+                    key={period.value}
+                    value={period.value}
+                    className="dark:text-gray-100 dark:hover:bg-gray-700"
+                  >
                     {period.label}
                   </SelectItem>
                 ))}
@@ -160,13 +164,22 @@ export function HeaderWithFilterSalesReports() {
                   })
                 }
               >
-                <SelectTrigger className="flex-1 rounded-xl border-2 border-gray-200 bg-gray-50">
+                <SelectTrigger className="flex-1 rounded-xl border-2 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                   <SelectValue placeholder="Semua Outlet" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Outlet</SelectItem>
+                <SelectContent className="dark:border-gray-700 dark:bg-gray-800">
+                  <SelectItem
+                    value="all"
+                    className="dark:text-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Semua Outlet
+                  </SelectItem>
                   {outletsData.data.map((outlet) => (
-                    <SelectItem key={outlet.id} value={outlet.id.toString()}>
+                    <SelectItem
+                      key={outlet.id}
+                      value={outlet.id.toString()}
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
+                    >
                       {outlet.outletName}
                     </SelectItem>
                   ))}
@@ -180,7 +193,7 @@ export function HeaderWithFilterSalesReports() {
             <Button
               variant="outline"
               onClick={handleReset}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-200"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
               disabled={!hasActiveFilters}
             >
               <RotateCcw className="h-4 w-4" />
@@ -192,7 +205,7 @@ export function HeaderWithFilterSalesReports() {
 
       {/* Desktop Header */}
       <div className="hidden sm:block">
-        <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white shadow-lg sm:p-6">
+        <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white shadow-lg sm:p-6 dark:from-blue-600 dark:to-blue-700">
           <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-bold sm:text-2xl">
@@ -213,7 +226,7 @@ export function HeaderWithFilterSalesReports() {
       </div>
 
       {/* Responsive Filter Section */}
-      <div className="mx-1 mb-6 hidden rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:mx-0 sm:block sm:p-4 lg:p-6">
+      <div className="mx-1 mb-6 hidden rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:mx-0 sm:block sm:p-4 lg:p-6 dark:border-gray-700 dark:bg-gray-800">
         <div className="lg:space-y-0">
           {/* Responsive Layout */}
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-6">
@@ -224,7 +237,7 @@ export function HeaderWithFilterSalesReports() {
                   date={currentDateRange}
                   onDateChange={handleDateRangeChange}
                   placeholder="Pilih rentang tanggal"
-                  className="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 />
               </div>
             </div>
@@ -239,12 +252,16 @@ export function HeaderWithFilterSalesReports() {
                   })
                 }
               >
-                <SelectTrigger className="w-full rounded-xl border-gray-200 lg:w-[130px]">
+                <SelectTrigger className="w-full rounded-xl border-gray-200 lg:w-[130px] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:border-gray-700 dark:bg-gray-800">
                   {REPORT_PERIODS.map((period) => (
-                    <SelectItem key={period.value} value={period.value}>
+                    <SelectItem
+                      key={period.value}
+                      value={period.value}
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
+                    >
                       {period.label}
                     </SelectItem>
                   ))}
@@ -263,13 +280,22 @@ export function HeaderWithFilterSalesReports() {
                     })
                   }
                 >
-                  <SelectTrigger className="w-full rounded-xl border-gray-200 lg:w-[180px]">
+                  <SelectTrigger className="w-full rounded-xl border-gray-200 lg:w-[180px] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                     <SelectValue placeholder="Semua Outlet" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua Outlet</SelectItem>
+                  <SelectContent className="dark:border-gray-700 dark:bg-gray-800">
+                    <SelectItem
+                      value="all"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Semua Outlet
+                    </SelectItem>
                     {outletsData.data.map((outlet) => (
-                      <SelectItem key={outlet.id} value={outlet.id.toString()}>
+                      <SelectItem
+                        key={outlet.id}
+                        value={outlet.id.toString()}
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
+                      >
                         {outlet.outletName}
                       </SelectItem>
                     ))}
@@ -286,7 +312,7 @@ export function HeaderWithFilterSalesReports() {
               <Button
                 variant="outline"
                 onClick={handleReset}
-                className="w-full gap-2 rounded-xl border-gray-200 text-sm lg:w-auto"
+                className="w-full gap-2 rounded-xl border-gray-200 text-sm lg:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                 disabled={!hasActiveFilters}
               >
                 <RotateCcw className="h-4 w-4" />
@@ -298,22 +324,22 @@ export function HeaderWithFilterSalesReports() {
 
         {/* Active Filters Indicator - Responsive */}
         {(filters.startDate || filters.endDate || filters.outletId) && (
-          <div className="mt-3 flex flex-wrap gap-2 border-t border-gray-100 pt-3 sm:mt-4 sm:pt-4">
-            <span className="flex-shrink-0 text-xs text-gray-500 sm:text-sm">
+          <div className="mt-3 flex flex-wrap gap-2 border-t border-gray-100 pt-3 sm:mt-4 sm:pt-4 dark:border-gray-700">
+            <span className="flex-shrink-0 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
               Filter aktif:
             </span>
             {filters.startDate && filters.endDate && (
-              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-700">
+              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
                 {format(new Date(filters.startDate), "dd/MM")} -{" "}
                 {format(new Date(filters.endDate), "dd/MM/yyyy")}
               </span>
             )}
             {isAdmin && filters.outletId && selectedOutletName && (
-              <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">
+              <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-700 dark:bg-green-900/20 dark:text-green-400">
                 {selectedOutletName}
               </span>
             )}
-            <span className="rounded-full bg-purple-100 px-2 py-1 text-xs text-purple-700">
+            <span className="rounded-full bg-purple-100 px-2 py-1 text-xs text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
               {REPORT_PERIODS.find((p) => p.value === filters.period)?.label}
             </span>
           </div>

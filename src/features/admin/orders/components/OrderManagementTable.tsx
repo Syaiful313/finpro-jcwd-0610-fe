@@ -80,22 +80,22 @@ const getCellClass = (columnId: string, isAdmin: boolean) => {
 
 const getStatusColor = (status: string) => {
   const statusColors: Record<string, string> = {
-    WAITING_FOR_PICKUP: "border-gray-200 bg-gray-50 text-gray-700",
-    DRIVER_ON_THE_WAY_TO_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700",
-    ARRIVED_AT_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700",
-    DRIVER_ON_THE_WAY_TO_OUTLET: "border-blue-200 bg-blue-50 text-blue-700",
-    ARRIVED_AT_OUTLET: "border-orange-200 bg-orange-50 text-orange-700",
-    BEING_WASHED: "border-yellow-200 bg-yellow-50 text-yellow-700",
-    BEING_IRONED: "border-yellow-200 bg-yellow-50 text-yellow-700",
-    BEING_PACKED: "border-yellow-200 bg-yellow-50 text-yellow-700",
-    WAITING_PAYMENT: "border-red-200 bg-red-50 text-red-700",
-    READY_FOR_DELIVERY: "border-green-200 bg-green-50 text-green-700",
-    BEING_DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700",
-    DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700",
-    COMPLETED: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    IN_RESOLUTION: "border-purple-200 bg-purple-50 text-purple-700",
+    WAITING_FOR_PICKUP: "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-300",
+    DRIVER_ON_THE_WAY_TO_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    ARRIVED_AT_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    DRIVER_ON_THE_WAY_TO_OUTLET: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    ARRIVED_AT_OUTLET: "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+    BEING_WASHED: "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+    BEING_IRONED: "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+    BEING_PACKED: "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+    WAITING_PAYMENT: "border-red-200 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300",
+    READY_FOR_DELIVERY: "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
+    BEING_DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
+    DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
+    COMPLETED: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+    IN_RESOLUTION: "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
   };
-  return statusColors[status] || "border-gray-200 bg-gray-50 text-gray-700";
+  return statusColors[status] || "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-300";
 };
 
 const getStatusText = (status: string) => {
@@ -145,8 +145,8 @@ const StatusBadge = ({ status }: { status: string }) => (
 
 const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
   <div className="flex flex-col">
-    <div className="font-medium break-words">{name}</div>
-    <div className="mt-1 flex items-center text-xs text-gray-500">
+    <div className="font-medium break-words text-gray-900 dark:text-gray-100">{name}</div>
+    <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400">
       <User className="mr-1 h-3 w-3" />
       <span className="break-all">{email}</span>
     </div>
@@ -155,7 +155,7 @@ const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
 
 const OutletInfo = ({ outletName }: { outletName: string }) => (
   <div className="flex flex-col">
-    <div className="flex items-center text-xs text-gray-900 sm:text-sm">
+    <div className="flex items-center text-xs text-gray-900 dark:text-gray-100 sm:text-sm">
       <MapPin className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
       <span className="truncate font-medium">{outletName}</span>
     </div>
@@ -174,16 +174,16 @@ const TrackingInfo = ({
   if (currentWorker) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-blue-600 sm:text-sm">
+        <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 sm:text-sm">
           <Package className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{currentWorker.name}</span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-500 sm:text-sm">
+        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
           <Activity className="h-2 w-2 sm:h-3 sm:w-3" />
           <span>{currentWorker.station}</span>
         </div>
         {currentWorker.hasBypass && (
-          <div className="text-xs font-medium text-orange-600 sm:text-sm">
+          <div className="text-xs font-medium text-orange-600 dark:text-orange-400 sm:text-sm">
             ⚠ Bypass Request
           </div>
         )}
@@ -194,11 +194,11 @@ const TrackingInfo = ({
   if (pickup && orderStatus.includes("DRIVER")) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-green-600 sm:text-sm">
+        <div className="flex items-center text-xs text-green-600 dark:text-green-400 sm:text-sm">
           <User className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{pickup.driver}</span>
         </div>
-        <div className="text-xs text-gray-500 sm:text-sm">Pickup Driver</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Pickup Driver</div>
       </div>
     );
   }
@@ -206,11 +206,11 @@ const TrackingInfo = ({
   if (delivery && orderStatus.includes("DELIVERY")) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-green-600 sm:text-sm">
+        <div className="flex items-center text-xs text-green-600 dark:text-green-400 sm:text-sm">
           <User className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{delivery.driver}</span>
         </div>
-        <div className="text-xs text-gray-500 sm:text-sm">Delivery Driver</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Delivery Driver</div>
       </div>
     );
   }
@@ -219,11 +219,11 @@ const TrackingInfo = ({
     const lastProcess = processHistory[processHistory.length - 1];
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-gray-600 sm:text-sm">
+        <div className="flex items-center text-xs text-gray-600 dark:text-gray-300 sm:text-sm">
           <Timer className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{lastProcess.worker}</span>
         </div>
-        <div className="text-xs text-gray-500 sm:text-sm">
+        <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
           {lastProcess.station} ({lastProcess.duration})
         </div>
       </div>
@@ -231,7 +231,7 @@ const TrackingInfo = ({
   }
 
   return (
-    <div className="text-xs text-gray-500 sm:text-sm">
+    <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
       {orderStatus.includes("DRIVER") ? "Awaiting Assignment" : "No Worker"}
     </div>
   );
@@ -246,21 +246,21 @@ const OrderCard = ({
   onViewDetail: (order: OrderSummary) => void;
   showOutlet?: boolean;
 }) => (
-  <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
+  <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 dark:border-blue-500 bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-900/50 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/70">
     {/* Header */}
-    <div className="border-b border-slate-200 bg-slate-50 p-3.5">
+    <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-700/50 p-3.5">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-semibold text-white">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-sm font-semibold text-white">
           {order.orderNumber.slice(-2)}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900">
+          <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900 dark:text-gray-100">
             {order.orderNumber}
           </div>
           <div className="flex items-center gap-1.5">
             <StatusBadge status={order.orderStatus} />
-            <span className="flex items-center gap-1 text-xs font-semibold text-green-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+            <span className="flex items-center gap-1 text-xs font-semibold text-green-600 dark:text-green-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500 dark:bg-green-400"></span>
               {formatCurrency(order.totalPrice)}
             </span>
           </div>
@@ -272,36 +272,36 @@ const OrderCard = ({
     <div className="p-3.5">
       {/* Contact list */}
       <div className="mb-3 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <User className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+          <User className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
           <span className="truncate">{order.customer.name}</span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Package className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+          <Package className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
           <span className="truncate">{order.customer.email}</span>
         </div>
         {showOutlet && (
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
             <span className="truncate">{order.outlet.outletName}</span>
           </div>
         )}
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Clock className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+          <Clock className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
           <span>{formatDate(order.createdAt)}</span>
         </div>
       </div>
 
       {/* Tracking Info */}
       {order.tracking.currentWorker && (
-        <div className="mb-3 rounded-lg bg-blue-50 p-2">
-          <div className="flex items-center gap-2 text-xs text-blue-600">
+        <div className="mb-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 p-2">
+          <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
             <Package className="h-3 w-3" />
             <span className="font-medium">
               {order.tracking.currentWorker.name}
             </span>
           </div>
-          <div className="text-xs text-blue-500">
+          <div className="text-xs text-blue-500 dark:text-blue-400">
             {order.tracking.currentWorker.station}
           </div>
         </div>
@@ -311,7 +311,7 @@ const OrderCard = ({
       <div className="flex gap-2">
         <button
           onClick={() => onViewDetail(order)}
-          className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-50"
+          className="flex-1 rounded-lg border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950/30"
         >
           Lihat Detail
         </button>
@@ -329,14 +329,14 @@ const OrderRow = ({
   onViewDetail: (order: OrderSummary) => void;
   isAdmin: boolean;
 }) => (
-  <TableRow className="border-b hover:bg-gray-50">
+  <TableRow className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
     <TableCell className={getCellClass("orderNumber", isAdmin)}>
       <div className="flex flex-col">
-        <div className="font-medium break-words text-gray-900">
+        <div className="font-medium break-words text-gray-900 dark:text-gray-100">
           {order.orderNumber}
         </div>
         <div
-          className={`mt-1 text-xs break-words text-gray-500 sm:text-sm ${isAdmin ? "lg:hidden" : "md:hidden"}`}
+          className={`mt-1 text-xs break-words text-gray-500 dark:text-gray-400 sm:text-sm ${isAdmin ? "lg:hidden" : "md:hidden"}`}
         >
           {order.customer.name}
         </div>
@@ -361,7 +361,7 @@ const OrderRow = ({
 
     <TableCell className={getCellClass("total", isAdmin)}>
       <div className="text-center">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium dark:text-gray-200">
           {formatCurrency(order.totalPrice)}
         </span>
       </div>
@@ -373,7 +373,7 @@ const OrderRow = ({
 
     <TableCell className={getCellClass("date", isAdmin)}>
       <div className="text-center">
-        <span className="text-sm">{formatDate(order.createdAt)}</span>
+        <span className="text-sm dark:text-gray-300">{formatDate(order.createdAt)}</span>
       </div>
     </TableCell>
 
@@ -383,7 +383,7 @@ const OrderRow = ({
           size="sm"
           variant="ghost"
           onClick={() => onViewDetail(order)}
-          className="h-7 w-7 p-0 text-blue-600 hover:bg-blue-50 sm:h-8 sm:w-8"
+          className="h-7 w-7 p-0 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 sm:h-8 sm:w-8"
           title="Lihat Detail"
         >
           <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -514,7 +514,7 @@ export function OrderManagementTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2 text-sm sm:text-base">Loading session...</span>
+        <span className="ml-2 text-sm sm:text-base dark:text-gray-300">Loading session...</span>
       </div>
     );
   }
@@ -523,10 +523,10 @@ export function OrderManagementTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500 sm:text-base">
+          <span className="text-sm text-red-500 dark:text-red-400 sm:text-base">
             Access Denied
           </span>
-          <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
             You don't have permission to view this page.
           </p>
         </div>
@@ -538,7 +538,7 @@ export function OrderManagementTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2 text-sm sm:text-base">
+        <span className="ml-2 text-sm sm:text-base dark:text-gray-300">
           Memuat data pesanan...
         </span>
       </div>
@@ -549,10 +549,10 @@ export function OrderManagementTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500 sm:text-base">
+          <span className="text-sm text-red-500 dark:text-red-400 sm:text-base">
             Kesalahan memuat data
           </span>
-          <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
             {error.message || "Terjadi kesalahan tidak dikenal"}
           </p>
         </div>
@@ -565,7 +565,7 @@ export function OrderManagementTable() {
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
         {/* Mobile Header */}
         <div className="block sm:hidden">
-          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-lg">
             {/* Header content */}
             <div className="px-4 py-14">
               <h1 className="text-2xl font-bold">Order Management</h1>
@@ -578,16 +578,16 @@ export function OrderManagementTable() {
           </div>
 
           {/* Search and filter section - overlapping white card */}
-          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-lg dark:shadow-gray-900/50">
             {/* Search input */}
             <div className="relative mb-3">
-              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder="Cari berdasarkan nomor order atau customer..."
                 value={search}
                 onChange={handleSearchChange}
-                className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
+                className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none text-gray-900 dark:text-gray-100"
               />
             </div>
 
@@ -595,9 +595,9 @@ export function OrderManagementTable() {
             {isOutletAdmin && (
               <div className="mb-3">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="all">Semua Pesanan</TabsTrigger>
-                    <TabsTrigger value="pending">Pending Proses</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-2 dark:bg-gray-700">
+                    <TabsTrigger value="all" className="dark:data-[state=active]:bg-gray-600">Semua Pesanan</TabsTrigger>
+                    <TabsTrigger value="pending" className="dark:data-[state=active]:bg-gray-600">Pending Proses</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -611,7 +611,7 @@ export function OrderManagementTable() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
-                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600"
+                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700"
                         disabled={isLoadingOutlets}
                       >
                         <MapPin className="h-4 w-4" />
@@ -626,10 +626,11 @@ export function OrderManagementTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="max-h-64 w-56 overflow-y-auto"
+                      className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
                     >
                       <DropdownMenuItem
                         onClick={() => handleOutletChange(undefined)}
+                        className="dark:hover:bg-gray-700 dark:text-gray-100"
                       >
                         <MapPin className="mr-2 h-4 w-4" />
                         Semua Outlet
@@ -640,6 +641,7 @@ export function OrderManagementTable() {
                           onClick={() =>
                             handleOutletChange(outlet.id.toString())
                           }
+                          className="dark:hover:bg-gray-700 dark:text-gray-100"
                         >
                           <div className="flex min-w-0 flex-1 items-center justify-between">
                             <div className="flex min-w-0 flex-1 flex-col">
@@ -651,14 +653,14 @@ export function OrderManagementTable() {
                                   variant="outline"
                                   className={`px-1 py-0.5 text-xs ${
                                     outlet.isActive
-                                      ? "border-green-200 bg-green-50 text-green-700"
-                                      : "border-red-200 bg-red-50 text-red-700"
+                                      ? "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                      : "border-red-200 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300"
                                   }`}
                                 >
                                   {outlet.isActive ? "Active" : "Inactive"}
                                 </Badge>
                               </div>
-                              <span className="truncate text-xs text-gray-500">
+                              <span className="truncate text-xs text-gray-500 dark:text-gray-400">
                                 {outlet.address}
                               </span>
                             </div>
@@ -674,7 +676,7 @@ export function OrderManagementTable() {
               <div className="flex gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600">
+                    <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700">
                       <Filter className="h-4 w-4" />
                       <span className="truncate">
                         {status
@@ -683,39 +685,46 @@ export function OrderManagementTable() {
                       </span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-48 dark:bg-gray-800 dark:border-gray-700">
                     <DropdownMenuItem
                       onClick={() => handleStatusChange(undefined)}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Semua Status
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_FOR_PICKUP")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Menunggu Pickup
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_WASHED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Sedang Dicuci
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_IRONED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Sedang Disetrika
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_PACKED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Sedang Dikemas
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_PAYMENT")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Menunggu Pembayaran
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("COMPLETED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Selesai
                     </DropdownMenuItem>
@@ -725,7 +734,7 @@ export function OrderManagementTable() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600"
+                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700"
                       disabled={isLoadingEmployees}
                     >
                       <UserCheck className="h-4 w-4" />
@@ -740,10 +749,11 @@ export function OrderManagementTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="max-h-64 w-56 overflow-y-auto"
+                    className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
                   >
                     <DropdownMenuItem
                       onClick={() => handleEmployeeChange(undefined)}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       <UserCheck className="mr-2 h-4 w-4" />
                       Semua Karyawan
@@ -754,6 +764,7 @@ export function OrderManagementTable() {
                         onClick={() =>
                           handleEmployeeChange(employee.id.toString())
                         }
+                        className="dark:hover:bg-gray-700 dark:text-gray-100"
                       >
                         <div className="flex min-w-0 flex-1 items-center justify-between">
                           <div className="flex min-w-0 flex-1 flex-col">
@@ -761,7 +772,7 @@ export function OrderManagementTable() {
                               {employee.user?.firstName}{" "}
                               {employee.user?.lastName}
                             </span>
-                            <span className="truncate text-xs text-gray-500">
+                            <span className="truncate text-xs text-gray-500 dark:text-gray-400">
                               {employee.role} - {employee.outlet?.outletName}
                             </span>
                           </div>
@@ -782,7 +793,7 @@ export function OrderManagementTable() {
                     onChange={(e) =>
                       handleDateRangeChange("start", e.target.value)
                     }
-                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 bg-gray-50 px-3 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
+                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none dark:text-gray-100"
                   />
                   <Input
                     type="date"
@@ -791,7 +802,7 @@ export function OrderManagementTable() {
                     onChange={(e) =>
                       handleDateRangeChange("end", e.target.value)
                     }
-                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 bg-gray-50 px-3 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
+                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none dark:text-gray-100"
                   />
                 </div>
               )}
@@ -801,7 +812,7 @@ export function OrderManagementTable() {
 
         {/* Desktop Header */}
         <div className="hidden sm:block">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-6 text-white shadow-lg">
             <h1 className="text-2xl font-bold">Order Management</h1>
             <p className="mt-2 opacity-90">
               {isAdmin
@@ -812,21 +823,21 @@ export function OrderManagementTable() {
         </div>
 
         {/* Desktop Tabs and Search & Filter Section */}
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
           {/* Tabs for outlet admin */}
           {isOutletAdmin && (
             <div className="mb-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid h-12 w-full max-w-lg grid-cols-2 rounded-xl bg-gray-100 p-1">
+                <TabsList className="grid h-12 w-full max-w-lg grid-cols-2 rounded-xl bg-gray-100 dark:bg-gray-700 p-1">
                   <TabsTrigger
                     value="all"
-                    className="h-10 rounded-lg text-sm font-medium text-gray-600 transition-all hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+                    className="h-10 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 transition-all hover:text-gray-900 dark:hover:text-gray-200 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
                   >
                     Semua Pesanan
                   </TabsTrigger>
                   <TabsTrigger
                     value="pending"
-                    className="h-10 rounded-lg text-sm font-medium text-gray-600 transition-all hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+                    className="h-10 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 transition-all hover:text-gray-900 dark:hover:text-gray-200 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
                   >
                     Pending Proses
                   </TabsTrigger>
@@ -838,12 +849,12 @@ export function OrderManagementTable() {
           <div className="space-y-4">
             {/* Search */}
             <div className="relative w-full">
-              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <Input
                 placeholder="Cari berdasarkan nomor order atau customer..."
                 value={search}
                 onChange={handleSearchChange}
-                className="rounded-xl border-gray-200 pl-12 text-sm focus:border-blue-500 focus:ring-blue-500"
+                className="rounded-xl border-gray-200 dark:border-gray-600 pl-12 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100"
               />
             </div>
 
@@ -855,7 +866,7 @@ export function OrderManagementTable() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                        className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px] dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                         disabled={isLoadingOutlets}
                       >
                         <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
@@ -871,10 +882,11 @@ export function OrderManagementTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="max-h-64 w-56 overflow-y-auto"
+                      className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
                     >
                       <DropdownMenuItem
                         onClick={() => handleOutletChange(undefined)}
+                        className="dark:hover:bg-gray-700 dark:text-gray-100"
                       >
                         <MapPin className="mr-2 h-4 w-4" />
                         Semua Outlet
@@ -885,6 +897,7 @@ export function OrderManagementTable() {
                           onClick={() =>
                             handleOutletChange(outlet.id.toString())
                           }
+                          className="dark:hover:bg-gray-700 dark:text-gray-100"
                         >
                           <div className="flex min-w-0 flex-1 items-center justify-between">
                             <div className="flex min-w-0 flex-1 flex-col">
@@ -896,14 +909,14 @@ export function OrderManagementTable() {
                                   variant="outline"
                                   className={`px-1 py-0.5 text-xs ${
                                     outlet.isActive
-                                      ? "border-green-200 bg-green-50 text-green-700"
-                                      : "border-red-200 bg-red-50 text-red-700"
+                                      ? "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                      : "border-red-200 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300"
                                   }`}
                                 >
                                   {outlet.isActive ? "Active" : "Inactive"}
                                 </Badge>
                               </div>
-                              <span className="truncate text-xs text-gray-500">
+                              <span className="truncate text-xs text-gray-500 dark:text-gray-400">
                                 {outlet.address}
                               </span>
                             </div>
@@ -918,7 +931,7 @@ export function OrderManagementTable() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                      className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px] dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                     >
                       <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                       <span className="truncate text-xs sm:text-sm">
@@ -929,40 +942,47 @@ export function OrderManagementTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="max-h-64 w-56 overflow-y-auto"
+                    className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
                   >
                     <DropdownMenuItem
                       onClick={() => handleStatusChange(undefined)}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Semua Status
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_FOR_PICKUP")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Menunggu Pickup
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_WASHED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Sedang Dicuci
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_IRONED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Sedang Disetrika
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_PACKED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Sedang Dikemas
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_PAYMENT")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Menunggu Pembayaran
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("COMPLETED")}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       Selesai
                     </DropdownMenuItem>
@@ -973,7 +993,7 @@ export function OrderManagementTable() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                      className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px] dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                       disabled={isLoadingEmployees}
                     >
                       <UserCheck className="mr-2 h-4 w-4 flex-shrink-0" />
@@ -989,10 +1009,11 @@ export function OrderManagementTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="max-h-64 w-56 overflow-y-auto"
+                    className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
                   >
                     <DropdownMenuItem
                       onClick={() => handleEmployeeChange(undefined)}
+                      className="dark:hover:bg-gray-700 dark:text-gray-100"
                     >
                       <UserCheck className="mr-2 h-4 w-4" />
                       Semua Karyawan
@@ -1003,6 +1024,7 @@ export function OrderManagementTable() {
                         onClick={() =>
                           handleEmployeeChange(employee.id.toString())
                         }
+                        className="dark:hover:bg-gray-700 dark:text-gray-100"
                       >
                         <div className="flex min-w-0 flex-1 items-center justify-between">
                           <div className="flex min-w-0 flex-1 flex-col">
@@ -1010,7 +1032,7 @@ export function OrderManagementTable() {
                               {employee.user?.firstName}{" "}
                               {employee.user?.lastName}
                             </span>
-                            <span className="truncate text-xs text-gray-500">
+                            <span className="truncate text-xs text-gray-500 dark:text-gray-400">
                               {employee.role} - {employee.outlet?.outletName}
                             </span>
                           </div>
@@ -1032,7 +1054,7 @@ export function OrderManagementTable() {
                       onChange={(e) =>
                         handleDateRangeChange("start", e.target.value)
                       }
-                      className="h-10 w-32 rounded-xl border-gray-200 text-xs sm:w-36 sm:text-sm"
+                      className="h-10 w-32 rounded-xl border-gray-200 dark:border-gray-600 text-xs sm:w-36 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
                     />
                     <Input
                       type="date"
@@ -1041,7 +1063,7 @@ export function OrderManagementTable() {
                       onChange={(e) =>
                         handleDateRangeChange("end", e.target.value)
                       }
-                      className="h-10 w-32 rounded-xl border-gray-200 text-xs sm:w-36 sm:text-sm"
+                      className="h-10 w-32 rounded-xl border-gray-200 dark:border-gray-600 text-xs sm:w-36 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
                     />
                   </div>
                 )}
@@ -1057,7 +1079,7 @@ export function OrderManagementTable() {
                     !startDate &&
                     !endDate
                   }
-                  className="h-10 rounded-xl border-gray-200 text-sm"
+                  className="h-10 rounded-xl border-gray-200 dark:border-gray-600 text-sm dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                 >
                   Reset
                 </Button>
@@ -1077,12 +1099,12 @@ export function OrderManagementTable() {
               {isLoading ? (
                 <div className="flex h-32 items-center justify-center">
                   <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                  <span className="text-sm">Memuat data pesanan...</span>
+                  <span className="text-sm dark:text-gray-300">Memuat data pesanan...</span>
                 </div>
               ) : error ? (
-                <div className="mx-3 p-4 text-center text-red-500">
+                <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
                   <div className="text-sm">Kesalahan memuat data pesanan</div>
-                  <div className="mt-1 text-xs text-red-400">
+                  <div className="mt-1 text-xs text-red-400 dark:text-red-300">
                     {error.message || "Kesalahan tidak diketahui"}
                   </div>
                 </div>
@@ -1098,8 +1120,8 @@ export function OrderManagementTable() {
                   ))}
                 </div>
               ) : (
-                <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center">
-                  <span className="mb-4 block text-sm text-gray-500">
+                <div className="mx-5 mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-center">
+                  <span className="mb-4 block text-sm text-gray-500 dark:text-gray-400">
                     {debouncedSearch
                       ? `Tidak ada pesanan ditemukan untuk "${debouncedSearch}"`
                       : "Belum ada pesanan yang tersedia"}
@@ -1109,41 +1131,41 @@ export function OrderManagementTable() {
             </div>
 
             {/* Desktop Table View */}
-            <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block">
+            <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-b">
-                      <TableHead className="min-w-[100px] text-xs sm:min-w-[120px] sm:text-sm">
+                    <TableRow className="border-b dark:border-gray-700">
+                      <TableHead className="min-w-[100px] text-xs sm:min-w-[120px] sm:text-sm dark:text-gray-300">
                         No. Order
                       </TableHead>
                       <TableHead
-                        className={`${isAdmin ? "hidden min-w-[120px] sm:min-w-[160px] lg:table-cell" : "hidden min-w-[150px] sm:min-w-[200px] md:table-cell"} text-xs sm:text-sm`}
+                        className={`${isAdmin ? "hidden min-w-[120px] sm:min-w-[160px] lg:table-cell" : "hidden min-w-[150px] sm:min-w-[200px] md:table-cell"} text-xs sm:text-sm dark:text-gray-300`}
                       >
                         Customer
                       </TableHead>
                       {isAdmin && (
-                        <TableHead className="hidden min-w-[100px] text-xs sm:min-w-[120px] sm:text-sm md:table-cell">
+                        <TableHead className="hidden min-w-[100px] text-xs sm:min-w-[120px] sm:text-sm md:table-cell dark:text-gray-300">
                           Outlet
                         </TableHead>
                       )}
-                      <TableHead className="w-20 text-center text-xs sm:w-24 sm:text-sm">
+                      <TableHead className="w-20 text-center text-xs sm:w-24 sm:text-sm dark:text-gray-300">
                         Status
                       </TableHead>
-                      <TableHead className="w-16 text-center text-xs sm:w-20 sm:text-sm">
+                      <TableHead className="w-16 text-center text-xs sm:w-20 sm:text-sm dark:text-gray-300">
                         Total
                       </TableHead>
                       <TableHead
-                        className={`${isAdmin ? "hidden w-24 sm:w-32 2xl:table-cell" : "hidden w-32 sm:w-40 xl:table-cell"} text-center text-xs sm:text-sm`}
+                        className={`${isAdmin ? "hidden w-24 sm:w-32 2xl:table-cell" : "hidden w-32 sm:w-40 xl:table-cell"} text-center text-xs sm:text-sm dark:text-gray-300`}
                       >
                         Worker
                       </TableHead>
                       <TableHead
-                        className={`${isAdmin ? "hidden w-20 sm:w-24 xl:table-cell" : "hidden w-24 sm:table-cell sm:w-32"} text-center text-xs sm:text-sm`}
+                        className={`${isAdmin ? "hidden w-20 sm:w-24 xl:table-cell" : "hidden w-24 sm:table-cell sm:w-32"} text-center text-xs sm:text-sm dark:text-gray-300`}
                       >
                         Tanggal
                       </TableHead>
-                      <TableHead className="w-12 text-center text-xs sm:w-16 sm:text-sm">
+                      <TableHead className="w-12 text-center text-xs sm:w-16 sm:text-sm dark:text-gray-300">
                         Aksi
                       </TableHead>
                     </TableRow>
@@ -1157,7 +1179,7 @@ export function OrderManagementTable() {
                         >
                           <div className="flex items-center justify-center">
                             <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                            <span className="text-sm">
+                            <span className="text-sm dark:text-gray-300">
                               Memuat data pesanan...
                             </span>
                           </div>
@@ -1167,13 +1189,13 @@ export function OrderManagementTable() {
                       <TableRow>
                         <TableCell
                           colSpan={getColSpan()}
-                          className="h-32 text-center text-red-500"
+                          className="h-32 text-center text-red-500 dark:text-red-400"
                         >
                           <div>
                             <div className="text-sm">
                               Kesalahan memuat data pesanan
                             </div>
-                            <div className="mt-1 text-xs text-red-400">
+                            <div className="mt-1 text-xs text-red-400 dark:text-red-300">
                               {error.message || "Kesalahan tidak diketahui"}
                             </div>
                           </div>
@@ -1195,7 +1217,7 @@ export function OrderManagementTable() {
                           className="h-32 text-center"
                         >
                           <div className="flex flex-col items-center justify-center space-y-3">
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
                               {debouncedSearch
                                 ? `Tidak ada pesanan ditemukan untuk "${debouncedSearch}"`
                                 : "Belum ada pesanan yang tersedia"}
@@ -1213,7 +1235,7 @@ export function OrderManagementTable() {
             {ordersData?.meta && (
               <>
                 {/* Desktop Pagination */}
-                <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex">
+                <div className="mx-1 hidden justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:mx-0 sm:flex">
                   <PaginationSection
                     page={ordersData.meta.page}
                     take={ordersData.meta.take}
@@ -1225,7 +1247,7 @@ export function OrderManagementTable() {
                 </div>
 
                 {/* Mobile Pagination */}
-                <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden">
+                <div className="flex justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-3 sm:hidden">
                   <PaginationSection
                     page={ordersData.meta.page}
                     take={ordersData.meta.take}

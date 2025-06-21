@@ -65,11 +65,11 @@ const getCellClass = (columnId: string) => {
 const RoleBadge = ({ role }: { role: string }) => {
   const getRoleBadgeStyle = (role: string) => {
     const styles = {
-      CUSTOMER: "bg-blue-100 text-blue-700",
-      WORKER: "bg-blue-200 text-blue-800",
-      ADMIN: "bg-blue-300 text-blue-900",
-      DRIVER: "bg-blue-200 text-blue-800",
-      OUTLET_ADMIN: "bg-blue-300 text-blue-900",
+      CUSTOMER: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+      WORKER: "bg-blue-200 text-blue-800 dark:bg-blue-800/40 dark:text-blue-200",
+      ADMIN: "bg-blue-300 text-blue-900 dark:bg-blue-700/50 dark:text-blue-100",
+      DRIVER: "bg-blue-200 text-blue-800 dark:bg-blue-800/40 dark:text-blue-200",
+      OUTLET_ADMIN: "bg-blue-300 text-blue-900 dark:bg-blue-700/50 dark:text-blue-100",
     };
     return styles[role as keyof typeof styles] || styles.CUSTOMER;
   };
@@ -91,13 +91,13 @@ const StatusBadge = ({ isVerified }: { isVerified: boolean }) => (
   <div
     className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
       isVerified
-        ? "bg-green-100 text-green-700"
-        : "bg-yellow-100 text-yellow-700"
+        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+        : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
     }`}
   >
     <div
       className={`h-2 w-2 rounded-full ${
-        isVerified ? "bg-green-500" : "bg-yellow-500"
+        isVerified ? "bg-green-500 dark:bg-green-400" : "bg-yellow-500 dark:bg-yellow-400"
       }`}
     />
     {isVerified ? "Verified" : "Unverified"}
@@ -127,11 +127,11 @@ const UserCard = ({
 
   const getRoleColors = (role: string) => {
     const roleColors = {
-      CUSTOMER: { avatar: "bg-gradient-to-br from-blue-500 to-blue-600" },
-      WORKER: { avatar: "bg-gradient-to-br from-blue-600 to-blue-700" },
-      ADMIN: { avatar: "bg-gradient-to-br from-blue-800 to-blue-900" },
-      DRIVER: { avatar: "bg-gradient-to-br from-blue-700 to-blue-800" },
-      OUTLET_ADMIN: { avatar: "bg-gradient-to-br from-blue-800 to-blue-900" },
+      CUSTOMER: { avatar: "bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700" },
+      WORKER: { avatar: "bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800" },
+      ADMIN: { avatar: "bg-gradient-to-br from-blue-800 to-blue-900 dark:from-blue-800 dark:to-blue-900" },
+      DRIVER: { avatar: "bg-gradient-to-br from-blue-700 to-blue-800 dark:from-blue-800 dark:to-blue-900" },
+      OUTLET_ADMIN: { avatar: "bg-gradient-to-br from-blue-800 to-blue-900 dark:from-blue-800 dark:to-blue-900" },
     };
     return roleColors[role as keyof typeof roleColors] || roleColors.CUSTOMER;
   };
@@ -139,9 +139,9 @@ const UserCard = ({
   const roleColors = getRoleColors(user.role);
 
   return (
-    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
+    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 dark:border-blue-500 bg-white dark:bg-gray-900 shadow-md transition-all duration-300 hover:shadow-lg">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-slate-50 p-3.5">
+      <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 p-3.5">
         <div className="flex items-center gap-2.5">
           <div
             className={`h-9 w-9 ${roleColors.avatar} flex flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white`}
@@ -149,13 +149,13 @@ const UserCard = ({
             {getInitials(user.firstName, user.lastName)}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900">
+            <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900 dark:text-gray-100">
               {user.firstName} {user.lastName}
             </div>
             <div className="flex items-center gap-1.5">
               <RoleBadge role={user.role} />
-              <span className="flex items-center gap-1 text-xs font-semibold text-green-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+              <span className="flex items-center gap-1 text-xs font-semibold text-green-600 dark:text-green-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-500 dark:bg-green-400"></span>
                 {user.isVerified ? "Verified" : "Unverified"}
               </span>
             </div>
@@ -167,20 +167,20 @@ const UserCard = ({
       <div className="p-3.5">
         {/* Contact list */}
         <div className="mb-3 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <Mail className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+            <Mail className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
             <span className="truncate">{user.email}</span>
           </div>
           {user.phoneNumber && (
-            <div className="flex items-center gap-2 text-xs text-slate-600">
-              <Phone className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+              <Phone className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
               <span>{user.phoneNumber}</span>
             </div>
           )}
           {isOutletAdmin && user.employeeInfo && (
-            <div className="flex items-center gap-2 text-xs text-slate-600">
+            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
               <svg
-                className="h-3.5 w-3.5 flex-shrink-0 text-blue-500"
+                className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -202,7 +202,7 @@ const UserCard = ({
           <div className="flex gap-2">
             <button
               onClick={() => onEdit(user)}
-              className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-50"
+              className="flex-1 rounded-lg border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950/30"
             >
               Edit
             </button>
@@ -211,7 +211,7 @@ const UserCard = ({
                 onDelete(user.id, `${user.firstName} ${user.lastName}`)
               }
               disabled={isDeleting}
-              className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              className="flex-1 rounded-lg border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50"
             >
               Delete
             </button>
@@ -239,7 +239,7 @@ const UserRow = ({
   onDelete: (id: number, name: string) => void;
   isDeleting: boolean;
 }) => (
-  <TableRow className="border-b hover:bg-gray-50">
+  <TableRow className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
     <TableCell className={getCellClass("index")}>{index}</TableCell>
 
     <TableCell className={getCellClass("name")}>
@@ -247,16 +247,16 @@ const UserRow = ({
         <div className="font-medium break-words">
           {user.firstName} {user.lastName}
         </div>
-        <div className="mt-1 flex items-center text-xs text-gray-500">
+        <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400">
           <Mail className="mr-1 h-3 w-3" />
           <span className="break-all">{user.email}</span>
         </div>
         {isOutletAdmin && user.employeeInfo && (
-          <div className="mt-1 text-xs text-green-600">
+          <div className="mt-1 text-xs text-green-600 dark:text-green-400">
             NPWP: {user.employeeInfo.npwp}
           </div>
         )}
-        <div className="mt-1 flex items-center text-xs text-gray-500 md:hidden">
+        <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400 md:hidden">
           <Phone className="mr-1 h-3 w-3" />
           {user.phoneNumber || "-"}
         </div>
@@ -265,7 +265,7 @@ const UserRow = ({
 
     <TableCell className={getCellClass("phone")}>
       <div className="flex items-center">
-        <Phone className="mr-1 h-3 w-3 text-gray-400" />
+        <Phone className="mr-1 h-3 w-3 text-gray-400 dark:text-gray-500" />
         {user.phoneNumber || "-"}
       </div>
     </TableCell>
@@ -288,7 +288,7 @@ const UserRow = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 text-green-600 hover:bg-green-50 sm:h-8 sm:w-8"
+            className="h-7 w-7 p-0 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30 sm:h-8 sm:w-8"
             onClick={() => onEdit(user)}
           >
             <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -296,7 +296,7 @@ const UserRow = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 text-red-600 hover:bg-red-50 sm:h-8 sm:w-8"
+            className="h-7 w-7 p-0 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 sm:h-8 sm:w-8"
             onClick={() =>
               onDelete(user.id, `${user.firstName} ${user.lastName}`)
             }
@@ -432,7 +432,7 @@ export function UserManagementTable() {
           <span className="text-sm text-red-500 sm:text-base">
             Access Denied
           </span>
-          <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
             You don't have permission to view this page.
           </p>
         </div>
@@ -445,7 +445,7 @@ export function UserManagementTable() {
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
         {/* Mobile Header */}
         <div className="block sm:hidden">
-          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-lg">
             {/* Header content */}
             <div className="px-4 py-14">
               <h1 className="text-2xl font-bold">User Management</h1>
@@ -458,16 +458,16 @@ export function UserManagementTable() {
           </div>
 
           {/* Search and filter section - overlapping white card */}
-          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-lg">
             {/* Search input */}
             <div className="relative mb-2">
-              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder="Cari berdasarkan nama atau email..."
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
+                className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-700 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none text-gray-900 dark:text-gray-100"
               />
             </div>
 
@@ -475,7 +475,7 @@ export function UserManagementTable() {
             <div className="flex gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600">
+                  <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700">
                     <Filter className="h-4 w-4" />
                     <span>
                       {filters.role
@@ -504,7 +504,7 @@ export function UserManagementTable() {
               {isAdmin && (
                 <button
                   onClick={handleCreateUser}
-                  className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                  className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-500 dark:bg-blue-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700"
                 >
                   <UserPlus className="h-4 w-4" />
                   Tambah
@@ -516,7 +516,7 @@ export function UserManagementTable() {
 
         {/* Desktop Header */}
         <div className="hidden sm:block">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-6 text-white shadow-lg">
             <h1 className="text-2xl font-bold">User Management</h1>
             <p className="mt-2 opacity-90">
               {isAdmin
@@ -527,15 +527,15 @@ export function UserManagementTable() {
         </div>
 
         {/* Desktop Search & Filter Section */}
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative w-full lg:max-w-md lg:flex-1">
-              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <Input
                 placeholder="Cari berdasarkan nama atau email..."
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="rounded-xl border-gray-200 pl-12 text-sm focus:border-blue-500 focus:ring-blue-500"
+                className="rounded-xl border-gray-200 dark:border-gray-600 pl-12 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
               />
             </div>
 
@@ -543,7 +543,7 @@ export function UserManagementTable() {
               {isAdmin && (
                 <Button
                   onClick={handleCreateUser}
-                  className="flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-500 text-sm hover:bg-blue-700"
+                  className="flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-500 dark:bg-blue-600 text-sm hover:bg-blue-700 dark:hover:bg-blue-700"
                 >
                   <UserPlus className="h-4 w-4" />
                   <span className="xs:inline hidden">Tambah User</span>
@@ -555,7 +555,7 @@ export function UserManagementTable() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                    className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px]"
                   >
                     <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                     <span className="truncate text-xs sm:text-sm">
@@ -593,7 +593,7 @@ export function UserManagementTable() {
                   })
                 }
                 disabled={!filters.search && !filters.role}
-                className="h-10 rounded-xl border-gray-200 text-sm"
+                className="h-10 rounded-xl border-gray-200 dark:border-gray-600 text-sm"
               >
                 Reset
               </Button>
@@ -609,9 +609,9 @@ export function UserManagementTable() {
               <span className="text-sm">Memuat data user...</span>
             </div>
           ) : error ? (
-            <div className="mx-3 p-4 text-center text-red-500">
+            <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
               <div className="text-sm">Kesalahan memuat data</div>
-              <div className="mt-1 text-xs text-red-400">
+              <div className="mt-1 text-xs text-red-400 dark:text-red-300">
                 {error.message || "Kesalahan tidak diketahui"}
               </div>
             </div>
@@ -631,8 +631,8 @@ export function UserManagementTable() {
               ))}
             </div>
           ) : (
-            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center">
-              <span className="mb-4 block text-sm text-gray-500">
+            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 text-center">
+              <span className="mb-4 block text-sm text-gray-500 dark:text-gray-400">
                 {isOutletAdmin
                   ? "Tidak ada driver atau worker ditemukan di outlet Anda"
                   : "Tidak ada data pengguna ditemukan"}
@@ -653,7 +653,7 @@ export function UserManagementTable() {
         </div>
 
         {/* Desktop Table View */}
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block">
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -698,11 +698,11 @@ export function UserManagementTable() {
                   <TableRow>
                     <TableCell
                       colSpan={isAdmin ? 6 : 5}
-                      className="h-32 text-center text-red-500"
+                      className="h-32 text-center text-red-500 dark:text-red-400"
                     >
                       <div>
                         <div className="text-sm">Kesalahan memuat data</div>
-                        <div className="mt-1 text-xs text-red-400">
+                        <div className="mt-1 text-xs text-red-400 dark:text-red-300">
                           {error.message || "Kesalahan tidak diketahui"}
                         </div>
                       </div>
@@ -728,7 +728,7 @@ export function UserManagementTable() {
                       className="h-32 text-center"
                     >
                       <div className="flex flex-col items-center justify-center space-y-3">
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {isOutletAdmin
                             ? "Tidak ada driver atau worker ditemukan di outlet Anda"
                             : "Tidak ada data pengguna ditemukan"}
@@ -755,7 +755,7 @@ export function UserManagementTable() {
 
         {/* Desktop Pagination */}
         {usersData?.meta && (
-          <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex">
+          <div className="mx-1 hidden justify-center rounded-2xl border-t  p-4 sm:mx-0 sm:flex">
             <PaginationSection
               page={usersData.meta.page}
               take={usersData.meta.take}
@@ -771,7 +771,7 @@ export function UserManagementTable() {
 
         {/* Mobile Pagination */}
         {usersData?.meta && (
-          <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden">
+          <div className="flex justify-center rounded-2xl border-t  p-3 sm:hidden">
             <PaginationSection
               page={usersData.meta.page}
               take={usersData.meta.take}

@@ -27,6 +27,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { ModeToggle } from "@/components/ToogleDarkMode";
 import Image from "next/image";
 import Link from "next/link";
 import { NavDocuments } from "./NavDocument";
@@ -193,6 +194,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          
+          {/* Theme Toggle in Header */}
+          <div className="flex justify-end px-2 py-2">
+            <ModeToggle />
+          </div>
         </SidebarHeader>
         <SidebarContent>
           <div className="text-muted-foreground p-4 text-center text-sm">
@@ -225,6 +231,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          
+          {/* Theme Toggle in Header */}
+          <div className="flex justify-end px-2 py-2">
+            <ModeToggle />
+          </div>
         </SidebarHeader>
         <SidebarContent>
           <NavSecondary items={data.navSecondary} className="mt-auto" />
@@ -263,6 +274,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        
+        {/* Theme Toggle in Header */}
+        <div className="flex justify-end px-2 py-2">
+          <ModeToggle />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={filteredNavMain} />

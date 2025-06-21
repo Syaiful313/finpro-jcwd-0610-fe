@@ -6,6 +6,7 @@ import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import StoreProvider from "@/providers/StoreProvider";
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Bubblify Laundry - Layanan Laundry Terpercaya",
@@ -46,12 +47,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      
       <body className={`${manrope.className} antialiased`}>
         <StoreProvider>
           <ReactQueryProvider>
             <NuqsProvider>
-              <NextAuthProvider>{children}</NextAuthProvider>
+              <NextAuthProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="light"
+                  enableSystem
+                >
+                  {children}
+                </ThemeProvider>
+              </NextAuthProvider>
             </NuqsProvider>
           </ReactQueryProvider>
         </StoreProvider>

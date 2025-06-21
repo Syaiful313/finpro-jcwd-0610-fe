@@ -72,12 +72,14 @@ const getCellClass = (columnId: string) => {
 const StatusBadge = ({ isActive }: { isActive: boolean }) => (
   <div
     className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
-      isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+      isActive 
+        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" 
+        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
     }`}
   >
     <div
       className={`h-2 w-2 rounded-full ${
-        isActive ? "bg-green-500" : "bg-red-500"
+        isActive ? "bg-green-500 dark:bg-green-400" : "bg-red-500 dark:bg-red-400"
       }`}
     />
     {isActive ? "Active" : "Inactive"}
@@ -91,7 +93,7 @@ const LocationInfo = ({
   latitude: number;
   longitude: number;
 }) => (
-  <div className="flex items-center text-xs text-gray-600">
+  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
     <MapPin className="mr-1 h-3 w-3" />
     <span>
       {latitude.toFixed(4)}, {longitude.toFixed(4)}
@@ -107,11 +109,11 @@ const StatsInfo = ({
   orderCount: number;
 }) => (
   <div className="flex flex-col gap-1">
-    <div className="flex items-center justify-center text-xs text-blue-600">
+    <div className="flex items-center justify-center text-xs text-blue-600 dark:text-blue-400">
       <Users className="mr-1 h-3 w-3" />
       {employeeCount} Staff
     </div>
-    <div className="flex items-center justify-center text-xs text-green-600">
+    <div className="flex items-center justify-center text-xs text-green-600 dark:text-green-400">
       <Package className="mr-1 h-3 w-3" />
       {orderCount} Orders
     </div>
@@ -142,16 +144,16 @@ const OutletCard = ({
   // Color mapping for status
   const getStatusColors = (isActive: boolean) => {
     return isActive
-      ? { avatar: "bg-gradient-to-br from-green-500 to-green-600" }
-      : { avatar: "bg-gradient-to-br from-red-500 to-red-600" };
+      ? { avatar: "bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-700" }
+      : { avatar: "bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700" };
   };
 
   const statusColors = getStatusColors(outlet.isActive);
 
   return (
-    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-500 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
+    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-900 shadow-md transition-all duration-300 hover:shadow-lg">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-slate-50 p-3.5">
+      <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 p-3.5">
         <div className="flex items-center gap-2.5">
           <div
             className={`h-9 w-9 ${statusColors.avatar} flex flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white`}
@@ -159,12 +161,12 @@ const OutletCard = ({
             {getInitials(outlet.outletName)}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900">
+            <div className="mb-0.5 overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-slate-900 dark:text-gray-100">
               {outlet.outletName}
             </div>
             <div className="flex items-center gap-1.5">
               <StatusBadge isActive={outlet.isActive} />
-              <span className="text-xs font-semibold text-blue-600">
+              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                 {outlet.serviceRadius} km radius
               </span>
             </div>
@@ -176,28 +178,28 @@ const OutletCard = ({
       <div className="p-3.5">
         {/* Address */}
         <div className="mb-3">
-          <div className="mb-1 text-xs font-medium tracking-wide text-gray-500 uppercase">
+          <div className="mb-1 text-xs font-medium tracking-wide text-gray-500 dark:text-gray-400 uppercase">
             Alamat
           </div>
-          <div className="text-sm leading-relaxed text-slate-700">
+          <div className="text-sm leading-relaxed text-slate-700 dark:text-gray-300">
             {outlet.address}
           </div>
         </div>
 
         {/* Location & Stats */}
         <div className="mb-3 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
             <span>
               {outlet.latitude.toFixed(3)}, {outlet.longitude.toFixed(3)}
             </span>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs text-blue-600">
+            <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
               <Users className="h-3.5 w-3.5 flex-shrink-0" />
               <span>{outlet._count.employees} Staff</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-green-600">
+            <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
               <Package className="h-3.5 w-3.5 flex-shrink-0" />
               <span>{outlet._count.orders} Orders</span>
             </div>
@@ -208,13 +210,13 @@ const OutletCard = ({
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(outlet)}
-            className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-50"
+            className="flex-1 rounded-lg border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950/30"
           >
             Edit
           </button>
           <button
             onClick={() => onDelete(outlet)}
-            className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+            className="flex-1 rounded-lg border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-950/30"
           >
             Delete
           </button>
@@ -235,22 +237,22 @@ const OutletRow = ({
   onEdit: (outlet: ApiOutlet) => void;
   onDelete: (outlet: ApiOutlet) => void;
 }) => (
-  <TableRow className="border-b hover:bg-gray-50">
+  <TableRow className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
     <TableCell className={getCellClass("index")}>{index}</TableCell>
 
     <TableCell className={getCellClass("name")}>
       <div className="flex flex-col">
-        <div className="font-medium break-words text-gray-900">
+        <div className="font-medium break-words text-gray-900 dark:text-gray-100">
           {outlet.outletName}
         </div>
-        <div className="mt-1 text-xs break-words text-gray-500 md:hidden">
+        <div className="mt-1 text-xs break-words text-gray-500 dark:text-gray-400 md:hidden">
           {outlet.address}
         </div>
       </div>
     </TableCell>
 
     <TableCell className={getCellClass("address")}>
-      <div className="text-sm break-words text-gray-700">{outlet.address}</div>
+      <div className="text-sm break-words text-gray-700 dark:text-gray-300">{outlet.address}</div>
     </TableCell>
 
     <TableCell className={getCellClass("location")}>
@@ -260,7 +262,7 @@ const OutletRow = ({
     <TableCell className={getCellClass("radius")}>
       <div className="text-center">
         <span className="text-sm font-medium">{outlet.serviceRadius}</span>
-        <span className="ml-1 text-xs text-gray-500">km</span>
+        <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">km</span>
       </div>
     </TableCell>
 
@@ -292,7 +294,7 @@ const OutletRow = ({
           size="sm"
           variant="outline"
           onClick={() => onDelete(outlet)}
-          className="h-7 w-7 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 sm:h-8 sm:w-8"
+          className="h-7 w-7 p-0 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700 dark:hover:text-red-300 sm:h-8 sm:w-8"
           title="Hapus Outlet"
         >
           <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -421,7 +423,7 @@ export function OutletManagementTable() {
           <span className="text-sm text-red-500 sm:text-base">
             Access Denied
           </span>
-          <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
             You don't have permission to view this page.
           </p>
         </div>
@@ -434,7 +436,7 @@ export function OutletManagementTable() {
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
         {/* Mobile Header */}
         <div className="block sm:hidden">
-          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-lg">
             {/* Header content */}
             <div className="px-5 py-14">
               <h1 className="text-2xl font-bold">Outlet Management</h1>
@@ -445,16 +447,16 @@ export function OutletManagementTable() {
           </div>
 
           {/* Search and filter section - overlapping white card */}
-          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-lg">
             {/* Search input */}
             <div className="relative mb-2">
-              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder="Cari berdasarkan nama outlet atau alamat..."
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none"
+                className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-700 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none text-gray-900 dark:text-gray-100"
               />
             </div>
 
@@ -462,7 +464,7 @@ export function OutletManagementTable() {
             <div className="flex gap-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600">
+                  <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700">
                     <Filter className="h-4 w-4" />
                     <span className="whitespace-nowrap">
                       {filters.isActive == null
@@ -494,7 +496,7 @@ export function OutletManagementTable() {
 
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-500 px-4 text-sm font-semibold transition-colors hover:bg-blue-600"
+                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-500 dark:bg-blue-600 px-4 text-sm font-semibold transition-colors hover:bg-blue-600 dark:hover:bg-blue-700"
               >
                 <MapPinPlus className="h-4 w-4" />
                 Tambah
@@ -505,7 +507,7 @@ export function OutletManagementTable() {
 
         {/* Desktop Header */}
         <div className="hidden sm:block">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-6 text-white shadow-lg">
             <h1 className="text-2xl font-bold">Outlet Management</h1>
             <p className="mt-2 opacity-90">
               Lihat dan kelola outlet dalam sistem
@@ -514,22 +516,22 @@ export function OutletManagementTable() {
         </div>
 
         {/* Desktop Search & Filter Section */}
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative w-full lg:max-w-md lg:flex-1">
-              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <Input
                 placeholder="Cari berdasarkan nama outlet atau alamat..."
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="rounded-xl border-gray-200 pl-12 text-sm focus:border-blue-500 focus:ring-blue-500"
+                className="rounded-xl border-gray-200 dark:border-gray-600 pl-12 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
               />
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-shrink-0">
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-500 text-sm hover:bg-blue-600"
+                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-500 dark:bg-blue-600 text-sm hover:bg-blue-600 dark:hover:bg-blue-700"
               >
                 <MapPinPlus className="h-4 w-4" />
                 <span className="xs:inline hidden">Tambah Outlet</span>
@@ -540,7 +542,7 @@ export function OutletManagementTable() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px]"
+                    className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px]"
                   >
                     <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                     <span className="truncate text-xs sm:text-sm">
@@ -582,7 +584,7 @@ export function OutletManagementTable() {
                   })
                 }
                 disabled={!filters.search && filters.isActive === null}
-                className="h-10 rounded-xl border-gray-200 text-sm"
+                className="h-10 rounded-xl border-gray-200 dark:border-gray-600 text-sm"
               >
                 Reset
               </Button>
@@ -598,9 +600,9 @@ export function OutletManagementTable() {
               <span className="text-sm">Memuat data outlet...</span>
             </div>
           ) : error ? (
-            <div className="mx-3 p-4 text-center text-red-500">
+            <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
               <div className="text-sm">Kesalahan memuat data outlet</div>
-              <div className="mt-1 text-xs text-red-400">
+              <div className="mt-1 text-xs text-red-400 dark:text-red-300">
                 {error.message || "Kesalahan tidak diketahui"}
               </div>
             </div>
@@ -617,8 +619,8 @@ export function OutletManagementTable() {
               ))}
             </div>
           ) : (
-            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center">
-              <span className="mb-4 block text-sm text-gray-500">
+            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 text-center">
+              <span className="mb-4 block text-sm text-gray-500 dark:text-gray-400">
                 {filters.search
                   ? `Tidak ada outlet ditemukan untuk "${filters.search}"`
                   : "Belum ada outlet yang terdaftar"}
@@ -639,7 +641,7 @@ export function OutletManagementTable() {
         </div>
 
         {/* Desktop Table View */}
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block">
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -684,13 +686,10 @@ export function OutletManagementTable() {
                   <TableRow>
                     <TableCell
                       colSpan={8}
-                      className="h-32 text-center text-red-500"
+                      className="h-32 text-center text-red-500 dark:text-red-400"
                     >
                       <div>
-                        <div className="text-sm">
-                          Kesalahan memuat data outlet
-                        </div>
-                        <div className="mt-1 text-xs text-red-400">
+                        <div className="mt-1 text-xs text-red-400 dark:text-red-300">
                           {error.message || "Kesalahan tidak diketahui"}
                         </div>
                       </div>
@@ -710,7 +709,7 @@ export function OutletManagementTable() {
                   <TableRow>
                     <TableCell colSpan={8} className="h-32 text-center">
                       <div className="flex flex-col items-center justify-center space-y-3">
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {filters.search
                             ? `Tidak ada outlet ditemukan untuk "${filters.search}"`
                             : "Belum ada outlet yang terdaftar"}
@@ -737,7 +736,7 @@ export function OutletManagementTable() {
 
         {/* Desktop Pagination */}
         {outletsData?.meta && (
-          <div className="mx-1 hidden justify-center rounded-2xl border-t px-4 py-6 sm:mx-0 sm:flex">
+          <div className="mx-1 hidden justify-center rounded-2xl border-t  px-4 py-6 sm:mx-0 sm:flex">
             <PaginationSection
               page={outletsData.meta.page}
               take={outletsData.meta.take}
@@ -754,7 +753,7 @@ export function OutletManagementTable() {
 
         {/* Mobile Pagination */}
         {outletsData?.meta && (
-          <div className="flex justify-center rounded-2xl border-t p-3 sm:hidden">
+          <div className="flex justify-center rounded-2xl border-t  p-3 sm:hidden">
             <PaginationSection
               page={outletsData.meta.page}
               take={outletsData.meta.take}
@@ -793,4 +792,4 @@ export function OutletManagementTable() {
       />
     </>
   );
-}
+} 
