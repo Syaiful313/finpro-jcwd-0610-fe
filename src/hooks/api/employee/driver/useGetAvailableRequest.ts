@@ -9,11 +9,9 @@ interface GetAvailableRequestProps extends PaginationQueries {
 }
 const useGetAvailableRequest = (queries?: GetAvailableRequestProps) => {
   const axiosInstance = useAxios();
-  const { data: session, status: sessionStatus } = useSession();
 
   return useQuery({
     queryKey: ["availableRequest", queries],
-    enabled: sessionStatus === "authenticated" && !!session,
 
     queryFn: async () => {
       const { data } = await axiosInstance.get<PageableResponse<RequestList>>(
@@ -26,8 +24,7 @@ const useGetAvailableRequest = (queries?: GetAvailableRequestProps) => {
       );
       return data;
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,

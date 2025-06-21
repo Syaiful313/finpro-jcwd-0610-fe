@@ -1,28 +1,24 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
 import { Attendance } from "@/types/attendance";
 import { Clock, Ghost, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function RecentAttendance() {
+interface RecentAttendanceProps {
+  isLoading?: boolean;
+  attendance: any;
+  isError?: boolean;
+}
+
+export default function RecentAttendance({
+  isLoading,
+  attendance,
+  isError,
+}: RecentAttendanceProps) {
+  console.log("  CHILD RENDER: RecentAttendance is rendering...");
   const router = useRouter();
 
-  const {
-    data: attendanceData,
-    isPending,
-    isLoading,
-    isError,
-  } = useGetAttendance({
-    page: 1,
-    take: 6,
-    sortBy: "clockOutAt",
-  });
-
-  const attendance = attendanceData?.data || [];
-  const hasClockedIn = !!attendanceData?.data?.[0]?.clockInAt;
-  const hasClockedOut = !!attendanceData?.data?.[0]?.clockOutAt;
   const handleClick = () => {
     router.push("/employee/attendance");
   };
@@ -50,7 +46,7 @@ export default function RecentAttendance() {
     </div>
   );
 
-  if (isPending || isLoading) {
+  if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-md rounded-lg bg-white p-4 shadow-sm md:max-w-full">
         <div className="flex items-center justify-between pb-4">

@@ -96,7 +96,6 @@ const getNavDataByRole = (role: Role) => {
       ],
     };
   } else {
-    // WORKER
     return {
       ...baseData,
       navMain: [
@@ -110,11 +109,7 @@ const getNavDataByRole = (role: Role) => {
           url: "/employee/orders",
           icon: ListIcon,
         },
-        // {
-        //   title: "Queue",
-        //   url: "/employee/orders/queue",
-        //   icon: UsersIcon,
-        // },
+
         {
           title: "Bypass Request",
           url: "/employee/orders/bypass",
@@ -172,9 +167,6 @@ export function EmployeeSidebar({ ...props }: EmployeeSidebarProps) {
           <div className="mb-4">
             <div className="text-sm font-medium">
               {user?.firstName} {user?.lastName}
-            </div>
-            <div className="text-muted-foreground text-xs">
-              Bubblify {user?.role}
             </div>
             <div className="text-muted-foreground text-xs">
               {role === "DRIVER" ? "Driver ID" : "Worker ID"}:{" "}

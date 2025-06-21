@@ -1,11 +1,10 @@
-import React from "react";
-import ListOfWorkerHistory from "../../worker/components/ListOfWorkerHistory";
+import WorkerHistory from "../../worker/components/WorkerHistory";
 
 const WorkerHistoryPage = () => {
   return (
     <div>
       <>
-        <ListOfWorkerHistory />
+        <WorkerHistory />
       </>
     </div>
   );

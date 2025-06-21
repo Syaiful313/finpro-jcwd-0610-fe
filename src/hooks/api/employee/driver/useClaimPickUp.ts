@@ -13,7 +13,10 @@ const useClaimPickUp = () => {
       return data;
     },
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ["availableRequest"] });
+      queryClient.invalidateQueries({
+        queryKey: ["availableRequest"],
+        exact: false,
+      });
       return data;
     },
   });

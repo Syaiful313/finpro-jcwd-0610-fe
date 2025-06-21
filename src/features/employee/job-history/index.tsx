@@ -1,6 +1,5 @@
 "use client";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { isDriver } from "@/utils/AuthRole";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -12,20 +11,13 @@ import WorkerHistoryPage from "./components/WorkerHistoryPage";
 const JobHistoryPage = () => {
   const { data: session, status } = useSession();
   const { setBreadcrumbs } = useBreadcrumb();
-  const router = useRouter();
-  const isMobile: boolean = useMediaQuery("(max-width: 767px)");
+
   useEffect(() => {
     setBreadcrumbs([
       { label: "Dashboard", href: "/employee" },
       { label: "Job History" },
     ]);
   }, [setBreadcrumbs]);
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
 
   return (
     <div>

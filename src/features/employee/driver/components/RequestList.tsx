@@ -10,15 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useClaimDelivery from "@/hooks/api/employee/driver/useClaimDelivery";
 import useClaimPickUp from "@/hooks/api/employee/driver/useClaimPickUp";
 import useGetAvailableRequest from "@/hooks/api/employee/driver/useGetAvailableRequest";
@@ -31,9 +22,6 @@ import {
   Navigation,
   Package,
   Phone,
-  Search,
-  SortAsc,
-  SortDesc,
   Truck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -43,16 +31,21 @@ import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
 import ErrorState from "./ErrorState";
 import MapModal from "./MapModal";
+import RequestListFilters from "./FilterRequestList";
+import Image from "next/image";
+import Loader from "../../components/Loader";
 
 export default function RequestList() {
-  const [search, setSearch] = useQueryState("search", { defaultValue: "" });
+  const [search] = useQueryState("search", { defaultValue: "" });
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const [activeTab, setActiveTab] = useState("All");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [activeTab] = useQueryState("tab", { defaultValue: "All" });
+  const [sortOrder] = useQueryState("sortOrder", { defaultValue: "desc" });
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [showMap, setShowMap] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
-  const router = useRouter();
+  const [claimingRequestId, setClaimingRequestId] = useState<number | null>(
+    null,
+  );
 
   const itemsPerPage = 4;
 
@@ -87,9 +80,10 @@ export default function RequestList() {
 
   useEffect(() => {
     setPage(1);
-  }, [activeTab, search, sortOrder]);
+  }, [activeTab, search, sortOrder, setPage]);
 
   const handleClaimRequest = async (requestId: number, jobType: string) => {
+    setClaimingRequestId(requestId);
     try {
       if (jobType === "pickup") {
         await claimPickUpMutation.mutateAsync(requestId);
@@ -97,10 +91,8 @@ export default function RequestList() {
         await claimDeliveryMutation.mutateAsync(requestId);
       }
       toast.success(`Successfully claimed ${jobType} request`);
-      refetch();
     } catch (error) {
       toast.error(`Failed to claim ${jobType} request. Please try again.`);
-      console.error(`Failed to claim ${jobType} request:`, error);
     }
   };
 
@@ -116,189 +108,143 @@ export default function RequestList() {
     window.open(url, "_blank");
   };
 
-  const RequestCard = ({ request }: { request: any }) => (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-lg">
-              {`${request.order.user.firstName} ${request.order.user.lastName}`}
-            </CardTitle>
-            <CardDescription className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              {request.order.user.phoneNumber}
-            </CardDescription>
+  const handlePageReset = () => {
+    setPage(1);
+  };
+
+  const RequestCard = ({
+    request,
+    claimingRequestId,
+  }: {
+    request: any;
+    claimingRequestId: number | null;
+  }) => {
+    const isBeingClaimed = claimingRequestId === request.id;
+
+    const isMutationPending =
+      claimPickUpMutation.isPending || claimDeliveryMutation.isPending;
+    return (
+      <Card className="w-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-lg">
+                {`${request.order.user.firstName} ${request.order.user.lastName}`}
+              </CardTitle>
+              <CardDescription className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                {request.order.user.phoneNumber}
+              </CardDescription>
+            </div>
+            <Badge
+              variant={request.jobType === "pickup" ? "outline" : "secondary"}
+              className="flex items-center gap-1"
+            >
+              {request.jobType === "pickup" ? (
+                <Package className="h-3 w-3" />
+              ) : (
+                <Truck className="h-3 w-3" />
+              )}
+              {request.jobType === "pickup" ? "Pickup" : "Delivery"}
+            </Badge>
           </div>
-          <Badge
-            variant={request.jobType === "pickup" ? "outline" : "secondary"}
-            className="flex items-center gap-1"
-          >
-            {request.jobType === "pickup" ? (
-              <Package className="h-3 w-3" />
-            ) : (
-              <Truck className="h-3 w-3" />
-            )}
-            {request.jobType === "pickup" ? "Pickup" : "Delivery"}
-          </Badge>
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-          <div className="flex items-center gap-2">
-            <Clock className="text-muted-foreground h-4 w-4" />
-            <span>{format(new Date(request.createdAt), "MMM dd, h:mm a")}</span>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+            <div className="flex items-center gap-2">
+              <Clock className="text-muted-foreground h-4 w-4" />
+              <span>
+                {format(new Date(request.createdAt), "MMM dd, h:mm a")}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="text-muted-foreground text-sm">
-          <div className="flex items-start gap-2">
-            <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <span>
-              {request.jobType === "pickup"
-                ? request.order.addressLine
-                : request.order.addressLine || "Address not provided"}
-            </span>
+          <div className="text-muted-foreground text-sm">
+            <div className="flex items-start gap-2">
+              <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span>
+                {request.jobType === "pickup"
+                  ? request.order.addressLine
+                  : request.order.addressLine || "Address not provided"}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="text-muted-foreground text-sm">
-          <span className="font-medium">Order: </span>
-          {request.order.orderNumber}
-        </div>
+          <div className="text-muted-foreground text-sm">
+            <span className="font-medium">Order: </span>
+            {request.order.orderNumber}
+          </div>
 
-        <div className="flex gap-2 pt-2">
-          <Button
-            onClick={() => handleClaimRequest(request.id, request.jobType)}
-            disabled={
-              claimPickUpMutation.isPending ||
-              claimDeliveryMutation.isPending ||
-              claimPickUpMutation.isSuccess ||
-              claimDeliveryMutation.isSuccess
-            }
-            className="flex-1"
-          >
-            {claimPickUpMutation.isPending ||
-            claimDeliveryMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Claiming...
-              </>
-            ) : claimPickUpMutation.isSuccess ||
-              claimDeliveryMutation.isSuccess ? (
-              "Claimed!"
-            ) : (
-              "Claim Order"
-            )}
-          </Button>
+          <div className="flex gap-2 pt-2">
+            <Button
+              onClick={() => handleClaimRequest(request.id, request.jobType)}
+              disabled={isMutationPending}
+              className="flex-1"
+            >
+              {isBeingClaimed ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Claiming...
+                </>
+              ) : (
+                "Claim Order"
+              )}
+            </Button>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() =>
-              handleNavigate({
-                latitude: request.order.latitude,
-                longitude: request.order.longitude,
-              })
-            }
-          >
-            <Navigation className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setSelectedRequest(request)}
-          >
-            <MapIcon className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() =>
+                handleNavigate({
+                  latitude: request.order.latitude,
+                  longitude: request.order.longitude,
+                })
+              }
+            >
+              <Navigation className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setSelectedRequest(request)}
+            >
+              <MapIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
   const LoadingState = () => (
-    <div className="flex items-center justify-center py-12">
-      <div className="flex items-center gap-2">
-        <Loader2 className="h-6 w-6 animate-spin" />
-        <span>Loading requests...</span>
-      </div>
+    <div>
+      <Loader />
     </div>
   );
 
   return (
-    <div className="p-3 md:p-6">
-      <Card>
+    <div className="p-3 md:p-4">
+      <Card className="min-h-screen">
         {/* Header */}
-        <div className="bg-background sticky top-0 z-10">
-          <div className="container mx-auto px-4 py-4">
-            <div className="mb-2 flex items-center justify-between md:mb-4">
-              <div>
-                <h1 className="flex items-center text-2xl font-bold">
-                  <Truck className="mr-2 h-8 w-8" /> Request List
-                </h1>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowMap(!showMap)}
-              >
-                <MapIcon className="mr-2 h-4 w-4" />
-                {showMap ? "Hide Map" : "Show Map"}
-              </Button>
-            </div>
 
-            {/* Filters */}
-            <div className="space-y-4">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="All">All</TabsTrigger>
-                  <TabsTrigger value="Pickup">Pickup</TabsTrigger>
-                  <TabsTrigger value="Delivery">Delivery</TabsTrigger>
-                </TabsList>
-              </Tabs>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl font-bold">
+            <Package className="h-6 w-6" />
+            Request List
+          </CardTitle>
+          <CardDescription>View and filter all request list</CardDescription>
+        </CardHeader>
+        {/* filter */}
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <div className="relative flex-1">
-                  <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
-                  <Input
-                    placeholder="Search by order number or customer name..."
-                    value={search}
-                    onChange={(e) => {
-                      setSearch(e.target.value);
-                      setPage(1);
-                    }}
-                    className="pl-9"
-                  />
-                </div>
-                <Select value={sortOrder} onValueChange={setSortOrder}>
-                  <SelectTrigger className="w-full sm:w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="desc">
-                      <div className="flex items-center gap-2">
-                        <SortDesc className="h-4 w-4" />
-                        Newest First
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="asc">
-                      <div className="flex items-center gap-2">
-                        <SortAsc className="h-4 w-4" />
-                        Oldest First
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CardContent>
+          <RequestListFilters onPageReset={handlePageReset} />
+        </CardContent>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4">
           {/* Results Summary */}
           {!isLoading && !isError && (
-            <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center justify-between p-2">
               <p className="text-muted-foreground text-sm">
                 Showing {filteredRequests.length} of {totalElements} requests
               </p>
@@ -321,23 +267,31 @@ export default function RequestList() {
           ) : filteredRequests.length > 0 ? (
             <div className="space-y-4">
               {filteredRequests.map((request) => (
-                <RequestCard key={request.orderId} request={request} />
+                <RequestCard
+                  key={request.orderId}
+                  request={request}
+                  claimingRequestId={claimingRequestId}
+                />
               ))}
             </div>
           ) : (
-            <Card className="py-12 text-center">
-              <CardContent>
-                <Package className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <h3 className="mb-2 text-lg font-semibold">
-                  No requests available
-                </h3>
-                <p className="text-muted-foreground">
-                  {search || activeTab !== "All"
-                    ? "Try adjusting your filters to see more results."
-                    : "Check back later for new pickup and delivery requests."}
-                </p>
-              </CardContent>
-            </Card>
+            <CardContent className="flex flex-col items-center justify-center">
+              <Image
+                src="/delivery-truck.svg"
+                alt="No claimed orders"
+                width={170}
+                height={170}
+                priority
+                className="mb-2 h-35 w-35 opacity-70 md:h-50 md:w-50"
+              />
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                No Request Yet
+              </h3>
+              <p className="max-w-sm text-sm text-gray-600 md:max-w-md">
+                Please check back later, or if you've applied filters, try
+                clearing them.
+              </p>
+            </CardContent>
           )}
 
           {(apiResponse?.meta?.total ?? 0) > itemsPerPage && (

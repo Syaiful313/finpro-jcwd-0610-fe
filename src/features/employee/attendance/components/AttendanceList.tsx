@@ -1,18 +1,10 @@
 "use client";
 
 import { format } from "date-fns";
-import {
-  CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  Search,
-} from "lucide-react";
-import { useState } from "react";
+import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -20,12 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -35,89 +21,120 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
-import { cn } from "@/lib/utils";
 import { isDriver, isWorker } from "@/utils/AuthRole";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { toast } from "sonner";
+import {
+  parseAsInteger,
+  parseAsIsoDateTime,
+  parseAsString,
+  useQueryState,
+} from "nuqs";
+import Loader from "../../components/Loader";
+import AttendanceFilters from "./FilterAttendance";
+import { useMemo } from "react";
 
 const AttendanceList = () => {
   const { data: session } = useSession();
   const isLimitedUser = isWorker(session) || isDriver(session);
 
-  const [page, setPage] = useState(1);
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [employeeId, setEmployeeId] = useState<number>();
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [queryDateFrom, setQueryDateFrom] = useQueryState(
+    "startDate",
+    parseAsIsoDateTime,
+  );
+  const [queryDateTo, setQueryDateTo] = useQueryState(
+    "endDate",
+    parseAsIsoDateTime,
+  );
+  const [querySearchTerm, setQuerySearchTerm] = useQueryState(
+    "search",
+    parseAsString.withDefault(""),
+  );
+  const [queryEmployeeId, setQueryEmployeeId] = useQueryState(
+    "employeeId",
+    parseAsInteger,
+  );
 
-  const [appliedFilters, setAppliedFilters] = useState({
-    page: 1,
-    take: 10,
-    sortBy: "clockInAt",
-    sortOrder: "desc" as "asc" | "desc",
-    search: "",
-    startDate: "",
-    endDate: "",
-    employeeId: undefined as number | undefined,
-  });
+  const itemsPerPage = 10;
 
-  const {
-    data: attendanceData,
-    isPending,
-    error,
-  } = useGetAttendance(appliedFilters);
+  // const {
+  //   data: attendanceData,
+  //   isPending,
+  //   error,
+  // } = useGetAttendance({
+  //   page: page,
+  //   take: itemsPerPage,
+  //   sortBy: "clockInAt",
+  //   sortOrder: "desc",
+  //   search: querySearchTerm,
+  //   dateFrom: queryDateFrom ? format(queryDateFrom, "yyyy-MM-dd") : "",
+  //   dateTo: queryDateTo ? format(queryDateTo, "yyyy-MM-dd") : "",
+  //   employeeId: queryEmployeeId ?? undefined,
+  // });
+
+  const queries = useMemo(() => {
+    const formattedDateFrom = queryDateFrom
+      ? format(queryDateFrom, "yyyy-MM-dd")
+      : "";
+    const formattedDateTo = queryDateTo
+      ? format(queryDateTo, "yyyy-MM-dd")
+      : "";
+
+    return {
+      page: page,
+      take: itemsPerPage,
+      sortBy: "clockInAt",
+      sortOrder: "desc",
+      search: querySearchTerm,
+      dateFrom: formattedDateFrom,
+      dateTo: formattedDateTo,
+      employeeId: queryEmployeeId ?? undefined,
+    };
+  }, [page, querySearchTerm, queryDateFrom, queryDateTo, queryEmployeeId]); // <-- array dependensi
+
+  const { data: attendanceData, isPending, error } = useGetAttendance(queries);
 
   const attendance = attendanceData?.data || [];
   const meta = attendanceData?.meta;
+  const hasNextPage = meta?.hasNext || false;
+  const hasPrevPage = meta?.hasPrevious || false;
+  const totalAttendance = meta?.total || 0;
+  const currentResults = attendance.length;
+  const totalPages = Math.ceil(totalAttendance / itemsPerPage);
 
-  const handleFilter = () => {
-    if (startDate && endDate && endDate < startDate) {
+  const handleApplyFilters = ({
+    dateFrom,
+    dateTo,
+    searchTerm,
+    employeeId,
+  }: {
+    dateFrom: Date | null | undefined;
+    dateTo: Date | null | undefined;
+    searchTerm: string;
+    employeeId: number | undefined;
+  }) => {
+    if (dateFrom && dateTo && dateTo < dateFrom) {
       toast.error("End date cannot be earlier than start date");
       return;
     }
-    setAppliedFilters({
-      ...appliedFilters,
-      page: 1,
-      search: searchTerm,
-      startDate: startDate ? format(startDate, "yyyy-MM-dd") : "",
-      endDate: endDate ? format(endDate, "yyyy-MM-dd") : "",
-      employeeId: employeeId,
-    });
+
+    setQueryDateFrom(dateFrom === undefined ? null : dateFrom);
+    setQueryDateTo(dateTo === undefined ? null : dateTo);
+    setQuerySearchTerm(searchTerm);
+    setQueryEmployeeId(employeeId === undefined ? null : employeeId);
     setPage(1);
   };
 
-  // Clear filters
-  const clearFilters = () => {
-    setStartDate(undefined);
-    setEndDate(undefined);
-    setSearchTerm("");
-    setEmployeeId(undefined);
-    setAppliedFilters({
-      page: 1,
-      take: 10,
-      sortBy: "clockInAt",
-      sortOrder: "desc",
-      search: "",
-      startDate: "",
-      endDate: "",
-      employeeId: undefined,
-    });
+  const handleClearFilters = () => {
     setPage(1);
   };
 
-  // Handle pagination
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    setAppliedFilters({
-      ...appliedFilters,
-      page: newPage,
-    });
   };
 
-  const hasNextPage = meta?.hasNext || false;
-  const hasPrevPage = meta?.hasPrevious || false;
-  // Get status badge based on attendance data
   const getStatusBadge = (record: any) => {
     let status = "Present";
     let variant: "default" | "secondary" | "destructive" | "outline" =
@@ -127,7 +144,6 @@ const AttendanceList = () => {
       status = "Absent";
       variant = "destructive";
     } else {
-      // Check if clock in is after 8 AM
       const clockInTime = new Date(record.clockInAt);
       const clockInHour = clockInTime.getHours();
 
@@ -146,13 +162,11 @@ const AttendanceList = () => {
     return <Badge variant={variant}>{status}</Badge>;
   };
 
-  // Format time
   const formatTime = (dateString: string | null) => {
     if (!dateString) return "-";
     return format(new Date(dateString), "hh:mm a");
   };
 
-  // Format date
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), "MMM dd, yyyy");
   };
@@ -172,8 +186,8 @@ const AttendanceList = () => {
   }
 
   return (
-    <div className="md:p6 space-y-6 p-3">
-      <Card>
+    <div className="space-y-6 p-3 md:p-6">
+      <Card className="min-h-screen">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl font-bold">
             <CalendarIcon className="h-5 w-5" />
@@ -183,228 +197,131 @@ const AttendanceList = () => {
             View and filter employee attendance records by date range
           </CardDescription>
         </CardHeader>
+
         <CardContent className="space-y-6">
-          {/* Filter Section */}
-          <div className="bg-muted/50 grid grid-cols-1 gap-4 rounded-lg p-4 md:grid-cols-4">
-            {/* Start Date */}
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Start Date</div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !startDate && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? (
-                      format(startDate, "PPP")
-                    ) : (
-                      <span>Pick start date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+          <AttendanceFilters
+            onApply={handleApplyFilters}
+            onClear={handleClearFilters}
+            isPending={isPending}
+            showEmployeeSearch={!isLimitedUser}
+          />
+        </CardContent>
+
+        {/* Attendance Table */}
+        <div className="space-y-4">
+          {isPending ? (
+            <div className="h-70 space-y-6 p-3 md:p-6">
+              <Loader />
             </div>
-
-            {/* End Date */}
-            <div className="space-y-2">
-              <h6 className="text-sm font-medium">End Date</h6>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !endDate && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? (
-                      format(endDate, "PPP")
-                    ) : (
-                      <span>Pick end date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Search */}
-            {!isLimitedUser ? (
-              <div className="space-y-2">
-                <div className="text-sm font-medium">Search Employee</div>
-                <div className="relative">
-                  <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
-                  <Input
-                    id="search"
-                    placeholder="Search by name or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div />
-            )}
-
-            {/* Actions */}
-            <div className="space-y-2">
-              <h6 className="text-sm font-medium">Actions</h6>
-              <div className="flex justify-end gap-2">
-                <Button
-                  onClick={handleFilter}
-                  className="flex-1"
-                  disabled={isPending}
-                >
-                  <Filter className="mr-2 h-4 w-4" />
-                  {isPending ? "Loading..." : "Filter"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={clearFilters}
-                  disabled={isPending}
-                >
-                  Clear
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Results Summary & Pagination */}
-          <div className="flex items-center justify-between">
-            <div className="text-muted-foreground text-sm">
-              {meta && (
-                <>
-                  {meta.total > 0 ? (
+          ) : (
+            <div className="p-3 md:p-6">
+              {/* Results Summary & Pagination */}
+              <div className="flex items-center justify-between pb-4">
+                <div className="text-muted-foreground text-sm">
+                  {totalAttendance > 0 ? (
                     <>
-                      Showing {attendance.length} of {meta.total} records
+                      Showing {currentResults} of {totalAttendance} attendance
+                      records
                     </>
                   ) : (
-                    <>
-                      <p>No records found</p>
-                    </>
+                    <>No records found</>
                   )}
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Pagination Controls */}
-              {meta && meta.total > 0 && (hasNextPage || hasPrevPage) && (
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(page - 1)}
-                    disabled={!hasPrevPage || isPending}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm">Page {page}</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(page + 1)}
-                    disabled={!hasNextPage || isPending}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
                 </div>
-              )}
-            </div>
-          </div>
-          {/* Attendance Table */}
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  {!isLimitedUser && <TableHead>Employee</TableHead>}
-                  <TableHead>Clock In</TableHead>
-                  <TableHead>Clock Out</TableHead>
-                  <TableHead>Outlet</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isPending ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={isLimitedUser ? 5 : 6}
-                      className="text-muted-foreground py-8 text-center"
-                    >
-                      Loading attendance records...
-                    </TableCell>
-                  </TableRow>
-                ) : attendance.length > 0 ? (
-                  attendance.map((record: any) => (
-                    <TableRow key={record.id}>
-                      <TableCell className="font-medium">
-                        {formatDate(record.clockInAt || record.createdAt)}
-                      </TableCell>
-                      {!isLimitedUser && (
-                        <TableCell>
-                          {record.employee?.user
-                            ? `${record.employee.user.firstName} ${record.employee.user.lastName}`
-                            : "N/A"}
-                          {record.employee?.user?.email && (
-                            <div className="text-muted-foreground text-sm">
-                              {record.employee.user.email}
-                            </div>
-                          )}
-                        </TableCell>
-                      )}
-                      <TableCell>{formatTime(record.clockInAt)}</TableCell>
-                      <TableCell>{formatTime(record.clockOutAt)}</TableCell>
-                      <TableCell>
-                        {record.outlet?.outletName || "N/A"}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(record)}</TableCell>
+                <div className="flex items-center gap-2">
+                  {/* Pagination Controls */}
+                  {totalAttendance > 0 && (hasNextPage || hasPrevPage) && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={!hasPrevPage || isPending}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm">
+                        Page {page} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={!hasNextPage || isPending}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      {!isLimitedUser && <TableHead>Employee</TableHead>}
+                      <TableHead>Clock In</TableHead>
+                      <TableHead>Clock Out</TableHead>
+                      <TableHead>Outlet</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={isLimitedUser ? 5 : 6}
-                      className="text-muted-foreground py-8 text-center"
-                    >
-                      <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
-                        <div className="relative h-[200px] w-[200px]">
-                          <Image
-                            src="/no-data.svg"
-                            alt="No Data"
-                            fill
-                            style={{ objectFit: "contain" }}
-                          />
-                        </div>
-                        No attendance records found for the selected criteria.
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
+                  </TableHeader>
+                  <TableBody>
+                    {attendance.length > 0 ? (
+                      attendance.map((record: any) => (
+                        <TableRow key={record.id}>
+                          <TableCell className="font-medium">
+                            {formatDate(record.clockInAt || record.createdAt)}
+                          </TableCell>
+                          {!isLimitedUser && (
+                            <TableCell>
+                              {record.employee?.user
+                                ? `${record.employee.user.firstName} ${record.employee.user.lastName}`
+                                : "N/A"}
+                              {record.employee?.user?.email && (
+                                <div className="text-muted-foreground text-sm">
+                                  {record.employee.user.email}
+                                </div>
+                              )}
+                            </TableCell>
+                          )}
+                          <TableCell>{formatTime(record.clockInAt)}</TableCell>
+                          <TableCell>{formatTime(record.clockOutAt)}</TableCell>
+                          <TableCell>
+                            {record.outlet?.outletName || "N/A"}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(record)}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={isLimitedUser ? 5 : 6}
+                          className="text-muted-foreground py-8 text-center"
+                        >
+                          <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
+                            <div className="relative h-[200px] w-[200px]">
+                              <Image
+                                src="/no-data.svg"
+                                alt="No Data"
+                                fill
+                                style={{ objectFit: "contain" }}
+                              />
+                            </div>
+                            No attendance records found for the selected
+                            criteria.
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </div>
       </Card>
     </div>
   );

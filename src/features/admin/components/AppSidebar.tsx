@@ -77,6 +77,12 @@ const data = {
       icon: SettingsIcon,
       roles: ["OUTLET_ADMIN"],
     },
+    {
+      title: "Attendance Report",
+      url: "/admin/attendance-report",
+      icon: SettingsIcon,
+      roles: ["OUTLET_ADMIN", "ADMIN"],
+    },
   ],
   navClouds: [
     {

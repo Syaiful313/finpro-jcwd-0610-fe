@@ -4,7 +4,6 @@ import { ReactElement } from "react";
 
 type BypassStatus = "PENDING" | "APPROVED" | "REJECTED";
 
-// 2. Define the shape of the 'request' prop object.
 interface BypassAlertProps {
   request: {
     bypassStatus: BypassStatus;
