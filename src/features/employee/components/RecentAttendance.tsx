@@ -16,7 +16,6 @@ export default function RecentAttendance({
   attendance,
   isError,
 }: RecentAttendanceProps) {
-  console.log("  CHILD RENDER: RecentAttendance is rendering...");
   const router = useRouter();
 
   const handleClick = () => {

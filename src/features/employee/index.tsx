@@ -1,7 +1,11 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
+import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
+import useGetDriverJobs from "@/hooks/api/employee/driver/useGetDriverJob";
+import { isDriver } from "@/utils/AuthRole";
 import { Calendar, Clock, ClockFading, ListCheck, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -12,14 +16,8 @@ import RecentAttendance from "./components/RecentAttendance";
 import RecentOrder from "./components/RecentOrder";
 import UserGreeting from "./components/UserGreeting";
 import NotificationDropdown from "./notifications/Notifications";
-import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
-import useAxios from "@/hooks/useAxios";
-import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
-import useGetDriverJobs from "@/hooks/api/employee/driver/useGetDriverJob";
-import { isDriver } from "@/utils/AuthRole";
 
 const EmployeePage: React.FC = () => {
-  console.log("PARENT RENDER: EmployeePage is rendering...");
   const { data: session, status } = useSession();
   const router = useRouter();
   const { setBreadcrumbs } = useBreadcrumb();
@@ -91,7 +89,11 @@ const EmployeePage: React.FC = () => {
         <div className="relative z-10">
           <div className="block h-47 p-4 md:hidden">
             <div className="flex items-center justify-between gap-3 p-2">
-              <UserGreeting isMobile={true} />
+              <UserGreeting
+                isMobile={true}
+                user={session?.user || null}
+                session={session}
+              />
               <div className="mt-4">
                 <NotificationDropdown />
               </div>
@@ -101,7 +103,11 @@ const EmployeePage: React.FC = () => {
           <div className="hidden px-6 py-8 md:block">
             <div className="mx-auto max-w-7xl">
               <div className="mt-4 flex items-center justify-between space-x-2 px-6">
-                <UserGreeting isMobile={false} />
+                <UserGreeting
+                  isMobile={false}
+                  user={session?.user || null}
+                  session={session}
+                />
                 <Avatar className="h-25 w-25 border-4 border-white/20">
                   <AvatarImage
                     src={`${session?.user?.profilePic}`}

@@ -22,7 +22,6 @@ import { enUS } from "date-fns/locale";
 const RecentListOrder = () => {
   const router = useRouter();
 
-  // Fetch recent orders using the same hook as ListOfStationOrder
   const {
     data: stationOrder,
     isPending,
@@ -30,7 +29,7 @@ const RecentListOrder = () => {
     isError,
     error,
   } = useGetStationOrder({
-    take: 6, // Show only recent 6 orders
+    take: 2,
     page: 1,
     sortBy: "createdAt",
     sortOrder: "desc",
@@ -61,7 +60,6 @@ const RecentListOrder = () => {
   };
 
   const getStepStatus = (orderWorkProcess: any[], bypassStatus?: string) => {
-    // Find incomplete work process (completedAt is null)
     const incompleteProcess = orderWorkProcess?.find(
       (process: any) => process.completedAt === null,
     );

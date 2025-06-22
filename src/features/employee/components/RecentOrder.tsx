@@ -1,5 +1,3 @@
-// File: components/RecentOrder.tsx (YANG DIPERBAIKI)
-
 "use client";
 
 import { isDriver } from "@/utils/AuthRole";
@@ -7,7 +5,6 @@ import { useSession } from "next-auth/react";
 import ActiveJobs from "../driver/components/ActiveJobs";
 import RecentListOrder from "../worker/components/RecentListOrder";
 
-// Definisikan semua props yang mungkin diterima
 interface RecentOrderProps {
   isLoadingJobs: boolean;
   activeJobs: any[];
@@ -36,13 +33,7 @@ const RecentOrder = (props: RecentOrderProps) => {
           refetch={props.refetchJobs}
         />
       ) : (
-        <RecentListOrder
-        // Jika RecentListOrder perlu data, oper dari sini
-        // contoh:
-        // isLoading={props.isLoadingAttendance}
-        // attendance={props.recentAttendance}
-        // isError={props.isErrorAttendance}
-        />
+        <RecentListOrder />
       )}
     </div>
   );

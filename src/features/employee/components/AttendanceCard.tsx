@@ -19,9 +19,6 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
   attendance,
   isLoading,
 }) => {
-  console.log("  CHILD RENDER: AttendanceCard is rendering...");
-
-  const queryClient = useQueryClient();
   const { mutate: clockIn, isPending: isClockingIn } = useClockIn();
   const { mutate: clockOut, isPending: isClockingOut } = useClockOut();
 
@@ -106,11 +103,7 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
     }
 
     return (
-      <Button
-        onClick={handleClockIn}
-        disabled={isClockingIn || !attendance?.meta?.hasClockedIn}
-        // className="disabled:opacity-50"
-      >
+      <Button onClick={handleClockIn} disabled={isClockingIn}>
         <LogIn className="mr-2 h-4 w-4" />
         {isClockingIn ? "Clocking In..." : "Clock In"}
       </Button>
