@@ -45,6 +45,7 @@
 // export default UserGreeting;
 "use client";
 
+import { ModeToggle } from "@/components/ToogleDarkMode";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { isWorker } from "@/utils/AuthRole";
@@ -75,7 +76,7 @@ const UserGreeting: FC<UserGreetingProps> = ({ isMobile, user, session }) => {
       <div className="flex items-center gap-4">
         <div>
           <Badge
-            className={`text-primary bg-white hover:bg-white/90 ${isMobile ? "max-w-20 px-1.5 text-sm" : "text-lg"}`}
+            className={`text-primary bg-white hover:bg-white/90 dark:bg-[#1e3a8a] dark:text-white dark:hover:bg-gray-700 ${isMobile ? "max-w-20 px-1.5 text-sm" : "text-lg"}`}
           >
             {isWorkerRole ? (
               <User className={`mr-1 ${isMobile ? "h-5 w-8" : "h-3 w-3"}`} />
@@ -94,17 +95,19 @@ const UserGreeting: FC<UserGreetingProps> = ({ isMobile, user, session }) => {
           Outlet Yogyakarta
         </div>
       </div>
-      <button
-        onClick={handleLogout}
-        className={`w-fit text-white/90 hover:bg-white/10 hover:text-white ${
-          isMobile ? "h-6 text-xs" : "h-7 text-sm"
-        }`}
-      >
-        <span className="flex items-center gap-2">
-          <LogOut className={`mx-1 ${isMobile ? "h-3 w-3" : "h-3 w-3"}`} />
-          Logout
-        </span>
-      </button>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handleLogout}
+          className={`w-fit text-white/90 hover:bg-white/10 hover:text-white ${
+            isMobile ? "h-6 text-xs" : "h-7 text-sm"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <LogOut className={`mx-1 ${isMobile ? "h-3 w-3" : "h-3 w-3"}`} />
+            Logout
+          </div>
+        </button>
+      </div>
     </div>
   );
 };

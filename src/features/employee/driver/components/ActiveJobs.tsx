@@ -131,19 +131,16 @@ const ActiveJobs = ({
               height={170}
               className="mb-6 bg-contain opacity-70"
             />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            <h3 className="mb-2 text-lg font-semibold">
               No Claimed Orders Yet
             </h3>
-            <p className="mb-6 max-w-md text-gray-600">
+            <p className="text-muted-foreground mb-6 max-w-md">
               You haven't claimed any orders yet. Start by claiming an order to
               begin your delivery journey.
             </p>
-            <button
-              className="rounded-md bg-blue-500 px-6 py-2 text-white transition-colors hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-              onClick={() => router.push("/employee/orders")}
-            >
+            <Button onClick={() => router.push("/employee/orders")}>
               Claim Orders
-            </button>
+            </Button>
           </div>
         ) : (
           <>
@@ -151,7 +148,7 @@ const ActiveJobs = ({
               {requests.map((requests) => (
                 <div
                   key={requests.order.uuid}
-                  className="rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                  className="rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="mb-3 flex items-start justify-between">
                     <h3 className="font-semibold text-gray-900">
@@ -216,25 +213,25 @@ const ActiveJobs = ({
             </div>
 
             <div className="hidden overflow-x-auto rounded-lg md:block">
-              <table className="min-w-full table-auto border border-gray-200 bg-white">
-                <thead className="border-b bg-gray-50">
+              <table className="min-w-full table-auto border">
+                <thead className="border-b">
                   <tr>
-                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                    <th className="text-muted-foreground px-2 py-4 text-left text-xs font-semibold">
                       Customer
                     </th>
-                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                    <th className="text-muted-foreground px-2 py-4 text-left text-xs font-semibold">
                       Location
                     </th>
-                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                    <th className="text-muted-foreground px-2 py-4 text-left text-xs font-semibold">
                       Order Type
                     </th>
-                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                    <th className="text-muted-foreground px-2 py-4 text-left text-xs font-semibold">
                       Items
                     </th>
-                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                    <th className="text-muted-foreground px-2 py-4 text-left text-xs font-semibold">
                       Status
                     </th>
-                    <th className="px-2 py-4 text-left text-xs font-semibold text-gray-700">
+                    <th className="text-muted-foreground px-2 py-4 text-left text-xs font-semibold">
                       Actions
                     </th>
                   </tr>

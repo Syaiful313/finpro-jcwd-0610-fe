@@ -201,14 +201,14 @@ const ListOfBypass = () => {
                           </CardHeader>
 
                           <CardContent className="space-y-3">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <div className="text-muted-foreground flex items-center gap-2 text-sm">
                               <Package className="h-4 w-4 flex-shrink-0" />
                               <span className="truncate">
                                 Station: {workProcess.workerType}
                               </span>
                             </div>
 
-                            <div className="text-xs text-gray-500">
+                            <div className="text-muted-foreground text-xs">
                               Request Date:{" "}
                               {format(new Date(request.createdAt), "PPP, p", {
                                 locale: id,
@@ -216,7 +216,7 @@ const ListOfBypass = () => {
                             </div>
 
                             {request.reason && (
-                              <div className="text-xs text-gray-600">
+                              <div className="text-muted-foreground text-xs">
                                 <span className="font-medium">Reason:</span>{" "}
                                 {request.reason}
                               </div>
@@ -261,8 +261,7 @@ const ListOfBypass = () => {
                               {request.bypassStatus === "APPROVED" && (
                                 <p className="flex items-center justify-center gap-1 text-xs text-green-600">
                                   <Info className="h-3 w-3" />
-                                  Approved. Find this order in the Station Queue
-                                  to proceed.
+                                  Approved.
                                 </p>
                               )}
                             </div>
@@ -281,10 +280,10 @@ const ListOfBypass = () => {
                         height={200}
                         className="mb-6"
                       />
-                      <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                      <h3 className="mb-2 text-xl font-semibold">
                         No Bypass Request Found
                       </h3>
-                      <p className="max-w-md text-gray-600">
+                      <p className="text-muted-foreground max-w-md">
                         Please check back later, or if you've applied filters,
                         try clearing them.
                       </p>

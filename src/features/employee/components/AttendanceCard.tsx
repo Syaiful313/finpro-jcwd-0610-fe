@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import useClockIn from "@/hooks/api/employee/attendance/useClockIn";
 import useClockOut from "@/hooks/api/employee/attendance/useClockOut";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,12 +25,12 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
 
   if (isLoading) {
     return (
-      <div className="mx-5 mt-6 rounded-lg border-0 bg-white p-4 shadow-sm md:mx-0 md:mt-0 dark:bg-gray-800">
+      <Card className="mx-5 mt-6 rounded-lg border-0 p-4 shadow-sm md:mx-0 md:mt-0">
         <div className="animate-pulse">
-          <div className="mb-4 h-8 rounded bg-gray-200"></div>
-          <div className="h-20 rounded bg-gray-200"></div>
+          <div className="mb-4 h-8 rounded bg-gray-200 dark:bg-[#404040]"></div>
+          <div className="h-20 rounded bg-gray-200 dark:bg-[#404040]"></div>
         </div>
-      </div>
+      </Card>
     );
   }
 
@@ -113,8 +114,8 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
   if (isMobile) {
     return (
       <div className="mx-2 p-4">
-        <div className="relative mt-4 items-center justify-between overflow-visible rounded-xl bg-gradient-to-br from-[#0079f2] to-[#0080FF] p-4 text-white shadow-sm">
-          <ClockFading className="absolute top-0 right-0 z-20 h-20 w-20 translate-x-1/6 -translate-y-1/4 text-white/15" />
+        <div className="relative mt-4 items-center justify-between overflow-visible rounded-xl bg-gradient-to-br from-[#0079f2] to-[#0080FF] p-4 text-white shadow-sm dark:bg-gradient-to-r dark:from-[#262626] dark:to-[#262626]">
+          <ClockFading className="absolute top-0 right-0 z-20 h-20 w-20 translate-x-1/6 -translate-y-1/4 text-white/15 dark:text-[#171717]" />
           <div>
             <p className="font-semibold">Take Attendance Today</p>
             <p className="text-sm">
@@ -126,10 +127,10 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
               </span>
             </p>
           </div>
-          <div className="mt-2 flex items-center justify-center space-x-4 rounded-lg text-sm text-black">
+          <div className="mt-2 flex items-center justify-center space-x-4 rounded-lg text-sm text-black dark:text-white">
             <Button
               variant="ghost"
-              className="flex-1 items-center justify-center gap-2 bg-white text-sm disabled:opacity-90"
+              className="flex-1 items-center justify-center gap-2 bg-white text-sm disabled:opacity-90 dark:border dark:border-white/20 dark:bg-transparent dark:text-white dark:hover:bg-white/5"
               onClick={handleClockIn}
               disabled={isClockingIn || attendance?.meta?.hasClockedIn}
             >
@@ -138,7 +139,7 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
             </Button>
             <Button
               variant="ghost"
-              className="flex-1 items-center justify-center gap-2 bg-white text-sm disabled:opacity-90"
+              className="flex-1 items-center justify-center gap-2 bg-white text-sm disabled:opacity-90 dark:border dark:border-white/20 dark:bg-transparent dark:text-white dark:hover:bg-white/5"
               onClick={handleClockOut}
               disabled={isClockingOut || attendance?.meta?.hasClockedOut}
             >
@@ -152,16 +153,16 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
   }
 
   return (
-    <div className="rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
-      <div className="pb-4">
+    <Card className="rounded-lg border-0 p-4 shadow-sm">
+      <div>
         <div className="flex items-center gap-2 text-2xl font-semibold">
           <Clock />
           Attendance Today
         </div>
       </div>
-      <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <div className="dark:bg-input/50 dark:hover:bg-input/70 bg-accent flex items-center justify-between rounded-lg px-6 py-3">
         <div className="space-y-2">
-          <p className="text-lg font-semibold text-gray-800 dark:text-white">
+          <p className="text-lg font-semibold">
             {attendance?.meta?.hasClockedIn && !attendance?.meta?.hasClockedOut
               ? "Ready to Clock Out?"
               : attendance?.meta?.hasClockedIn &&
@@ -189,7 +190,7 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
         </div>
         {actionButton}
       </div>
-    </div>
+    </Card>
   );
 };
 

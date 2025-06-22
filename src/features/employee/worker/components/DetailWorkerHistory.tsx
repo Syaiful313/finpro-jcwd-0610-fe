@@ -76,7 +76,7 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
   const statusConfig = getOrderStatusConfig(orderData.orderStatus);
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
+    <div className="min-h-screen">
       <div className="container max-w-6xl space-y-4 p-4 md:space-y-6 md:p-6">
         {/* Header Card */}
         <Card className="shadow-sm">
@@ -84,7 +84,7 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                  <CardTitle className="text-2xl font-bold text-gray-900">
+                  <CardTitle className="text-2xl font-bold">
                     {orderData.orderNumber}
                   </CardTitle>
                   <Badge
@@ -138,7 +138,7 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
                     className="relative flex gap-4 pb-8 last:pb-0"
                   >
                     <div className="relative flex flex-col items-center">
-                      <div className="z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 border-gray-200 bg-white shadow-sm">
+                      <div className="z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 border-gray-200 bg-white shadow-sm dark:bg-[#262626]">
                         <StationIcon type={process.workerType} />
                       </div>
                       {index < orderData.orderWorkProcess.length - 1 && (
@@ -146,9 +146,9 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
                       )}
                     </div>
 
-                    <div className="flex-1 rounded-lg border bg-white p-4 shadow-sm">
-                      <div className="mb-3 flex flex-col gap-1">
-                        <h4 className="font-semibold text-gray-900">
+                    <Card className="flex-1 rounded-lg border p-4 shadow-sm">
+                      <div className="flex flex-col gap-1">
+                        <h4 className="font-semibold">
                           {process.workerType} Station
                         </h4>
                         <div className="text-muted-foreground flex items-center gap-2 text-sm">
@@ -160,7 +160,7 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
                         </div>
                       </div>
 
-                      <Separator className="my-3" />
+                      <Separator />
 
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="flex items-start gap-3 text-sm">
@@ -188,12 +188,12 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
                       </div>
 
                       {process.notes && (
-                        <div className="mt-3 rounded-md bg-gray-50 p-3">
+                        <Card className="mt-3 rounded-md p-3">
                           <p className="text-sm">
                             <span className="font-medium">Notes:</span>{" "}
                             {process.notes}
                           </p>
-                        </div>
+                        </Card>
                       )}
 
                       {process.bypass && (
@@ -217,7 +217,7 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
                           </AlertDescription>
                         </Alert>
                       )}
-                    </div>
+                    </Card>
                   </div>
                 ))}
               </CardContent>
@@ -234,16 +234,14 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {orderData.orderItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+                      className="flex items-center justify-between rounded-lg border p-3"
                     >
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">
-                          {item.laundryItem.name}
-                        </p>
+                        <p className="font-medium">{item.laundryItem.name}</p>
                         <p className="text-muted-foreground text-sm">
                           Quantity: {item.quantity}
                         </p>

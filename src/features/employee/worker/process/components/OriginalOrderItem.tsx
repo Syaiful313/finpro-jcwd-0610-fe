@@ -27,11 +27,11 @@ export default function OriginalOrderItems({ items }: OriginalOrderItemsProps) {
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col gap-3 rounded-lg bg-gray-50 p-3 md:flex-row md:items-center md:justify-between"
+            className="bg-secondary dark:bg-secondary flex flex-col gap-3 rounded-lg border p-3 md:flex-row md:items-center md:justify-between"
           >
             <div className="flex-1">
               <div className="font-medium">{item.laundryItem.name}</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-muted-foreground text-sm">
                 Qty: {item.quantity} &bull; {item.laundryItem.category} &bull;
                 Rp {item.pricePerUnit.toLocaleString()}
               </div>

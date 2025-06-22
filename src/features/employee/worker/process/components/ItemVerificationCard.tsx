@@ -182,9 +182,9 @@ export default function ItemVerificationCard({
 
         {/* Success Alert */}
         {isCompleted && (
-          <Alert className="border-green-500 bg-green-50">
+          <Alert className="border-green-600 bg-green-50 dark:border-green-800 dark:bg-green-900/30">
             <CheckCircle className="h-4 w-4 text-green-500" />
-            <AlertDescription className="text-green-700">
+            <AlertDescription className="text-green-700 dark:text-green-500">
               Items have been successfully verified.
             </AlertDescription>
           </Alert>

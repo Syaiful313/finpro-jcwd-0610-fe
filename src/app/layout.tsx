@@ -48,7 +48,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      
       <body className={`${manrope.className} antialiased`}>
         <StoreProvider>
           <ReactQueryProvider>
@@ -56,7 +55,7 @@ export default function RootLayout({
               <NextAuthProvider>
                 <ThemeProvider
                   attribute="class"
-                  defaultTheme="light"
+                  defaultTheme="dark"
                   enableSystem
                 >
                   {children}

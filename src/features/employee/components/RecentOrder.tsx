@@ -4,6 +4,7 @@ import { isDriver } from "@/utils/AuthRole";
 import { useSession } from "next-auth/react";
 import ActiveJobs from "../driver/components/ActiveJobs";
 import RecentListOrder from "../worker/components/RecentListOrder";
+import { Card } from "@/components/ui/card";
 
 interface RecentOrderProps {
   isLoadingJobs: boolean;
@@ -22,7 +23,7 @@ const RecentOrder = (props: RecentOrderProps) => {
   const { data: session } = useSession();
 
   return (
-    <div className="space-y-6 rounded-md border p-5 shadow-sm">
+    <Card className="space-y-6 rounded-md border p-5 shadow-sm">
       {isDriver(session) ? (
         <ActiveJobs
           isLoading={props.isLoadingJobs}
@@ -35,7 +36,7 @@ const RecentOrder = (props: RecentOrderProps) => {
       ) : (
         <RecentListOrder />
       )}
-    </div>
+    </Card>
   );
 };
 

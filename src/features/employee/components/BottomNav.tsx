@@ -317,7 +317,7 @@ const BottomNav: React.FC = () => {
       onMouseLeave={handleMouseLeave}
     >
       {/* Blue background */}
-      <div className="absolute inset-0 rounded-t-3xl bg-[#0080FF] shadow-lg" />
+      <div className="bg-primary dark:bg-accent absolute inset-0 rounded-t-3xl shadow-lg" />
 
       {/* Navigation content */}
       <div className="relative px-4 py-5">
@@ -334,7 +334,7 @@ const BottomNav: React.FC = () => {
                   type="button"
                   className={`relative flex h-12 w-12 cursor-pointer flex-col items-center justify-center rounded-xl transition-transform duration-100 will-change-transform select-none ${
                     itemIsActive
-                      ? "scale-110 bg-white text-[#0080FF] shadow-lg"
+                      ? "scale-110 bg-white text-[#0080FF] shadow-lg dark:bg-[#e5e5e5] dark:text-[#1e3a8a]"
                       : "text-white hover:scale-105 active:scale-95"
                   } ${isNavigating ? "pointer-events-none" : ""}`}
                   onClick={() => handleTabClick(index, item.href)}

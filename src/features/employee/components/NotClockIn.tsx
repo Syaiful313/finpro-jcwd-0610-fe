@@ -24,7 +24,7 @@ export default function NotClockIn() {
         </div>
 
         {/* Main Message */}
-        <h1 className="mb-4 text-xl leading-tight font-bold text-gray-900 sm:text-2xl">
+        <h1 className="mb-4 text-xl leading-tight font-bold sm:text-2xl">
           You Haven't Clocked In Yet
         </h1>
 

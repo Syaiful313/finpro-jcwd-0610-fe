@@ -167,9 +167,9 @@ const RecentListOrder = () => {
           {[1, 2].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="mb-2 h-4 w-1/3 rounded bg-gray-200"></div>
-                <div className="mb-4 h-3 w-1/2 rounded bg-gray-200"></div>
-                <div className="h-10 w-full rounded bg-gray-200"></div>
+                <div className="mb-2 h-4 w-1/3 rounded bg-gray-200 dark:bg-[#404040]"></div>
+                <div className="mb-4 h-3 w-1/2 rounded bg-gray-200 dark:bg-[#404040]"></div>
+                <div className="h-10 w-full rounded bg-gray-200 dark:bg-[#404040]"></div>
               </CardContent>
             </Card>
           ))}
@@ -213,9 +213,7 @@ const RecentListOrder = () => {
             height={170}
             className="mb-6 bg-contain opacity-70"
           />
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">
-            No Recent Orders Yet
-          </h3>
+          <h3 className="mb-2 text-lg font-semibold">No Recent Orders Yet</h3>
           <p className="mb-6 max-w-md text-gray-600">
             You haven't worked on any orders yet. Start by claiming an order to
             begin your work.

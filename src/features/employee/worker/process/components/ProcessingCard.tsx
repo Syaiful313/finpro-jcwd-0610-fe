@@ -70,13 +70,13 @@ export default function ProcessingCard({
         <Alert
           className={
             paymentStatus === "PAID"
-              ? "border-green-500 bg-green-50"
-              : "border-amber-500 bg-amber-50"
+              ? "border-green-500 bg-green-50 text-green-700 dark:border-green-400/30 dark:bg-green-900/30 dark:text-green-300"
+              : "border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-900/30 dark:text-amber-300"
           }
         >
           <CreditCard className="h-4 w-4" />
-          <AlertDescription>
-            Payment Status:{" "}
+          <AlertDescription className="text-muted-foreground">
+            Payment Status:
             <Badge variant={paymentStatus === "PAID" ? "default" : "secondary"}>
               {paymentStatus === "PAID" ? "Paid" : "Waiting for Payment"}
             </Badge>
@@ -84,7 +84,7 @@ export default function ProcessingCard({
         </Alert>
 
         <div>
-          <Label>Processing Notes</Label>
+          <Label className="mb-2">Processing Notes</Label>
           <Textarea
             placeholder={`Add any ${currentConfig.title.toLowerCase()} notes...`}
             value={notes}

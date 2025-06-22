@@ -46,7 +46,7 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
       <div className="hidden md:block">
         <SidebarProvider>
           <EmployeeSidebar role="WORKER" variant="inset" />
-          <SidebarInset>
+          <SidebarInset className="dark:border">
             <EmployeeHeaderWithBreadcrumb />
             <main>
               <div className="flex flex-1 flex-col">
@@ -62,14 +62,10 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
       {/* mobile */}
       <div className="block md:hidden">
         <main
-          className={`min-h-screen bg-[#fafafa] ${
-            shouldShowBottomNav ? "pb-20" : "pb-0"
-          }`}
+          className={`min-h-screen ${shouldShowBottomNav ? "pb-20" : "pb-0"}`}
         >
           <div className="flex-1">
-            <div className="mx-auto max-w-(--breakpoint-xl) bg-[#fafafa]">
-              {children}
-            </div>
+            <div className="mx-auto max-w-(--breakpoint-xl)">{children}</div>
           </div>
           {shouldShowBottomNav && <BottomNav />}
         </main>
