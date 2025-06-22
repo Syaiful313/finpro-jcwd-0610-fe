@@ -102,9 +102,11 @@ const UserGreeting: FC<UserGreetingProps> = ({ isMobile, user, session }) => {
             isMobile ? "h-6 text-xs" : "h-7 text-sm"
           }`}
         >
-          <div className="flex items-center gap-2">
-            <LogOut className={`mx-1 ${isMobile ? "h-3 w-3" : "h-3 w-3"}`} />
-            Logout
+          <div className="block items-center gap-2 md:hidden">
+            <span className="flex items-center gap-2">
+              <LogOut className={`mx-1 ${isMobile ? "h-3 w-3" : "h-3 w-3"}`} />
+              Logout
+            </span>
           </div>
         </button>
       </div>

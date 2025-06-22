@@ -214,7 +214,7 @@ const RecentListOrder = () => {
             className="mb-6 bg-contain opacity-70"
           />
           <h3 className="mb-2 text-lg font-semibold">No Recent Orders Yet</h3>
-          <p className="mb-6 max-w-md text-gray-600">
+          <p className="text-muted-foreground mb-6 max-w-md">
             You haven't worked on any orders yet. Start by claiming an order to
             begin your work.
           </p>

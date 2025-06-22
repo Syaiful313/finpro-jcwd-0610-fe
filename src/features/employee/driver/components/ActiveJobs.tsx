@@ -70,10 +70,10 @@ const ActiveJobs = ({
           <div className="mb-4 text-red-500">
             <TruckIcon className="h-12 w-12" />
           </div>
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <h3 className="mb-2 text-lg font-semibold">
             Failed to Load Requests
           </h3>
-          <p className="mb-6 max-w-md text-gray-600">
+          <p className="text-muted-foreground mb-6 max-w-md">
             {error?.message ||
               "Something went wrong while loading your claimed requests."}
           </p>
@@ -151,7 +151,7 @@ const ActiveJobs = ({
                   className="rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="mb-3 flex items-start justify-between">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold">
                       {`${requests.order.user.firstName} ${requests.order.user.lastName}` ||
                         "Unknown Customer"}
                     </h3>
@@ -167,7 +167,7 @@ const ActiveJobs = ({
                     </Button>
                   </div>
 
-                  <div className="mb-2 flex items-center text-xs text-gray-600">
+                  <div className="text-muted-foreground mb-2 flex items-center text-xs">
                     <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
                     <span className="items-center text-xs">
                       {requests.order.addressLine ||
@@ -240,15 +240,15 @@ const ActiveJobs = ({
                   {requests.map((request) => (
                     <tr
                       key={request.order.orderNumber}
-                      className="hover:bg-gray-50"
+                      className="dark:hover:bg-input/50 hover:bg-gray-50"
                     >
-                      <td className="px-2 py-4 text-xs font-medium text-gray-900">
+                      <td className="px-2 py-4 text-xs font-medium">
                         {`${request.order.user.firstName} ${request.order.user.lastName}` ||
                           "Unknown Customer"}
                       </td>
-                      <td className="px-2 py-4 text-xs text-gray-600">
+                      <td className="text-muted-foreground px-2 py-4 text-xs">
                         <div className="line-clamp-1 flex items-center">
-                          <MapPin className="h-3 w-3 text-gray-500" />
+                          <MapPin className="text-muted-foreground h-3 w-3" />
                           {request.order.addressLine ||
                             request.order.city ||
                             request.order.district ||
@@ -272,7 +272,7 @@ const ActiveJobs = ({
                           {request.jobType || "Delivery"}
                         </Badge>
                       </td>
-                      <td className="px-2 py-4 text-sm text-gray-600">
+                      <td className="text-muted-foreground px-2 py-4 text-sm">
                         {request.order.totalWeight || 0} Kg
                       </td>
                       <td className="px-2 py-4 text-sm">
