@@ -8,10 +8,10 @@ interface ProgressStepsProps {
 
 const Step = ({ number, label, isActive, isCompleted }: any) => (
   <div
-    className={`flex items-center gap-2 ${isActive || isCompleted ? "text-blue-600" : "text-gray-400"}`}
+    className={`flex items-center gap-2 ${isActive || isCompleted ? "text-primary" : "text-gray-400"}`}
   >
     <div
-      className={`flex h-8 w-8 items-center justify-center rounded-full ${isActive || isCompleted ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+      className={`flex h-8 w-8 items-center justify-center rounded-full ${isActive || isCompleted ? "bg-primary text-white" : "bg-gray-200"}`}
     >
       {isCompleted ? <CheckCircle className="h-4 w-4" /> : number}
     </div>
@@ -21,7 +21,7 @@ const Step = ({ number, label, isActive, isCompleted }: any) => (
 
 const Connector = ({ isCompleted }: any) => (
   <div
-    className={`mx-4 h-1 flex-1 ${isCompleted ? "bg-blue-600" : "bg-gray-200"}`}
+    className={`mx-4 h-1 flex-1 ${isCompleted ? "bg-primary" : "bg-gray-200"}`}
   ></div>
 );
 

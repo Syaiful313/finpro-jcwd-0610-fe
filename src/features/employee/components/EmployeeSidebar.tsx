@@ -31,6 +31,7 @@ import Link from "next/link";
 import { NavDocuments } from "./NavDocument";
 import { NavMain } from "./NavMain";
 import { NavSecondary } from "./NavSecondary";
+import { ModeToggle } from "@/components/ToogleDarkMode";
 
 type Role = "DRIVER" | "WORKER";
 
@@ -138,7 +139,7 @@ export function EmployeeSidebar({ ...props }: EmployeeSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="items-center pl-4">
+            <div className="flex items-center pl-4">
               <Link href="/">
                 <Image
                   src="/bub-logo.svg"
@@ -148,6 +149,7 @@ export function EmployeeSidebar({ ...props }: EmployeeSidebarProps) {
                   className="h-10 w-auto items-center"
                 />
               </Link>
+              <ModeToggle />
             </div>
           </SidebarMenuItem>
         </SidebarMenu>

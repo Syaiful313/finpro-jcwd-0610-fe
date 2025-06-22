@@ -110,17 +110,20 @@ const WorkerHistory = () => {
       WASHING: {
         label: "Washing",
         variant: "default" as const,
-        color: "bg-blue-50 text-blue-700 border-blue-200",
+        color:
+          "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-800",
       },
       IRONING: {
         label: "Ironing",
         variant: "secondary" as const,
-        color: "bg-teal-50 text-teal-700 border-teal-200",
+        color:
+          "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-200 dark:border-teal-800",
       },
       PACKING: {
         label: "Packing",
         variant: "outline" as const,
-        color: "bg-purple-50 text-purple-700 border-purple-200",
+        color:
+          "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-200 dark:border-purple-800",
       },
     };
     return (
@@ -225,7 +228,7 @@ const WorkerHistory = () => {
 
                           <CardContent className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">
+                              <span className="text-muted-foreground text-sm">
                                 Order Total:
                               </span>
                               <span className="text-sm font-semibold">
@@ -235,7 +238,7 @@ const WorkerHistory = () => {
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <div className="text-muted-foreground flex items-center gap-2 text-sm">
                               <Clock className="h-4 w-4 flex-shrink-0" />
                               <span className="text-xs">
                                 Started:{" "}
@@ -261,7 +264,7 @@ const WorkerHistory = () => {
                               </div>
                             )}
 
-                            <div className="rounded bg-gray-50 p-2 text-sm">
+                            <div className="dark:bg-input/50 rounded bg-gray-50 p-2 text-sm">
                               <span className="font-medium">Notes: </span>
                               {workProcess.notes || "No notes provided"}
                             </div>
@@ -294,10 +297,10 @@ const WorkerHistory = () => {
                         height={200}
                         className="mb-6"
                       />
-                      <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                      <h3 className="mb-2 text-xl font-semibold">
                         No Order History
                       </h3>
-                      <p className="max-w-md text-gray-600">
+                      <p className="text-muted max-w-md">
                         Please check back later, or if you've applied filters,
                         try clearing them.
                       </p>

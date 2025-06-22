@@ -13,20 +13,10 @@ import useGetWorkerNotification from "@/hooks/api/employee/worker/useGetWorkerNo
 import useMarkAllAsRead from "@/hooks/api/notification/useMarkAllAsRead";
 import useMarkAsRead from "@/hooks/api/notification/useMarkAsRead";
 import { NotificationResponse } from "@/types/DriverNotification";
-import { NotifType } from "@/types/enum";
 import { isDriver, isWorker } from "@/utils/AuthRole";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
-import {
-  AlertCircle,
-  Bell,
-  Check,
-  CheckCheck,
-  CheckCircle,
-  Loader2,
-  Package,
-  Truck,
-} from "lucide-react";
+import { Bell, Check, CheckCheck, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import NotificationSkeleton from "./NotificationSkeleton";
@@ -150,7 +140,7 @@ export default function NotificationDropdown() {
                   return (
                     <div key={notification.id}>
                       <div
-                        className={`p-3 ${!notification.isRead ? "bg-blue-50" : ""}`}
+                        className={`p-3 ${!notification.isRead ? "bg-input rounded-sm" : ""}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
@@ -184,7 +174,7 @@ export default function NotificationDropdown() {
                               {isMarkingRead ? (
                                 <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                               ) : (
-                                <Check className="h-4 w-4 text-blue-600" />
+                                <Check className="text-primary h-4 w-4" />
                               )}
                             </Button>
                           )}

@@ -284,10 +284,8 @@ export default function RequestList() {
                 priority
                 className="mb-2 h-35 w-35 opacity-70 md:h-50 md:w-50"
               />
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                No Request Yet
-              </h3>
-              <p className="max-w-sm text-sm text-gray-600 md:max-w-md">
+              <h3 className="mb-2 text-xl font-semibold">No Request Yet</h3>
+              <p className="text-muted-foreground max-w-sm text-sm md:max-w-md">
                 Please check back later, or if you've applied filters, try
                 clearing them.
               </p>

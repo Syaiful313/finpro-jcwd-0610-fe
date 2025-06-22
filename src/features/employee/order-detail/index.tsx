@@ -1,18 +1,14 @@
 "use client";
 
-import React from "react";
 import { useParams } from "next/navigation";
-
-import { DriverJobResponse } from "@/types/detailApi";
 import useGetOrderByUuid from "@/hooks/api/employee/driver/useGetOrderByUuid";
-import JobDetails from "./components/DetailOrderDriver";
+import { DriverJobResponse } from "@/types/detailApi";
+import JobDetailsTry from "./components/JobDetail";
+import Loader from "../components/Loader";
 
 const LoadingSpinner = () => (
-  <div className="flex min-h-screen items-center justify-center bg-gray-50">
-    <div className="text-center">
-      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-      <p className="mt-2 text-gray-600">Loading order details...</p>
-    </div>
+  <div>
+    <Loader />
   </div>
 );
 
@@ -87,7 +83,7 @@ const DriverJobDetails = () => {
 
   const jobData = orderData as DriverJobResponse;
 
-  return <JobDetails jobData={jobData} />;
+  return <JobDetailsTry jobData={jobData} />;
 };
 
 export default DriverJobDetails;

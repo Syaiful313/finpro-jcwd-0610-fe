@@ -1,10 +1,7 @@
 import { axiosInstance } from "@/lib/axios";
-import { PaginationQueries } from "@/types/pagination";
 import { useQuery } from "@tanstack/react-query";
 
 const useGetTodayAttendance = () => {
-  console.log("--> useGetTodayAttendance HOOK CALLED");
-
   return useQuery({
     queryKey: ["attendanceToday"],
     queryFn: async () => {

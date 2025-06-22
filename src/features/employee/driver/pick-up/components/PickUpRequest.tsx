@@ -251,10 +251,10 @@ export default function PickUpRequestList() {
                 priority
                 className="mb-2 h-35 w-35 opacity-70 md:h-50 md:w-50"
               />
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
+              <h3 className="mb-2 text-xl font-semibold">
                 No Pick Up Request Yet
               </h3>
-              <p className="max-w-sm text-center text-sm text-gray-600 md:max-w-md">
+              <p className="text-muted-foreground max-w-sm text-center text-sm md:max-w-md">
                 Please check back later, or if you've applied filters, try
                 clearing them.
               </p>

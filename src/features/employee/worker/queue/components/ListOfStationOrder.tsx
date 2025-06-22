@@ -215,7 +215,7 @@ const ListOfStationOrder = () => {
 
                           <CardContent className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">
+                              <span className="text-muted-foreground text-sm">
                                 Total Price:
                               </span>
                               <span className="text-sm font-semibold">
@@ -223,14 +223,14 @@ const ListOfStationOrder = () => {
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <div className="text-muted-foreground flex items-center gap-2 text-sm">
                               <MapPin className="h-4 w-4 flex-shrink-0" />
                               <span className="truncate">
                                 {order.outlet.outletName}
                               </span>
                             </div>
 
-                            <div className="text-xs text-gray-500">
+                            <div className="text-muted-foreground text-xs">
                               Order Date:{" "}
                               {format(new Date(order.createdAt), "PPP, p", {
                                 locale: id,
@@ -275,10 +275,10 @@ const ListOfStationOrder = () => {
                         height={200}
                         className="mb-6"
                       />
-                      <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                      <h3 className="mb-2 text-xl font-semibold">
                         No Order Queue Found
                       </h3>
-                      <p className="max-w-md text-gray-600">
+                      <p className="text-muted-foreground max-w-md">
                         Please check back later, or if you've applied filters,
                         try clearing them.
                       </p>

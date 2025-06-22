@@ -178,8 +178,8 @@ export default function DriverHistory() {
                         <div
                           className={`rounded-full p-2 ${
                             item.jobType === "pickup"
-                              ? "bg-blue-100"
-                              : "bg-green-100"
+                              ? "bg-blue-100 dark:bg-blue-900/40"
+                              : "bg-green-100 dark:bg-green-900/40"
                           }`}
                         >
                           {item.jobType === "pickup" ? (
@@ -188,6 +188,7 @@ export default function DriverHistory() {
                             <Truck className="h-4 w-4 text-green-600" />
                           )}
                         </div>
+
                         <div className="min-w-0 flex-1">
                           <h3 className="text-sm font-semibold sm:text-base">
                             {item.order.orderNumber}

@@ -1,22 +1,26 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
+import { useFormik } from "formik";
 import {
   ArrowLeft,
-  Phone,
-  Copy,
-  Navigation,
   Camera,
-  MapPin,
-  Clock,
-  Package,
-  User,
-  Map,
   CheckCircle,
+  Clock,
+  Copy,
+  Map,
+  MapPin,
+  Navigation,
+  Package,
+  Phone,
+  User,
 } from "lucide-react";
 import Image from "next/image";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,52 +31,49 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
-// Import the types we created
-
+import useCompleteDelivery from "@/hooks/api/employee/driver/useCompleteDelivery";
+import useCompletePickUp from "@/hooks/api/employee/driver/useCompletePickUp";
+import useStartDelivery from "@/hooks/api/employee/driver/useStartDelivery";
+import useStartPickUp from "@/hooks/api/employee/driver/useStartPickUp";
 import {
-  Job,
-  DriverJobResponse,
-  DriverTaskStatus,
+  type DriverJobResponse,
+  type Job,
   OrderStatus,
   formatFullAddress,
   getCustomerName,
-  formatCurrency,
-  formatDateTime,
 } from "@/types/detailApi";
-import { toast } from "sonner";
-import useStartPickUp from "@/hooks/api/employee/driver/useStartPickUp";
-import useStartDelivery from "@/hooks/api/employee/driver/useStartDelivery";
-import useCompletePickUp from "@/hooks/api/employee/driver/useCompletePickUp";
-import useCompleteDelivery from "@/hooks/api/employee/driver/useCompleteDelivery";
-import { useFormik } from "formik";
+import { DriverTaskStatus } from "@/types/enum";
+import { formatDate } from "@/utils/formatDate";
+import formatRupiah from "@/utils/RupiahFormat";
+import { useBreadcrumb } from "../../components/BreadCrumbContext";
+import SimpleMap from "../../driver/components/SimpleMap";
+
 interface DriverOrderDetailPageProps {
   jobData: DriverJobResponse;
 }
 
 interface CompleteJobFormValues {
   notes: string;
-  photos: File[];
+  photo: File | null;
 }
 
 export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
   const [job, setJob] = useState<Job>(jobData.job);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
   const [isStartJobDialogOpen, setIsStartJobDialogOpen] = useState(false);
-  const [notes, setNotes] = useState(job.notes || "");
-  const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+  const { setBreadcrumbs } = useBreadcrumb();
 
   const startPickUpMutation = useStartPickUp();
   const startDeliveryMutation = useStartDelivery();
   const completePickUpMutation = useCompletePickUp(job.id);
   const completeDeliveryMutation = useCompleteDelivery(job.id);
 
-  // Tentukan mutation yang akan digunakan berdasarkan job type
   const startJobMutation =
     jobData.type === "pickup" ? startPickUpMutation : startDeliveryMutation;
   const completeJobMutation =
@@ -80,27 +81,41 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
       ? completePickUpMutation
       : completeDeliveryMutation;
 
+  useEffect(() => {
+    setBreadcrumbs([
+      { label: "Dashboard", href: "/employee" },
+      { label: "Orders", href: "/employee/orders" },
+      { label: "Details" },
+    ]);
+  }, [setBreadcrumbs]);
+
   const initialValues: CompleteJobFormValues = {
     notes: job.notes || "",
-    photos: [],
+    photo: null,
   };
 
   const formik = useFormik({
     initialValues,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      if (values.photos.length === 0) {
-        toast.error("Please upload at least one photo to complete the task.");
+      if (!values.photo) {
+        toast.error("Please upload a photo to complete the task.");
         return;
       }
 
       try {
-        await completeJobMutation.mutateAsync({
-          notes: values.notes,
-          photos: values.photos,
-        });
+        if (jobData.type === "pickup") {
+          await completePickUpMutation.mutateAsync({
+            notes: values.notes,
+            pickUpPhotos: values.photo,
+          });
+        } else {
+          await completeDeliveryMutation.mutateAsync({
+            notes: values.notes,
+            deliveryPhotos: values.photo,
+          });
+        }
 
-        // Update local job status
         setJob((prev) => ({
           ...prev,
           status: DriverTaskStatus.COMPLETED,
@@ -115,8 +130,6 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
     },
   });
 
-
-  // Helper functions
   const getStatusColor = (status: DriverTaskStatus | OrderStatus) => {
     switch (status) {
       case DriverTaskStatus.PENDING:
@@ -128,7 +141,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
       case DriverTaskStatus.IN_PROGRESS:
       case OrderStatus.ARRIVED_AT_CUSTOMER:
       case OrderStatus.BEING_DELIVERED_TO_CUSTOMER:
-        return "bg-green-500";
+        return "bg-primary";
       case DriverTaskStatus.COMPLETED:
       case OrderStatus.COMPLETED:
       case OrderStatus.DELIVERED_TO_CUSTOMER:
@@ -169,18 +182,16 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
     }
   };
 
-  // Get formatted address
   const addressInfo = formatFullAddress(job.order);
-
-  // Get customer name (this might need adjustment based on your user structure)
+  const coordinates = {
+    latitude: job.order.latitude,
+    longitude: job.order.longitude,
+  };
   const customerName = getCustomerName(jobData.job);
-
-  // Get customer phone (you might need to fetch this separately or include in the API)
   const customerPhone = job.order.user.phoneNumber;
 
   const copyAddress = () => {
     navigator.clipboard.writeText(addressInfo.fullAddress);
-    // alert("Address copied to clipboard!");
     toast("Address copied to clipboard!");
   };
 
@@ -189,90 +200,39 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
   };
 
   const startNavigation = () => {
-    // Since we don't have lat/lng in the current API, use address for navigation
-    const encodedAddress = encodeURIComponent(addressInfo.fullAddress);
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-    window.open(url, "_blank");
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coordinates.latitude},${coordinates.longitude}`;
+    window.open(googleMapsUrl, "_blank");
   };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    setSelectedPhotos((prev) => [...prev, ...files]);
-  };
-
-  const removePhoto = (index: number) => {
-    setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
+    const file = event.target.files?.[0] || null;
+    formik.setFieldValue("photo", file);
   };
 
   const startJob = async () => {
     try {
-      const result = await startJobMutation.mutateAsync(job.id);
-
+      await startJobMutation.mutateAsync(job.id);
       setJob((prev) => ({
         ...prev,
         status: DriverTaskStatus.IN_PROGRESS,
       }));
       setIsStartJobDialogOpen(false);
-      const taskType = jobData.type === "pickup" ? "Pickup" : "Delivery";
     } catch (error) {
       console.error("Error starting job:", error);
     }
   };
 
-  const completeTask = async () => {
-    if (selectedPhotos.length === 0) {
-      alert("Please upload at least one photo to complete the task.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const taskType = jobData.type;
-
-      // Create FormData for photo upload
-      const formData = new FormData();
-      selectedPhotos.forEach((photo) => {
-        formData.append(`photos`, photo);
-      });
-      formData.append("notes", notes);
-      formData.append("jobId", job.id.toString());
-      formData.append("taskType", taskType);
-
-      // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Update job status to COMPLETED
-      setJob((prev) => ({
-        ...prev,
-        status: DriverTaskStatus.COMPLETED,
-        notes: notes,
-      }));
-
-      setIsCompleteDialogOpen(false);
-      alert(
-        `${taskType.charAt(0).toUpperCase() + taskType.slice(1)} completed successfully!`,
-      );
-
-      // Reset form
-      setSelectedPhotos([]);
-      setNotes("");
-    } catch (error) {
-      console.error("Error completing task:", error);
-      alert("Failed to complete task. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const renderActionButtons = () => {
     const taskType = jobData.type === "pickup" ? "Pickup" : "Delivery";
+    const isLoading =
+      startJobMutation.isPending || completeJobMutation.isPending;
 
     if (job.status === DriverTaskStatus.COMPLETED) {
       return (
-        <div className="fixed right-0 bottom-0 left-0 p-4 md:static">
+        <div className="fixed right-0 bottom-0 left-0 p-4 md:static md:bg-transparent md:p-0">
           <div className="flex items-center justify-center gap-2 text-green-600 md:p-5">
             <CheckCircle className="h-5 w-5" />
-            <span className="font-medium">
+            <span className="font-lg md:font-xl">
               {taskType} Completed Successfully!
             </span>
           </div>
@@ -283,13 +243,13 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
     switch (job.status) {
       case DriverTaskStatus.ASSIGNED:
         return (
-          <div className="fixed right-0 bottom-0 left-0 space-y-2 border-t bg-white p-4">
+          <div className="fixed right-0 bottom-0 left-0 space-y-2 border-t p-4 md:static md:mx-4 md:mb-4 md:border-t-0 md:bg-transparent md:p-0">
             <Dialog
               open={isStartJobDialogOpen}
               onOpenChange={setIsStartJobDialogOpen}
             >
               <DialogTrigger asChild>
-                <Button className="w-full" size="lg">
+                <Button className="w-full" size="lg" disabled={isLoading}>
                   <MapPin className="mr-2 h-4 w-4" />
                   Start {taskType}
                 </Button>
@@ -303,7 +263,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
                     <MapPin className="h-4 w-4" />
                     <AlertDescription>
                       Are you ready to start the {taskType.toLowerCase()} job?
-                      Make sure you have arrived at the customer location.
+                      Prepare your vehicle for the {taskType.toLowerCase()}.
                     </AlertDescription>
                   </Alert>
                   <div className="flex gap-2">
@@ -328,15 +288,16 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
             </Dialog>
           </div>
         );
+
       case DriverTaskStatus.IN_PROGRESS:
         return (
-          <div className="fixed right-0 bottom-0 left-0 border-t bg-white p-4">
+          <div className="fixed right-0 bottom-0 left-0 border-t p-4 md:static md:mx-4 md:mb-4 md:border-t-0 md:bg-transparent md:p-0">
             <Dialog
               open={isCompleteDialogOpen}
               onOpenChange={setIsCompleteDialogOpen}
             >
               <DialogTrigger asChild>
-                <Button className="w-full" size="lg">
+                <Button className="w-full" size="lg" disabled={isLoading}>
                   <Camera className="mr-2 h-4 w-4" />
                   Complete {taskType}
                 </Button>
@@ -345,7 +306,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
                 <DialogHeader>
                   <DialogTitle>Complete {taskType}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
+                <form onSubmit={formik.handleSubmit} className="space-y-4">
                   <Alert>
                     <Camera className="h-4 w-4" />
                     <AlertDescription>
@@ -355,44 +316,46 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
                   </Alert>
 
                   <div>
-                    <Label htmlFor="photos">Upload Photos *</Label>
+                    <Label htmlFor="photo">Upload Photo *</Label>
                     <Input
-                      id="photos"
+                      id="photo"
                       type="file"
-                      multiple
                       accept="image/*"
                       onChange={handlePhotoUpload}
                       className="mt-1"
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      Upload photos as proof of {taskType.toLowerCase()}{" "}
+                      Upload a photo as proof of {taskType.toLowerCase()}{" "}
                       completion (Required)
                     </p>
                   </div>
 
-                  {selectedPhotos.length > 0 && (
+                  {formik.values.photo && (
                     <div>
-                      <Label>Selected Photos ({selectedPhotos.length})</Label>
-                      <div className="mt-2 grid grid-cols-2 gap-2">
-                        {selectedPhotos.map((photo, index) => (
-                          <div key={index} className="relative">
-                            <Image
-                              src={URL.createObjectURL(photo)}
-                              alt={`Photo ${index + 1}`}
-                              width={100}
-                              height={100}
-                              className="h-20 w-full rounded border object-cover"
-                            />
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="absolute top-1 right-1 h-6 w-6 p-0"
-                              onClick={() => removePhoto(index)}
-                            >
-                              ×
-                            </Button>
-                          </div>
-                        ))}
+                      <Label>Selected Photo</Label>
+                      <div className="mt-2">
+                        <div className="relative inline-block">
+                          <Image
+                            src={
+                              URL.createObjectURL(formik.values.photo) ||
+                              "/placeholder.svg" ||
+                              "/placeholder.svg"
+                            }
+                            alt="Selected photo"
+                            width={200}
+                            height={150}
+                            className="h-32 w-48 rounded border object-cover"
+                          />
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                            onClick={() => formik.setFieldValue("photo", null)}
+                            type="button"
+                          >
+                            ×
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -401,9 +364,11 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
                     <Label htmlFor="notes">Notes</Label>
                     <Textarea
                       id="notes"
+                      name="notes"
                       placeholder={`Add notes about the ${taskType.toLowerCase()}...`}
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
+                      value={formik.values.notes}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       className="mt-1"
                       rows={3}
                     />
@@ -415,21 +380,25 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setIsCompleteDialogOpen(false)}
+                      onClick={() => {
+                        setIsCompleteDialogOpen(false);
+                        formik.resetForm();
+                      }}
                       className="flex-1"
                       disabled={isLoading}
+                      type="button"
                     >
                       Cancel
                     </Button>
                     <Button
-                      onClick={completeTask}
+                      type="submit"
                       className="flex-1"
-                      disabled={selectedPhotos.length === 0 || isLoading}
+                      disabled={!formik.values.photo || isLoading}
                     >
                       {isLoading ? "Completing..." : `Complete ${taskType}`}
                     </Button>
                   </div>
-                </div>
+                </form>
               </DialogContent>
             </Dialog>
           </div>
@@ -440,15 +409,20 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen pb-20 md:pb-0">
       {/* Header */}
-      <div className="border-b bg-white p-4">
+      <div className="border-b p-4">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="block md:hidden"
+            onClick={() => router.back()}
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex gap-3">
-            <h1 className="text-lg font-semibold">#{job.order.orderNumber}</h1>
+            <h1 className="text-lg font-semibold">{job.order.orderNumber}</h1>
             <Badge className={`${getStatusColor(job.status)} text-white`}>
               {getStatusText(job.status)}
             </Badge>
@@ -457,33 +431,56 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
       </div>
 
       {/* Status Progress Indicator */}
-      <div className="border-b bg-white p-4">
+      <div className="border-b p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.ASSIGNED ? "bg-blue-500" : "bg-green-500"}`}
+              className={`h-3 w-3 rounded-full ${
+                job.status === DriverTaskStatus.ASSIGNED
+                  ? "bg-blue-500"
+                  : "bg-primary"
+              }`}
             />
             <span className="text-sm font-medium">Assigned</span>
           </div>
           <div className="mx-4 h-0.5 flex-1 bg-gray-200">
             <div
-              className={`h-full transition-all duration-500 ${job.status === DriverTaskStatus.IN_PROGRESS || job.status === DriverTaskStatus.COMPLETED ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
+              className={`h-full transition-all duration-500 ${
+                job.status === DriverTaskStatus.IN_PROGRESS ||
+                job.status === DriverTaskStatus.COMPLETED
+                  ? "bg-primary w-full"
+                  : "w-0 bg-gray-200"
+              }`}
             />
           </div>
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.IN_PROGRESS ? "bg-green-500" : job.status === DriverTaskStatus.COMPLETED ? "bg-green-500" : "bg-gray-300"}`}
+              className={`h-3 w-3 rounded-full ${
+                job.status === DriverTaskStatus.IN_PROGRESS
+                  ? "bg-primary"
+                  : job.status === DriverTaskStatus.COMPLETED
+                    ? "bg-primary"
+                    : "bg-gray-300"
+              }`}
             />
             <span className="text-sm font-medium">In Progress</span>
           </div>
           <div className="mx-4 h-0.5 flex-1 bg-gray-200">
             <div
-              className={`h-full transition-all duration-500 ${job.status === DriverTaskStatus.COMPLETED ? "w-full bg-green-500" : "w-0 bg-gray-200"}`}
+              className={`h-full transition-all duration-500 ${
+                job.status === DriverTaskStatus.COMPLETED
+                  ? "bg-primary w-full"
+                  : "w-0 bg-gray-200"
+              }`}
             />
           </div>
           <div className="flex items-center gap-2">
             <div
-              className={`h-3 w-3 rounded-full ${job.status === DriverTaskStatus.COMPLETED ? "bg-green-500" : "bg-gray-300"}`}
+              className={`h-3 w-3 rounded-full ${
+                job.status === DriverTaskStatus.COMPLETED
+                  ? "bg-primary"
+                  : "bg-gray-300"
+              }`}
             />
             <span className="text-sm font-medium">Completed</span>
           </div>
@@ -505,18 +502,18 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <p className="text-sm text-gray-600">Phone Number</p>
+            <p className="text-secondary-foreground text-sm">Phone Number</p>
             <p className="font-medium">{customerPhone}</p>
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">Address</p>
+              <p className="text-secondary-foreground text-sm">Address</p>
               <Button variant="ghost" size="sm" onClick={copyAddress}>
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
             <p className="font-medium">{addressInfo.addressLine}</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-secondary-foreground text-sm">
               {addressInfo.district}, {addressInfo.city}, {addressInfo.province}{" "}
               {addressInfo.postalCode}
             </p>
@@ -524,7 +521,7 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4 text-gray-500" />
-              <span>{formatDateTime(job.pickUpScheduleOutlet)}</span>
+              <span>{formatDate(job.pickUpScheduleOutlet)}</span>
             </div>
             <Badge variant="outline">{jobData.type.toUpperCase()}</Badge>
           </div>
@@ -541,11 +538,10 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
         </CardHeader>
         <CardContent>
           <div className="flex h-64 items-center justify-center rounded-lg bg-gray-200">
-            <div className="text-center">
-              <MapPin className="mx-auto mb-2 h-8 w-8 text-gray-500" />
-              <p className="text-sm text-gray-600">Interactive Map</p>
-              <p className="text-xs text-gray-500">{addressInfo.fullAddress}</p>
-            </div>
+            <SimpleMap
+              coordinates={coordinates}
+              address={addressInfo.addressLine}
+            />
           </div>
           <Button
             variant="outline"
@@ -570,25 +566,27 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-600">Order Number</span>
-                <span className="font-medium">#{job.order.orderNumber}</span>
+                <span className="text-secondary-foreground">Order Number</span>
+                <span className="font-medium">{job.order.orderNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Weight</span>
+                <span className="text-secondary-foreground">Total Weight</span>
                 <span className="font-medium">{job.order.totalWeight} kg</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Delivery Fee</span>
+                <span className="text-secondary-foreground">Delivery Fee</span>
                 <span className="font-medium">
-                  {formatCurrency(job.order.totalDeliveryFee)}
+                  {formatRupiah(job.order.totalDeliveryFee)}
                 </span>
               </div>
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total Price</span>
-                <span>{formatCurrency(job.order.totalPrice)}</span>
+                <span>{formatRupiah(job.order.totalPrice)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Payment Status</span>
+                <span className="text-secondary-foreground">
+                  Payment Status
+                </span>
                 <Badge
                   variant={
                     job.order.paymentStatus === "PAID" ? "default" : "secondary"
@@ -612,14 +610,14 @@ export default function JobDetails({ jobData }: DriverOrderDetailPageProps) {
             <Badge className={`${getStatusColor(job.status)} text-white`}>
               {getStatusText(job.status)}
             </Badge>
-            <span className="text-sm text-gray-600">
+            <span className="text-secondary-foreground text-sm">
               {jobData.type.charAt(0).toUpperCase() + jobData.type.slice(1)}{" "}
               Task
             </span>
           </div>
           {job.notes && (
-            <div className="mt-3 rounded-lg bg-gray-50 p-3">
-              <p className="text-sm text-gray-600">Driver Notes:</p>
+            <div className="bg-input/50 mt-3 rounded-lg p-3">
+              <p className="text-sm">Driver Notes:</p>
               <p className="text-sm">{job.notes}</p>
             </div>
           )}
