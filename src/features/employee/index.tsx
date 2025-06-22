@@ -1,7 +1,13 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
+import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
+import useGetDriverJobs, {
+  useGetDriverJobsProps,
+} from "@/hooks/api/employee/driver/useGetDriverJob";
+import { isDriver } from "@/utils/AuthRole";
 import { Calendar, Clock, ClockFading, ListCheck, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -12,14 +18,13 @@ import RecentAttendance from "./components/RecentAttendance";
 import RecentOrder from "./components/RecentOrder";
 import UserGreeting from "./components/UserGreeting";
 import NotificationDropdown from "./notifications/Notifications";
-import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
-import useAxios from "@/hooks/useAxios";
-import useGetAttendance from "@/hooks/api/employee/attendance/useGetAttendance";
-import useGetDriverJobs from "@/hooks/api/employee/driver/useGetDriverJob";
-import { isDriver } from "@/utils/AuthRole";
+import { Card } from "@/components/ui/card";
+import { ActiveJobs } from "@/types/activeJobs";
+import { PageableResponse } from "@/types/pagination";
+import { UseQueryOptions } from "@tanstack/react-query";
+import { ModeToggle } from "@/components/ToogleDarkMode";
 
 const EmployeePage: React.FC = () => {
-  console.log("PARENT RENDER: EmployeePage is rendering...");
   const { data: session, status } = useSession();
   const router = useRouter();
   const { setBreadcrumbs } = useBreadcrumb();
@@ -47,27 +52,6 @@ const EmployeePage: React.FC = () => {
   } = useGetAttendance(recentQueries);
   const recentAttendance = recentAttendanceData?.data || [];
 
-  const driverJobQueries = useMemo(
-    () =>
-      ({
-        status: "active",
-      }) as const,
-    [],
-  );
-  const {
-    data: activeJobsData,
-    isLoading: isActiveJobsLoading,
-    isError: isActiveJobsError,
-    error: activeJobsErrorObject,
-    refetch: refetchActiveJobs,
-  } = useGetDriverJobs(driverJobQueries);
-  const activeJobs = activeJobsData?.data || [];
-  const totalActiveJobs = activeJobsData?.meta?.total || 0;
-
-  useEffect(() => {
-    setBreadcrumbs([{ label: "Dashboard", href: "/employee" }]);
-  }, []);
-
   const isAuthenticated = status === "authenticated";
   const isCurrentlyWorking =
     todayAttendanceData?.meta?.hasClockedIn &&
@@ -76,9 +60,39 @@ const EmployeePage: React.FC = () => {
   const showRecentJobs =
     isAuthenticated && (isDriver(session) || isCurrentlyWorking);
 
+  const driverJobQueries = useMemo(
+    () =>
+      ({
+        status: "active",
+      }) as const,
+    [],
+  );
+
+  const {
+    data: activeJobsData,
+    isLoading: isActiveJobsLoading,
+    isError: isActiveJobsError,
+    error: activeJobsErrorObject,
+    refetch: refetchActiveJobs,
+  } = useGetDriverJobs(driverJobQueries, {
+    enabled: isAuthenticated && isDriver(session),
+  } as UseQueryOptions<
+    PageableResponse<ActiveJobs>,
+    Error,
+    PageableResponse<ActiveJobs>,
+    [string, useGetDriverJobsProps?]
+  >);
+
+  const activeJobs = activeJobsData?.data || [];
+  const totalActiveJobs = activeJobsData?.meta?.total || 0;
+
+  useEffect(() => {
+    setBreadcrumbs([{ label: "Dashboard", href: "/employee" }]);
+  }, []);
+
   return (
-    <div className="min-h-screen md:p-6 dark:bg-gray-900">
-      <div className="relative bg-gradient-to-br from-[#0051b3] to-[#0080FF] md:h-50 md:rounded-lg">
+    <div className="min-h-screen md:p-6">
+      <div className="to-primary relative bg-gradient-to-br from-[#0051b3] md:h-50 md:rounded-lg dark:bg-none dark:from-gray-800 dark:to-gray-900">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10 md:hidden"
           style={{ backgroundImage: "url(/laundry.webp)" }}
@@ -91,8 +105,13 @@ const EmployeePage: React.FC = () => {
         <div className="relative z-10">
           <div className="block h-47 p-4 md:hidden">
             <div className="flex items-center justify-between gap-3 p-2">
-              <UserGreeting isMobile={true} />
-              <div className="mt-4">
+              <UserGreeting
+                isMobile={true}
+                user={session?.user || null}
+                session={session}
+              />
+              <div className="mt-4 flex gap-2">
+                <ModeToggle />
                 <NotificationDropdown />
               </div>
             </div>
@@ -101,7 +120,11 @@ const EmployeePage: React.FC = () => {
           <div className="hidden px-6 py-8 md:block">
             <div className="mx-auto max-w-7xl">
               <div className="mt-4 flex items-center justify-between space-x-2 px-6">
-                <UserGreeting isMobile={false} />
+                <UserGreeting
+                  isMobile={false}
+                  user={session?.user || null}
+                  session={session}
+                />
                 <Avatar className="h-25 w-25 border-4 border-white/20">
                   <AvatarImage
                     src={`${session?.user?.profilePic}`}
@@ -115,7 +138,7 @@ const EmployeePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative z-10 -mt-6 min-h-[75vh] rounded-t-4xl bg-white md:mx-auto md:mt-0 md:min-h-0 md:max-w-7xl md:rounded-t-none md:bg-transparent md:py-8">
+      <div className="relative z-10 -mt-6 min-h-[75vh] rounded-t-4xl bg-white md:mx-auto md:mt-0 md:min-h-0 md:max-w-7xl md:rounded-t-none md:bg-transparent md:py-8 dark:bg-[#171717]">
         <div className="block md:hidden">
           <AttendanceCard
             isMobile={true}
@@ -173,7 +196,7 @@ const EmployeePage: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
+            <Card className="space-y-3 rounded-lg border-0 p-4 shadow-sm">
               <div className="flex items-center gap-2 text-2xl font-semibold">
                 <ListCheck /> Today's Schedule
               </div>
@@ -197,9 +220,9 @@ const EmployeePage: React.FC = () => {
                   <span className="font-semibold">12:00 - 13:00</span>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="space-y-3 rounded-lg border-0 bg-white p-4 shadow-sm dark:bg-gray-800">
+            <Card className="space-y-3 rounded-lg border-0 p-4 shadow-sm">
               <div className="flex items-center gap-2 text-2xl font-semibold">
                 <ClockFading /> Quick Actions
               </div>
@@ -225,7 +248,7 @@ const EmployeePage: React.FC = () => {
                   Profile Settings
                 </Button>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </div>

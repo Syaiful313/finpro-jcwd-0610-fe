@@ -22,7 +22,6 @@ import { enUS } from "date-fns/locale";
 const RecentListOrder = () => {
   const router = useRouter();
 
-  // Fetch recent orders using the same hook as ListOfStationOrder
   const {
     data: stationOrder,
     isPending,
@@ -30,7 +29,7 @@ const RecentListOrder = () => {
     isError,
     error,
   } = useGetStationOrder({
-    take: 6, // Show only recent 6 orders
+    take: 2,
     page: 1,
     sortBy: "createdAt",
     sortOrder: "desc",
@@ -61,7 +60,6 @@ const RecentListOrder = () => {
   };
 
   const getStepStatus = (orderWorkProcess: any[], bypassStatus?: string) => {
-    // Find incomplete work process (completedAt is null)
     const incompleteProcess = orderWorkProcess?.find(
       (process: any) => process.completedAt === null,
     );
@@ -169,9 +167,9 @@ const RecentListOrder = () => {
           {[1, 2].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="mb-2 h-4 w-1/3 rounded bg-gray-200"></div>
-                <div className="mb-4 h-3 w-1/2 rounded bg-gray-200"></div>
-                <div className="h-10 w-full rounded bg-gray-200"></div>
+                <div className="mb-2 h-4 w-1/3 rounded bg-gray-200 dark:bg-[#404040]"></div>
+                <div className="mb-4 h-3 w-1/2 rounded bg-gray-200 dark:bg-[#404040]"></div>
+                <div className="h-10 w-full rounded bg-gray-200 dark:bg-[#404040]"></div>
               </CardContent>
             </Card>
           ))}
@@ -215,10 +213,8 @@ const RecentListOrder = () => {
             height={170}
             className="mb-6 bg-contain opacity-70"
           />
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">
-            No Recent Orders Yet
-          </h3>
-          <p className="mb-6 max-w-md text-gray-600">
+          <h3 className="mb-2 text-lg font-semibold">No Recent Orders Yet</h3>
+          <p className="text-muted-foreground mb-6 max-w-md">
             You haven't worked on any orders yet. Start by claiming an order to
             begin your work.
           </p>

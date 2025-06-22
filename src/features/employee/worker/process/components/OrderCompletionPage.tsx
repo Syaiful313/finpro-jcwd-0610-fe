@@ -152,11 +152,11 @@ export default function OrderCompletionPage() {
 
       {/* Desktop Layout */}
       <div className="hidden w-full max-w-4xl md:block">
-        <div className="rounded-lg bg-white p-8 shadow-sm">
+        <div className="rounded-lg p-8 shadow-sm">
           {/* Success Icon and Message */}
           <div className="mb-8 text-center">
             <CheckCircle className="text-primary mx-auto mb-6 h-20 w-20" />
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">
+            <h2 className="mb-4 text-2xl font-bold">
               {currentConfig.title} Process Completed!
             </h2>
             <p className="text-lg text-gray-600">
@@ -176,7 +176,7 @@ export default function OrderCompletionPage() {
                 Waiting for Customer Payment
               </Badge>
             ) : (
-              <Badge className="bg-primary flex items-center gap-3 px-4 py-2 text-base text-white">
+              <Badge className="bg-primary dark:bg-accent flex items-center gap-3 px-4 py-2 text-base text-white">
                 {station === "packing" ? (
                   <Truck className="h-5 w-5" />
                 ) : (

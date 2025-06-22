@@ -30,7 +30,7 @@ export interface User {
   email: string;
   password: string;
   role: string;
-  phoneNumber: string | null;
+  phoneNumber: string;
   profilePic: string | null;
   isVerified: boolean;
   provider: string;
@@ -67,7 +67,7 @@ export interface Order {
   orderStatus: OrderStatus;
   scheduledPickupTime: string | null;
   actualPickupTime: string | null;
-  scheduledDeliveryTime: string | null;
+  scheduledDeliveryTime: string;
   actualDeliveryTime: string | null;
   totalDeliveryFee: number;
   totalWeight: number;

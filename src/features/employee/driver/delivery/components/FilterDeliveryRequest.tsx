@@ -38,12 +38,12 @@ const DeliveryRequestFilters: React.FC<DeliveryRequestFiltersProps> = ({
     <div className="bg-muted rounded-lg p-3">
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4 bg-white" />
+          <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
           <Input
             placeholder="Search by order number or customer name..."
             value={search}
             onChange={handleSearchChange}
-            className="bg-white pl-9 text-xs"
+            className="dark:bg-secondary bg-white pl-9 text-xs"
           />
         </div>
         <Select value={sortOrder} onValueChange={handleSortOrderChange}>

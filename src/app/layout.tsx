@@ -48,7 +48,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      
       <body className={`${manrope.className} antialiased`}>
         <StoreProvider>
           <ReactQueryProvider>
