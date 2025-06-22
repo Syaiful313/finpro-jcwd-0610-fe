@@ -10,6 +10,7 @@ export interface User {
   phoneNumber?: string;
   profilePic?: string;
   isVerified?: boolean;
+  verificationSentAt?: string;
   provider?: Provider;
   createdAt: string;
   updatedAt: string;

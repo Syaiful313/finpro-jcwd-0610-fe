@@ -1,4 +1,4 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import { FC } from "react";
 import { motion } from 'framer-motion';
 import { User } from "@/types/user";
@@ -13,13 +13,7 @@ interface PickupFormProps {
     setShowConfirmModal: (open: boolean) => void;
 }
 
-const PickupForm: FC<PickupFormProps> = ({
-  user,
-  itemVariants,
-  setPendingValues,
-  setFormActions,
-  setShowConfirmModal
-}) => {
+const PickupForm: FC<PickupFormProps> = ({ user, itemVariants, setPendingValues, setFormActions, setShowConfirmModal }) => {
   return (
     <Formik
           initialValues={{ addressId: '', scheduledPickupTime: '' }}
@@ -35,7 +29,12 @@ const PickupForm: FC<PickupFormProps> = ({
             setShowConfirmModal(true);
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, values }) => {
+            const selectedAddress = user?.addresses?.find(
+              (addr) => addr.id === Number(values.addressId)
+            );
+
+            return (
             <Form className="space-y-6">
               <motion.div variants={itemVariants}>
                 <label htmlFor="addressId" className="block text-gray-700 text-lg font-semibold mb-2">
@@ -54,12 +53,24 @@ const PickupForm: FC<PickupFormProps> = ({
                   }}
                 >
                   <option value="">-- Select an Address --</option>
-                  {user?.addresses?.map((addr) => (
-                    <option key={addr.id} value={addr.id}>
-                      {addr.addressName}
-                    </option>
+                  {user?.addresses
+                    ?.slice()
+                    .sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0))
+                    .map((addr) => (
+                      <option key={addr.id} value={addr.id}>
+                        {addr.addressName} {addr.isPrimary ? "(Primary)" : ""}
+                      </option>
                   ))}
                 </Field>
+
+                {selectedAddress && (
+                  <div className="mt-4 p-4 rounded-xl bg-white border border-gray-300 text-sm text-gray-700 shadow-sm">
+                    <p className="font-semibold mb-1">{selectedAddress.addressName}</p>
+                    <p>{selectedAddress.addressLine}</p>
+                    <p>{selectedAddress.district}, {selectedAddress.city}</p>
+                    <p>{selectedAddress.province}, {selectedAddress.postalCode}</p>
+                  </div>
+                )}
                 <ErrorMessage name="addressId" component="div" className="text-red-600 text-sm mt-2" />
               </motion.div>
 
@@ -101,7 +112,8 @@ const PickupForm: FC<PickupFormProps> = ({
                 )}
               </motion.button>
             </Form>
-          )}
+            )
+          }}
         </Formik>
     )
 }

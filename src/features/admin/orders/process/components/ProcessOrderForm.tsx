@@ -6,21 +6,16 @@ import useProcessOrder, {
   cleanPayload,
 } from "@/hooks/api/order/useProcessOrder";
 import { DistanceCalculator } from "@/utils/distanceCalculator";
-import { Form, Formik } from "formik";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Loader2,
-} from "lucide-react";
+import { Form, Formik, FormikProps } from "formik";
+import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import * as Yup from "yup";
 
-// Import komponen yang sudah dipisah
-import { TotalWeightCard } from "./TotalWeightCard";
+import { InfoCard } from "./InfoCard";
 import { OrderItemsCard } from "./OrderItemsCard";
 import { OrderSummaryCard } from "./OrderSummaryCard";
-import { InfoCard } from "./InfoCard";
+import { TotalWeightCard } from "./TotalWeightCard";
 
 interface OrderItemDetail {
   name: string;
@@ -71,28 +66,23 @@ export function ProcessOrderForm({
   outletInfo,
 }: ProcessOrderFormProps) {
   const router = useRouter();
+  const formikRef = useRef<FormikProps<FormValues>>(null);
+  const isSubmittingRef = useRef(false);
 
   const { data: laundryItemsResponse, isLoading: isLoadingItems } =
     useGetLaundryItems();
   const { mutateAsync: processOrder, isPending: isProcessing } =
     useProcessOrder();
 
-  // Handle berbagai format response
   const laundryItems = useMemo(() => {
     if (!laundryItemsResponse) return [];
-    
-    // Jika response langsung array
+
     if (Array.isArray(laundryItemsResponse)) {
       return laundryItemsResponse;
     }
-    
-    // Response dari backend sudah dalam format yang benar
+
     return laundryItemsResponse;
   }, [laundryItemsResponse]);
-
-  // Debug log untuk melihat struktur data - hapus setelah selesai debug
-  console.log('laundryItemsResponse:', laundryItemsResponse);
-  console.log('laundryItems processed:', laundryItems, 'isArray:', Array.isArray(laundryItems));
 
   const initialValues: FormValues = {
     totalWeight: 0,
@@ -104,7 +94,6 @@ export function ProcessOrderForm({
       .min(0, "Total berat tidak boleh negatif")
       .when("orderItems", {
         is: (orderItems: ProcessOrderItem[]) => {
-          // Tambahkan pengecekan untuk laundryItems
           if (!laundryItems || !Array.isArray(laundryItems)) return false;
           return orderItems.some((item) => {
             const laundryItem = laundryItems.find(
@@ -130,7 +119,6 @@ export function ProcessOrderForm({
             .notOneOf([-1], "Item laundry harus dipilih"),
           quantity: Yup.number().when("laundryItemId", {
             is: (laundryItemId: number) => {
-              // Tambahkan pengecekan untuk laundryItems
               if (!laundryItems || !Array.isArray(laundryItems)) return false;
               const laundryItem = laundryItems.find(
                 (l) => l.id === laundryItemId,
@@ -145,7 +133,6 @@ export function ProcessOrderForm({
           }),
           weight: Yup.number().when("laundryItemId", {
             is: (laundryItemId: number) => {
-              // Tambahkan pengecekan untuk laundryItems
               if (!laundryItems || !Array.isArray(laundryItems)) return false;
               const laundryItem = laundryItems.find(
                 (l) => l.id === laundryItemId,
@@ -174,19 +161,15 @@ export function ProcessOrderForm({
   });
 
   const hasPerKgItems = (orderItems: ProcessOrderItem[]) => {
-    // Tambahkan pengecekan null/undefined dan pastikan laundryItems adalah array
     if (!laundryItems || !Array.isArray(laundryItems)) return false;
-    
+
     return orderItems.some((item) => {
-      const laundryItem = laundryItems.find(
-        (l) => l.id === item.laundryItemId,
-      );
+      const laundryItem = laundryItems.find((l) => l.id === item.laundryItemId);
       return laundryItem?.pricingType === "PER_KG";
     });
   };
 
   const calculateLaundrySubtotal = (orderItems: ProcessOrderItem[]) => {
-    // Tambahkan pengecekan null/undefined dan pastikan laundryItems adalah array
     if (!laundryItems || !Array.isArray(laundryItems)) return 0;
 
     return orderItems.reduce((total, item) => {
@@ -211,7 +194,6 @@ export function ProcessOrderForm({
   }, [customerAddress, outletInfo]);
 
   const getLaundryItemById = (id: number) => {
-    // Tambahkan pengecekan null/undefined dan pastikan laundryItems adalah array
     if (!laundryItems || !Array.isArray(laundryItems)) return undefined;
     return laundryItems.find((item) => item.id === id);
   };
@@ -224,26 +206,50 @@ export function ProcessOrderForm({
     }).format(amount);
   };
 
-  const handleSubmit = async (values: FormValues) => {
-    const payload = cleanPayload({
-      totalWeight: hasPerKgItems(values.orderItems)
-        ? values.totalWeight
-        : values.totalWeight || 1,
-      orderItems: values.orderItems.map((item) => ({
-        laundryItemId: item.laundryItemId,
-        quantity: item.quantity,
-        weight: item.weight,
-        color: item.color,
-        brand: item.brand,
-        materials: item.materials,
-        orderItemDetails: item.orderItemDetails,
-      })),
-    });
+  const handleSubmit = useCallback(
+    async (values: FormValues) => {
+      if (isSubmittingRef.current || isProcessing) {
+        console.log("Submission blocked - already processing");
+        return;
+      }
 
-    try {
-      await processOrder({ orderId, payload });
-    } catch (error) {}
-  };
+      isSubmittingRef.current = true;
+
+      const payload = cleanPayload({
+        totalWeight: hasPerKgItems(values.orderItems)
+          ? values.totalWeight
+          : values.totalWeight || 1,
+        orderItems: values.orderItems.map((item) => ({
+          laundryItemId: item.laundryItemId,
+          quantity: item.quantity,
+          weight: item.weight,
+          color: item.color,
+          brand: item.brand,
+          materials: item.materials,
+          orderItemDetails: item.orderItemDetails,
+        })),
+      });
+
+      try {
+        await processOrder({ orderId, payload });
+      } catch (error) {
+        console.error("Process order error:", error);
+      } finally {
+        isSubmittingRef.current = false;
+      }
+    },
+    [hasPerKgItems, processOrder, orderId, isProcessing],
+  );
+
+  const handleNavigation = useCallback(() => {
+    if (formikRef.current) {
+      formikRef.current.resetForm();
+    }
+
+    isSubmittingRef.current = false;
+
+    router.back();
+  }, [router]);
 
   if (isLoadingItems) {
     return (
@@ -256,7 +262,11 @@ export function ProcessOrderForm({
     );
   }
 
-  if (!laundryItems || !Array.isArray(laundryItems) || laundryItems.length === 0) {
+  if (
+    !laundryItems ||
+    !Array.isArray(laundryItems) ||
+    laundryItems.length === 0
+  ) {
     return (
       <div className="flex h-64 items-center justify-center px-2 sm:px-4">
         <div className="text-center">
@@ -267,11 +277,7 @@ export function ProcessOrderForm({
           <p className="mt-2 text-sm text-gray-500">
             Silakan hubungi administrator untuk menambahkan item laundry.
           </p>
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-            className="mt-4"
-          >
+          <Button variant="outline" onClick={handleNavigation} className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
@@ -283,12 +289,20 @@ export function ProcessOrderForm({
   return (
     <div className="container mx-auto max-w-7xl px-2 py-4 sm:px-4 md:px-6 lg:px-8">
       <Formik
+        ref={formikRef}
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        enableReinitialize={true}
+        enableReinitialize={false}
       >
-        {({ values, errors, touched, setFieldValue, isValid }) => {
+        {({
+          values,
+          errors,
+          touched,
+          setFieldValue,
+          isValid,
+          isSubmitting,
+        }) => {
           const laundrySubtotal = calculateLaundrySubtotal(values.orderItems);
           const estimatedTotal =
             laundrySubtotal +
@@ -312,8 +326,9 @@ export function ProcessOrderForm({
                 </div>
                 <div className="flex-shrink-0">
                   <Button
-                    onClick={() => router.back()}
-                    disabled={isProcessing}
+                    type="button"
+                    onClick={handleNavigation}
+                    disabled={isProcessing || isSubmitting}
                     className="w-full sm:w-auto"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -331,7 +346,7 @@ export function ProcessOrderForm({
                     totalWeight={values.totalWeight}
                     errors={errors}
                     touched={touched}
-                    isProcessing={isProcessing}
+                    isProcessing={isProcessing || isSubmitting}
                     orderItemsLength={values.orderItems.length}
                   />
 
@@ -341,7 +356,7 @@ export function ProcessOrderForm({
                     laundryItems={laundryItems}
                     errors={errors}
                     touched={touched}
-                    isProcessing={isProcessing}
+                    isProcessing={isProcessing || isSubmitting}
                     setFieldValue={setFieldValue}
                     getLaundryItemById={getLaundryItemById}
                     formatCurrency={formatCurrency}
@@ -359,10 +374,11 @@ export function ProcessOrderForm({
                       laundrySubtotal={laundrySubtotal}
                       estimatedTotal={estimatedTotal}
                       deliveryEstimation={deliveryEstimation}
-                      isProcessing={isProcessing}
+                      isProcessing={isProcessing || isSubmitting}
                       isValid={isValid}
                       orderItemsLength={values.orderItems.length}
                       formatCurrency={formatCurrency}
+                      onNavigateBack={handleNavigation}
                     />
 
                     {/* Info Card */}

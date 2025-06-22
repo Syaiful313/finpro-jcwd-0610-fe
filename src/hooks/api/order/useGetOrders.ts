@@ -45,8 +45,6 @@ const useGetOrders = (queries?: GetOrdersQueries) => {
         },
       };
     },
-    retry: 3,
-    staleTime: 30000,
   });
 };
 

@@ -1,14 +1,18 @@
-import OrdersDetailPage from "@/features/admin/orders/process/OrderDetailPage";
+import OrdersProcessDetailPage from "@/features/admin/orders/process/OrderProcessDetailPage";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-const OrderDetail = async ({ params }: { params: Promise<{ id: string }> }) => {
+const OrderProcessDetail = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
   const id = (await params).id;
   const session = await auth();
 
   if (!session) return redirect("/login");
   if (session.user?.role !== "OUTLET_ADMIN") redirect("/");
-  return <OrdersDetailPage orderId={id} />;
+  return <OrdersProcessDetailPage orderId={id} />;
 };
 
-export default OrderDetail;
+export default OrderProcessDetail;
