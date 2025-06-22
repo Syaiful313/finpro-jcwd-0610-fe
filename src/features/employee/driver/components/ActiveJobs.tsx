@@ -77,12 +77,7 @@ const ActiveJobs = ({
             {error?.message ||
               "Something went wrong while loading your claimed requests."}
           </p>
-          <Button
-            onClick={handleRefresh}
-            className="bg-blue-500 hover:bg-blue-600"
-          >
-            Try Again
-          </Button>
+          <Button onClick={handleRefresh}>Try Again</Button>
         </div>
       </section>
     );
@@ -170,10 +165,7 @@ const ActiveJobs = ({
                   <div className="text-muted-foreground mb-2 flex items-center text-xs">
                     <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
                     <span className="items-center text-xs">
-                      {requests.order.addressLine ||
-                        requests.order.city ||
-                        requests.order.district ||
-                        "Location not specified"}
+                      {requests.order.addressLine}
                     </span>
                   </div>
 

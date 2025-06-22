@@ -31,6 +31,9 @@ const useFinishOrderProcess = () => {
       queryClient.invalidateQueries({
         queryKey: ["worker-notifications"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
     },
     onError: (error: AxiosError<any>) => {
       toast.error(error.response?.data.message);

@@ -32,6 +32,9 @@ const useStartOrderProcess = () => {
         queryKey: ["WorkerOrderDetails"],
         exact: false,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
     },
   });
 };

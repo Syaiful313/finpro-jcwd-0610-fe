@@ -91,7 +91,6 @@ export default function ProcessOrderDetailPage({ uuid }: ProcessOrderProps) {
             <BypassAlert request={currentBypassRequest} />
           )}
 
-          {/* You would create these components similarly to ItemVerificationCard */}
           <OriginalOrderItems items={orderData.orderItems} />
 
           <ItemVerificationCard

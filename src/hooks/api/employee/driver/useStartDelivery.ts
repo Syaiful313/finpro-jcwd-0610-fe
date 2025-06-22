@@ -19,6 +19,9 @@ const useStartDelivery = () => {
         queryKey: ["orderDetails"],
         exact: false,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
       toast.success("Delivery job started successfully!");
     },
     onError: (error: AxiosError<any>) => {

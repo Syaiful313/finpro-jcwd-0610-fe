@@ -91,8 +91,12 @@ export default function DriverHistory() {
     setPage(1);
   };
 
-  const handleViewDetails = (orderUuid: string) => {
-    router.push(`/employee/orders/order-detail/${orderUuid}`);
+  // const handleViewDetails = (jobId: number, jobType: "pickup" | "delivery") => {
+  //   router.push(`/employee/orders/order-detail/${orderUuid}`);
+  // };
+
+  const handleViewDetails = (jobId: number, jobType: "pickup" | "delivery") => {
+    router.push(`/employee/job-history/driver/${jobId}?type=${jobType}`);
   };
 
   const filteredHistory = completedJobsData?.data || [];
@@ -169,7 +173,8 @@ export default function DriverHistory() {
               <div className="space-y-4">
                 {filteredHistory.map((item) => (
                   <div
-                    key={`${item.jobType}-${item.order.uuid}`}
+                    // key={`${item.jobType}-${item.order.uuid}`}
+                    key={`${item.jobType}-${item.id}`}
                     className="rounded-lg border p-4"
                   >
                     {/* Header - Mobile: Stack, Desktop: Side by side */}
@@ -241,7 +246,9 @@ export default function DriverHistory() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewDetails(item.order.uuid)}
+                          onClick={() =>
+                            handleViewDetails(item.id, item.jobType)
+                          }
                           className="px-3 py-1.5 text-xs sm:text-sm"
                         >
                           <Eye className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />

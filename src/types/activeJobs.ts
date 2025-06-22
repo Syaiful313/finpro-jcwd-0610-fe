@@ -1,6 +1,13 @@
+export type DriverJobDetailResponse = {
+  type: "pickup" | "delivery";
+  job: ActiveJobs;
+};
+
 export type ActiveJobs = {
   createdAt: string;
-  deliveryPhotos: any[] | null;
+  deliveryPhotos: string;
+  pickUpPhotos: string;
+
   employeeId: number;
   id: number;
   jobType: "pickup" | "delivery";
