@@ -68,7 +68,7 @@ const HeadSection: FC<HeadSectionProps> = ({ user, onOpenSidebar }) => {
           )}
         </div>
 
-        <h1 className="text-4xl font-extrabold text-primary leading-tight tracking-tight gradient-text">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-primary leading-tight tracking-tight gradient-text">
           Welcome, {user.firstName} {user.lastName}
         </h1>
 

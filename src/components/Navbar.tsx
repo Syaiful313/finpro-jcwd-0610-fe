@@ -1,58 +1,13 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import NotificationBadgeNavbar from '@/features/extra/components/NotificationBadgeNavbar'
+import { MenuList } from '@/features/extra/components/MenuListNavbar'
+import { ProfileImage } from '@/features/extra/components/ProfileImageNavbar'
 import { cn } from '@/lib/utils'
 import { Menu, X } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-
-const menuItems = [
-  { name: 'Services', href: '/services' },
-  { name: 'Locations', href: '/locations' },
-  { name: 'Pricing', href: '/services#pricing' },
-  { name: 'About', href: '/about' },
-]
-
-
-const MenuList = ({ className }: { className?: string }) => (
-  <ul className={className}>
-    {menuItems.map((item, index) => (
-      <li key={index}>
-        <Link
-          href={item.href}
-          className="hover:text-white block duration-150 text-primary">
-          {item.name}
-        </Link>
-      </li>
-    ))}
-  </ul>
-)
-
-const ProfileImage = ({ user }: { user: any }) => {
-  const isValidProfilePic =
-    user.profilePic &&
-    user.profilePic !== 'null' &&
-    user.profilePic !== 'undefined';
-  const fallbackProfileImg = `https://ui-avatars.com/api/?name=${user?.firstName || 'User'}&background=DDDDDD&color=555555&bold=true&rounded=true`;
-
-  return (
-    <Link href="/user/profile">
-      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-        <img
-          src={isValidProfilePic ? user.profilePic : fallbackProfileImg}
-          alt="Profile Picture"
-          className="w-full h-full object-cover rounded-full"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = fallbackProfileImg;
-          }}
-        />
-      </div>
-    </Link>
-  );
-};
-
 
 export const Navbar = () => {
   const { data: session } = useSession()
@@ -64,6 +19,8 @@ export const Navbar = () => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  console.log("session", session)
 
   return (
     <header>
@@ -88,20 +45,19 @@ export const Navbar = () => {
             </div>
 
             <div className="absolute inset-0 m-auto hidden size-fit lg:block">
-              <MenuList className="flex gap-8 text-sm" />
+              <MenuList className="flex gap-8 text-sm" onNavigate={() => setMenuState(false)}/>
             </div>
 
             <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
               <div className="lg:hidden">
-                <MenuList className="space-y-6 text-base" />
+                <MenuList className="space-y-6 text-base" onNavigate={() => setMenuState(false)}/>
               </div>
 
               {!!session?.user ? (
                 <div className="flex items-center space-x-4">
-                  <NotificationBadgeNavbar />
                   <ProfileImage user={session.user} />
                   <Button
-                    onClick={() => signOut({ callbackUrl: '/' })}
+                    onClick={() => signOut({ callbackUrl: window.location.origin })}
                     size="sm"
                     className={cn(isScrolled && 'lg:hidden', 'rounded-full', 'hover:cursor-pointer')}
                     variant="outline">
@@ -112,29 +68,18 @@ export const Navbar = () => {
                 <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                   <Button
                     asChild
-                    variant="ghost"
+                    variant="link"
                     size="sm"
-                    className={cn(isScrolled && 'lg:hidden', 'rounded-full')}>
+                    className={cn(isScrolled && 'rounded-full bg-secondary text-primary hover:bg-secondary/90 transition')}
+                    onClick={() => setMenuState(false)}>
                     <Link href="/login">Login</Link>
                   </Button>
                   <Button
                     asChild
-                    variant="secondary"
+                    variant="link"
                     size="sm"
-                    className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'rounded-full')}>
-                    <Link href="/login">Login</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className={cn(isScrolled && 'lg:hidden', 'rounded-full hover:bg-primary hover:text-muted')}>
-                    <Link href="/register">Sign Up</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="sm"
-                    className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'rounded-full')}>
+                    className={cn(isScrolled && 'rounded-full bg-primary text-white hover:bg-primary/90 transition')}
+                    onClick={() => setMenuState(false)}>
                     <Link href="/register">Sign Up</Link>
                   </Button>
                 </div>
