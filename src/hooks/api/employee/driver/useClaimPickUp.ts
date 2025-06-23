@@ -17,6 +17,10 @@ const useClaimPickUp = () => {
         queryKey: ["availableRequest"],
         exact: false,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["driverJobs"],
+        exact: false,
+      });
       return data;
     },
   });

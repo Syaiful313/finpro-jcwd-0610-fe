@@ -22,8 +22,8 @@ const ConfirmDialog: FC<ConfirmModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <div className="fixed inset-0 z-50 bg-black/30 bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 mx-5">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
         <p className="text-gray-600 mb-6">{message}</p>
         <div className="flex justify-end space-x-3">

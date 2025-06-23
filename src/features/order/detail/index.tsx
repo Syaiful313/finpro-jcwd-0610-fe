@@ -27,7 +27,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
         id="invoice">
         <header className="border-b pb-6 flex justify-between items-start">
             <div>
-            <h1 className="text-3xl font-extrabold text-blue-800">Order #{order.orderNumber}</h1>
+            <h1 className="text-3xl font-extrabold text-primary">Order #{order.orderNumber}</h1>
             <p className="text-sm text-gray-500 mt-1">{new Date(order.createdAt).toLocaleString()}</p>
             </div>
             <div className="text-right">
@@ -40,7 +40,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
         <section className="grid grid-cols-2 gap-4">
             <div>
             <h2 className="text-sm text-gray-400">Order Status</h2>
-            <p className="text-lg font-semibold text-blue-600">{order.orderStatus}</p>
+            <p className="text-md md:text-lg font-semibold text-primary break-words whitespace-normal">{order.orderStatus}</p>
             </div>
             <div>
             <h2 className="text-sm text-gray-400">Pickup Time</h2>
@@ -80,7 +80,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
             <p className="text-sm text-gray-500 mb-2">Scan to track this order</p>
             <div className="inline-block p-3 bg-gray-100 rounded-xl">
                 <QRCodeCanvas
-                value={`https://yourdomain.com/track/${order.uuid}`}
+                value={`http://192.168.1.2:3000/order/${order.uuid}`}
                 size={100}
                 level="H"
                 bgColor="#ffffff"
@@ -90,45 +90,47 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
             </div>
         </section>
 
-        <footer className="flex justify-end items-end gap-4 pt-6 border-t">
+        <footer className="flex flex-col sm:flex-row sm:justify-end sm:items-end gap-4 pt-6 border-t w-full">
             {order.actualDeliveryTime && (
-                <span className="text-sm text-gray-500">
-                    Your order will be auto-confirmed on{" "}
-                    <span className="font-semibold">
+                <span className="text-sm text-gray-500 w-full sm:w-auto text-left sm:text-right">
+                Your order will be auto-confirmed on{" "}
+                <span className="font-semibold">
                     {new Date(
-                        new Date(order.actualDeliveryTime).getTime() + 2 * 24 * 60 * 60 * 1000
+                    new Date(order.actualDeliveryTime).getTime() + 2 * 24 * 60 * 60 * 1000
                     ).toLocaleString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
                     })}
-                    </span>
+                </span>
                 </span>
             )}
-            <button
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <button
                 onClick={() => createPaymentLink({ uuid: order.uuid })}
-                className={`min-w-[140px] px-5 py-2 rounded-lg transition text-white ${
-                order.paymentStatus === "PAID" || order.totalPrice === null
+                className={`w-full sm:w-auto min-w-[140px] px-5 py-2 rounded-lg transition text-white ${
+                    order.paymentStatus === "PAID" || order.totalPrice === null
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-blue-600 hover:bg-blue-700"
                 }`}
                 disabled={order.paymentStatus === "PAID"}
-            >
+                >
                 Proceed Payment
-            </button>
-            <button
+                </button>
+                <button
                 onClick={() => setShowConfirm(true)}
-                className={`min-w-[140px] px-5 py-2 rounded-lg text-white transition ${
-                order.orderStatus !== "DELIVERED_TO_CUSTOMER"
+                className={`w-full sm:w-auto min-w-[140px] px-5 py-2 rounded-lg text-white transition ${
+                    order.orderStatus !== "DELIVERED_TO_CUSTOMER"
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-green-600 hover:bg-green-700"
                 }`}
                 disabled={order.orderStatus !== "DELIVERED_TO_CUSTOMER"}
-            >
+                >
                 Confirm Order
-            </button>
+                </button>
+            </div>
         </footer>
 
         <ConfirmDialog

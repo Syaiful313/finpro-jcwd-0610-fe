@@ -78,7 +78,6 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
   return (
     <div className="min-h-screen">
       <div className="container max-w-6xl space-y-4 p-4 md:space-y-6 md:p-6">
-        {/* Header Card */}
         <Card className="shadow-sm">
           <CardHeader>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -122,7 +121,6 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
         </Card>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
-          {/* Work Process Timeline */}
           <div className="lg:col-span-2">
             <Card className="shadow-sm">
               <CardHeader>
@@ -224,7 +222,6 @@ export default function DetailWorkerHistory({ uuid }: { uuid: string }) {
             </Card>
           </div>
 
-          {/* Order Items */}
           <div className="space-y-4 lg:space-y-6">
             <Card className="shadow-sm">
               <CardHeader>

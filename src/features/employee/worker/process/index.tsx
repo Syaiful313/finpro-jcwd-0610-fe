@@ -54,7 +54,6 @@ const ProcessPage = () => {
   return (
     <div>
       <ProcessOrderDetailPage uuid={uuid} />
-      {/* <ProcessOrderDetail uuid={uuid} workerType={workerType} /> */}
     </div>
   );
 };

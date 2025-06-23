@@ -225,8 +225,6 @@ export default function RequestList() {
   return (
     <div className="p-3 md:p-4">
       <Card className="min-h-screen">
-        {/* Header */}
-
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl font-bold">
             <Package className="h-6 w-6" />
@@ -234,15 +232,12 @@ export default function RequestList() {
           </CardTitle>
           <CardDescription>View and filter all request list</CardDescription>
         </CardHeader>
-        {/* filter */}
 
         <CardContent>
           <RequestListFilters onPageReset={handlePageReset} />
         </CardContent>
 
-        {/* Main Content */}
         <div className="container mx-auto px-4">
-          {/* Results Summary */}
           {!isLoading && !isError && (
             <div className="flex items-center justify-between p-2">
               <p className="text-muted-foreground text-sm">
@@ -256,7 +251,6 @@ export default function RequestList() {
             </div>
           )}
 
-          {/* Content */}
           {isLoading ? (
             <LoadingState />
           ) : isError ? (
@@ -306,7 +300,6 @@ export default function RequestList() {
           )}
         </div>
 
-        {/* Map Modal */}
         <MapModal
           selectedRequest={selectedRequest}
           onClose={handleCloseMapModal}

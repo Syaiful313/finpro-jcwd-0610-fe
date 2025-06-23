@@ -9,12 +9,11 @@ import {
   ListIcon,
   LogOut,
   PackageIcon,
-  SettingsIcon,
   TruckIcon,
-  UsersIcon,
 } from "lucide-react";
 import * as React from "react";
 
+import { ModeToggle } from "@/components/ToogleDarkMode";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -31,7 +30,6 @@ import Link from "next/link";
 import { NavDocuments } from "./NavDocument";
 import { NavMain } from "./NavMain";
 import { NavSecondary } from "./NavSecondary";
-import { ModeToggle } from "@/components/ToogleDarkMode";
 
 type Role = "DRIVER" | "WORKER";
 
@@ -57,11 +55,6 @@ const getNavDataByRole = (role: Role) => {
       },
     ],
     navSecondary: [
-      {
-        title: "Settings",
-        url: "#",
-        icon: SettingsIcon,
-      },
       {
         title: "Get Help",
         url: "mailto:bubbilfyofficial@gmail.com",

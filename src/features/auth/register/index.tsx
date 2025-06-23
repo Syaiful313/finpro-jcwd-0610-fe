@@ -54,7 +54,7 @@ const RegisterPage = () => {
                     </div>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={formik.handleSubmit}>
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
                             <label htmlFor="firstName" className="sr-only">First name</label>
                             <input id="firstName"

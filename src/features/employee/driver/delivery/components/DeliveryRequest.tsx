@@ -194,8 +194,6 @@ export default function DeliveryRequestList() {
   return (
     <div className="p-3 md:p-4">
       <Card className="min-h-screen">
-        {/* Header */}
-
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl font-bold">
             <Package className="h-6 w-6" />
@@ -203,14 +201,11 @@ export default function DeliveryRequestList() {
           </CardTitle>
           <CardDescription>View and filter delivery jobs</CardDescription>
         </CardHeader>
-        {/* Filters */}
         <CardContent>
           <DeliveryRequestFilters onPageReset={handlePageReset} />
         </CardContent>
 
-        {/* Main Content */}
         <div className="px-3 md:px-6">
-          {/* Results Summary */}
           {!isLoading && !isError && (
             <div className="mb-3 flex items-center justify-between">
               <p className="text-muted-foreground text-sm">
@@ -225,7 +220,6 @@ export default function DeliveryRequestList() {
             </div>
           )}
 
-          {/* Content */}
           {isLoading ? (
             <LoadingState />
           ) : isError ? (
@@ -273,7 +267,6 @@ export default function DeliveryRequestList() {
           )}
         </div>
 
-        {/* Map Modal */}
         <MapModal
           selectedRequest={selectedRequest}
           onClose={handleCloseMapModal}

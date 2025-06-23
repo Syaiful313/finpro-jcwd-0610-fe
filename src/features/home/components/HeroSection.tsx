@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
-function HeroSection() {
+const HeroSection = () => {
   const [address, setAddress] = useState('')
   const router = useRouter()
   const { data: session } = useSession()
@@ -23,8 +23,8 @@ function HeroSection() {
   }
 
   return (
-    <section className="relative h-full md:h-screen w-screen md:w-full overflow-hidden">
-      <video autoPlay muted loop className="h-full md:w-full object-cover">
+    <section className="relative h-[300px] md:h-screen w-full overflow-hidden">
+      <video autoPlay muted loop className="h-full w-full object-cover">
         <source src="https://res.cloudinary.com/dd6hqmwqu/video/upload/8756709-uhd_4096_2160_25fps_jiftsm.mp4?_s=vp-2.5.0" type="video/mp4" />
       </video>
       <div className="absolute inset-0 z-10 flex flex-col items-start justify-start text-md md:text-2xl text-muted px-8 py-20 md:p-40 gap-y-4">
@@ -34,7 +34,7 @@ function HeroSection() {
           </span><br />
           Fresh clothes without the hassle!
         </p>
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        <div className="hidden md:flex flex-col md:flex-row items-center justify-center gap-4">
           <div className="flex items-center bg-white rounded-lg shadow-lg overflow-hidden w-full md:w-auto">
             <span className="px-4 text-gray-800 font-semibold border-r border-gray-200 h-12 flex items-center flex-shrink-0">
               Pickup Now
@@ -58,8 +58,8 @@ function HeroSection() {
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-gray-300">
           <div className="flex items-center space-x-2">
-            <img src="https://placehold.co/24x24/ffffff/000000?text=A" alt="App Store" className="h-6 w-6 rounded-full" />
-            <img src="https://placehold.co/24x24/ffffff/000000?text=G" alt="Google Play" className="h-6 w-6 rounded-full" />
+            <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store" className="h-5 md:h-20 w-auto max-w-[150px] object-contain" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-5 md:h-20 w-auto max-w-[150px] object-contain" />
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
             </svg>

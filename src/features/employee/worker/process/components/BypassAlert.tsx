@@ -13,9 +13,12 @@ interface BypassAlertProps {
 }
 
 const alertStyles: Record<BypassStatus, string> = {
-  PENDING: "border-orange-500 bg-orange-50 text-orange-700",
-  APPROVED: "border-green-500 bg-green-50 text-green-700",
-  REJECTED: "border-red-500 bg-red-50 text-red-700",
+  PENDING:
+    "border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  APPROVED:
+    "border-green-500 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  REJECTED:
+    "border-red-500 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
 const alertIcons: Record<BypassStatus, ReactElement> = {
@@ -33,7 +36,7 @@ export default function BypassAlert({ request }: BypassAlertProps) {
     <Alert className={alertStyles[bypassStatus]}>
       {alertIcons[bypassStatus]}
       <AlertTitle>Bypass Request Status: {bypassStatus}</AlertTitle>
-      <AlertDescription>
+      <AlertDescription className="text-muted-foreground">
         Reason: {reason}
         {adminNote && (
           <>

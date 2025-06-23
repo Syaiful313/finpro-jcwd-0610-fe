@@ -11,7 +11,6 @@ export default function NotClockIn() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4 md:h-[80vh] md:min-h-0">
       <div className="flex flex-col items-center p-6 text-center sm:p-8">
-        {/* Clock-in SVG Image */}
         <div className="mb-6 flex h-24 w-24 items-center justify-center sm:h-32 sm:w-32">
           <Image
             src="/clock-in.svg"
@@ -23,7 +22,6 @@ export default function NotClockIn() {
           />
         </div>
 
-        {/* Main Message */}
         <h1 className="mb-4 text-xl leading-tight font-bold sm:text-2xl">
           You Haven't Clocked In Yet
         </h1>
@@ -33,7 +31,6 @@ export default function NotClockIn() {
           tracking.
         </p>
 
-        {/* Clock In Button */}
         <Button
           className="w-full rounded-lg px-8 py-3 font-medium transition-colors duration-200 sm:w-auto"
           size="lg"
@@ -44,7 +41,6 @@ export default function NotClockIn() {
           Dashboard
         </Button>
 
-        {/* Additional Info */}
         <p className="mt-6 px-2 text-xs text-gray-500">
           Your time will be recorded once you clock in successfully
         </p>

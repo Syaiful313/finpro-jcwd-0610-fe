@@ -57,33 +57,6 @@ export function EmployeeHeader({ breadcrumbs }: EmployeeHeaderProps) {
 
       <div className="mr-6 flex gap-3">
         <NotificationDropdown />
-        {/* <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex items-center gap-2 md:gap-3"
-            >
-              <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full">
-                <User className="h-4 w-4" />
-              </div>
-              <div className="hidden text-left md:block">
-                <div className="text-sm font-medium">Worker Laundry</div>
-                <div className="text-muted-foreground text-xs">
-                  Washing Station
-                </div>
-              </div>
-              <ChevronDown className="text-muted-foreground h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Profil</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Keluar</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu> */}
       </div>
     </header>
   );

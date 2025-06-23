@@ -7,6 +7,7 @@ import StoreProvider from "@/providers/StoreProvider";
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "Bubblify Laundry - Layanan Laundry Terpercaya",
@@ -50,19 +51,21 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${manrope.className} antialiased`}>
         <StoreProvider>
-          <ReactQueryProvider>
-            <NuqsProvider>
-              <NextAuthProvider>
-                <ThemeProvider
-                  attribute="class"
-                  defaultTheme="light"
-                  enableSystem
-                >
-                  {children}
-                </ThemeProvider>
-              </NextAuthProvider>
-            </NuqsProvider>
-          </ReactQueryProvider>
+          <SessionProvider>
+            <ReactQueryProvider>
+              <NuqsProvider>
+                <NextAuthProvider>
+                  <ThemeProvider
+                    attribute="class"
+                    defaultTheme="light"
+                    enableSystem
+                  >
+                    {children}
+                  </ThemeProvider>
+                </NextAuthProvider>
+              </NuqsProvider>
+            </ReactQueryProvider>
+          </SessionProvider>
         </StoreProvider>
         <Toaster position="top-right" duration={2000} />
       </body>

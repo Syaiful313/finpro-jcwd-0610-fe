@@ -39,6 +39,9 @@ const useCompleteDelivery = (deliveryJobId: number) => {
       toast.success("Delivery job completed successfully!");
       await queryClient.invalidateQueries({ queryKey: ["deliveryJobs"] });
       queryClient.invalidateQueries({ queryKey: ["driverJobs"] });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
       router.push("/employee");
     },
     onError: (error: AxiosError<any>) => {

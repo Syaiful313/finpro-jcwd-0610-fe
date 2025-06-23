@@ -92,7 +92,6 @@ export default function OrderCompletionPage() {
 
   return (
     <div className="flex w-full items-center justify-center p-4">
-      {/* Mobile Card Layout */}
       <Card className="w-full max-w-lg shadow-lg md:hidden">
         <CardContent className="p-8 text-center">
           <CheckCircle className="text-primary mx-auto mb-4 h-16 w-16" />
@@ -150,10 +149,8 @@ export default function OrderCompletionPage() {
         </CardContent>
       </Card>
 
-      {/* Desktop Layout */}
       <div className="hidden w-full max-w-4xl md:block">
         <div className="rounded-lg p-8 shadow-sm">
-          {/* Success Icon and Message */}
           <div className="mb-8 text-center">
             <CheckCircle className="text-primary mx-auto mb-6 h-20 w-20" />
             <h2 className="mb-4 text-2xl font-bold">
@@ -164,13 +161,12 @@ export default function OrderCompletionPage() {
             </p>
           </div>
 
-          {/* Status Badge */}
           <div className="mb-8 flex justify-center">
             {station === "packing" &&
             orderData.paymentStatus === "WAITING_PAYMENT" ? (
               <Badge
                 variant="secondary"
-                className="flex items-center gap-3 bg-amber-100 px-4 py-2 text-base text-amber-800"
+                className="flex items-center gap-3 bg-amber-100 px-4 py-2 text-base text-amber-800 dark:bg-amber-900/30 dark:text-amber-600"
               >
                 <CreditCard className="h-5 w-5" />
                 Waiting for Customer Payment
@@ -187,13 +183,11 @@ export default function OrderCompletionPage() {
             )}
           </div>
 
-          {/* Customer Info */}
           <div className="mb-8 text-center text-gray-600">
             Customer: {orderData.user.firstName} {orderData.user.lastName} (
             {orderData.user.phoneNumber})
           </div>
 
-          {/* Action Buttons */}
           <div className="flex justify-center gap-4">
             <Button
               variant="outline"

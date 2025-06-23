@@ -23,6 +23,9 @@ const useStartPickUp = () => {
         queryKey: ["orderDetails"],
         exact: false,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
       toast.success("Pickup job started successfully!");
     },
     onError: (error: AxiosError<any>) => {

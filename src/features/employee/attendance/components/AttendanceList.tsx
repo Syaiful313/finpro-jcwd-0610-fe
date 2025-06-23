@@ -59,21 +59,6 @@ const AttendanceList = () => {
 
   const itemsPerPage = 10;
 
-  // const {
-  //   data: attendanceData,
-  //   isPending,
-  //   error,
-  // } = useGetAttendance({
-  //   page: page,
-  //   take: itemsPerPage,
-  //   sortBy: "clockInAt",
-  //   sortOrder: "desc",
-  //   search: querySearchTerm,
-  //   dateFrom: queryDateFrom ? format(queryDateFrom, "yyyy-MM-dd") : "",
-  //   dateTo: queryDateTo ? format(queryDateTo, "yyyy-MM-dd") : "",
-  //   employeeId: queryEmployeeId ?? undefined,
-  // });
-
   const queries = useMemo(() => {
     const formattedDateFrom = queryDateFrom
       ? format(queryDateFrom, "yyyy-MM-dd")
@@ -92,7 +77,7 @@ const AttendanceList = () => {
       dateTo: formattedDateTo,
       employeeId: queryEmployeeId ?? undefined,
     };
-  }, [page, querySearchTerm, queryDateFrom, queryDateTo, queryEmployeeId]); // <-- array dependensi
+  }, [page, querySearchTerm, queryDateFrom, queryDateTo, queryEmployeeId]);
 
   const { data: attendanceData, isPending, error } = useGetAttendance(queries);
 
@@ -207,7 +192,6 @@ const AttendanceList = () => {
           />
         </CardContent>
 
-        {/* Attendance Table */}
         <div className="space-y-4">
           {isPending ? (
             <div className="h-70 space-y-6 p-3 md:p-6">
@@ -215,7 +199,6 @@ const AttendanceList = () => {
             </div>
           ) : (
             <div className="p-3 md:p-6">
-              {/* Results Summary & Pagination */}
               <div className="flex items-center justify-between pb-4">
                 <div className="text-muted-foreground text-sm">
                   {totalAttendance > 0 ? (
@@ -228,7 +211,6 @@ const AttendanceList = () => {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Pagination Controls */}
                   {totalAttendance > 0 && (hasNextPage || hasPrevPage) && (
                     <div className="flex items-center gap-2">
                       <Button
@@ -255,7 +237,6 @@ const AttendanceList = () => {
                 </div>
               </div>
 
-              {/* Table */}
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>

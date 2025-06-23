@@ -1,15 +1,18 @@
 import useGetNotificationUser from "@/hooks/api/user/notification/useGetNotificationUser";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell } from "lucide-react"
-import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-const NotificationBadgeNavbar = () => {
+interface NotificationBadgeNavbarProps {
+  session: Session;
+}
+
+const NotificationBadgeNavbar = ({ session }: NotificationBadgeNavbarProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const queryClient = useQueryClient();
-    const { data: session } = useSession();
     const { data: notifications, isLoading } = useGetNotificationUser({ limit: 5 });
 
     useEffect(() => {
@@ -25,7 +28,11 @@ const NotificationBadgeNavbar = () => {
         queryClient.invalidateQueries({ queryKey: ["notifications"] });
     };
 
-    if (!session) return null;
+    if (!session) {
+        return (
+            <div className="relative p-2 rounded-full bg-gray-100 animate-pulse w-9 h-9" />
+        );
+    }
 
     const unread = notifications?.some((n) =>!n.readByUserIds.includes(Number(session.user.id)));
 
