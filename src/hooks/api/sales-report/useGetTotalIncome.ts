@@ -1,4 +1,3 @@
-// hooks/api/sales-report/useGetTotalIncome.ts
 "use client";
 import useAxios from "@/hooks/useAxios";
 import { TotalIncomeQueries, TotalIncomeResponse } from "@/types/sales-report";
@@ -12,7 +11,7 @@ const useGetTotalIncome = (queries?: TotalIncomeQueries) => {
     queryFn: async () => {
       const { data } = await axiosInstance.get<TotalIncomeResponse>(
         "/reports/total-income",
-        { params: queries }
+        { params: queries },
       );
       return data;
     },

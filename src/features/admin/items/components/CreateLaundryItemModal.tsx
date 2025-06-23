@@ -62,7 +62,8 @@ export default function CreateLaundryItemModal({
           const laundryItemData = {
             ...values,
             id: laundryItem!.id,
-            basePrice: values.pricingType === "PER_KG" ? 0 : Number(values.basePrice),
+            basePrice:
+              values.pricingType === "PER_KG" ? 5000 : Number(values.basePrice),
           };
           onSave(laundryItemData);
         }
@@ -70,7 +71,8 @@ export default function CreateLaundryItemModal({
         const createLaundryItemPayload = {
           name: values.name,
           category: values.category,
-          basePrice: values.pricingType === "PER_KG" ? 0 : Number(values.basePrice),
+          basePrice:
+            values.pricingType === "PER_KG" ? 5000 : Number(values.basePrice),
           pricingType: values.pricingType as "PER_PIECE" | "PER_KG",
           isActive: values.isActive,
         };
@@ -93,9 +95,9 @@ export default function CreateLaundryItemModal({
 
   const handlePricingTypeChange = (value: string) => {
     formik.setFieldValue("pricingType", value);
-    // Reset price when switching to PER_KG
+
     if (value === "PER_KG") {
-      formik.setFieldValue("basePrice", "");
+      formik.setFieldValue("basePrice", 5000);
     }
   };
 
@@ -134,9 +136,7 @@ export default function CreateLaundryItemModal({
               disabled={isLoading}
             />
             {formik.touched.name && formik.errors.name && (
-              <p className="mt-1 text-xs text-red-500">
-                {formik.errors.name}
-              </p>
+              <p className="mt-1 text-xs text-red-500">{formik.errors.name}</p>
             )}
             <p className="text-muted-foreground text-xs">
               Nama item harus unik dan mudah dikenali oleh pelanggan
@@ -234,14 +234,15 @@ export default function CreateLaundryItemModal({
           {formik.values.pricingType === "PER_KG" && (
             <div className="rounded-lg bg-purple-50 p-4">
               <div className="flex items-start gap-3">
-                <Tag className="h-5 w-5 text-purple-600 mt-0.5" />
+                <Tag className="mt-0.5 h-5 w-5 text-purple-600" />
                 <div className="space-y-1">
                   <h4 className="text-sm font-medium text-purple-900">
                     Item Per Kilogram
                   </h4>
                   <p className="text-xs text-purple-700">
-                    Untuk item dengan tipe pricing per kg, harga akan dihitung berdasarkan berat saat pemesanan. 
-                    Tidak perlu memasukkan harga tetap.
+                    Untuk item dengan tipe pricing per kg, sistem akan
+                    menggunakan harga default Rp 5.000. Harga final akan
+                    dihitung berdasarkan berat saat pemesanan.
                   </p>
                 </div>
               </div>
@@ -270,17 +271,28 @@ export default function CreateLaundryItemModal({
 
           <div className="rounded-lg bg-blue-50 p-4">
             <div className="flex items-start gap-3">
-              <Package className="h-5 w-5 text-blue-600 mt-0.5" />
+              <Package className="mt-0.5 h-5 w-5 text-blue-600" />
               <div className="space-y-1">
                 <h4 className="text-sm font-medium text-blue-900">
                   Tips Menambahkan Item Laundry
                 </h4>
-                <ul className="text-xs text-blue-700 space-y-1">
-                  <li>• Gunakan nama yang jelas dan mudah dipahami pelanggan</li>
+                <ul className="space-y-1 text-xs text-blue-700">
+                  <li>
+                    • Gunakan nama yang jelas dan mudah dipahami pelanggan
+                  </li>
                   <li>• Kelompokkan item dengan kategori yang sesuai</li>
-                  <li>• <strong>Per Piece:</strong> Untuk item dengan harga tetap per unit (baju, celana)</li>
-                  <li>• <strong>Per Kg:</strong> Untuk item yang dihitung berdasarkan berat (sprei, selimut)</li>
-                  <li>• Item Per Kg tidak perlu input harga, akan dihitung saat pemesanan</li>
+                  <li>
+                    • <strong>Per Piece:</strong> Untuk item dengan harga tetap
+                    per unit (baju, celana)
+                  </li>
+                  <li>
+                    • <strong>Per Kg:</strong> Untuk item yang dihitung
+                    berdasarkan berat (sprei, selimut)
+                  </li>
+                  <li>
+                    • Item Per Kg tidak perlu input harga, akan dihitung saat
+                    pemesanan
+                  </li>
                 </ul>
               </div>
             </div>

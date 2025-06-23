@@ -1,4 +1,3 @@
-// types/laundry-item.ts
 export interface LaundryItem {
   id: number;
   name: string;

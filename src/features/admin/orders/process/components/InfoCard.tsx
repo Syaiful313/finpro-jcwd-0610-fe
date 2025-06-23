@@ -1,10 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 
 export function InfoCard() {
   return (
     <Card>
-      <CardContent >
-        <CardTitle className="text-lg pb-3">Info</CardTitle>
+      <CardContent>
+        <CardTitle className="pb-3 text-lg">Info</CardTitle>
         <div className="text-muted-foreground space-y-2 pt-0 text-sm">
           <p>
             • Total berat <strong>opsional</strong> untuk item per pcs,{" "}

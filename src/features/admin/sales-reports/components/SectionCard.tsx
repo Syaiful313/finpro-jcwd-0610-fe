@@ -81,7 +81,6 @@ const MetricCard = ({
 
   return (
     <div className="overflow-hidden rounded-2xl border-l-4 border-blue-500 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
-      {/* Header */}
       <div className="border-b border-slate-200 bg-slate-50 p-3.5">
         <div className="flex items-center gap-2.5">
           <div
@@ -109,16 +108,13 @@ const MetricCard = ({
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-3.5">
-        {/* Value */}
         <div className="mb-3">
           <div className="text-2xl leading-relaxed font-bold text-slate-900">
             {value}
           </div>
         </div>
 
-        {/* Description */}
         <div className="text-xs text-gray-600">{description}</div>
       </div>
     </div>
@@ -226,7 +222,6 @@ export function SectionCards() {
 
   return (
     <>
-      {/* Mobile Card View */}
       <div className="block sm:hidden">
         {isLoading ? (
           <div className="space-y-2 px-3">
@@ -251,7 +246,6 @@ export function SectionCards() {
         )}
       </div>
 
-      {/* Desktop Grid View */}
       <div className="mx-1 hidden grid-cols-1 gap-4 sm:mx-0 sm:grid @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => (

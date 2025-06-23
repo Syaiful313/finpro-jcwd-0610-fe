@@ -1,4 +1,3 @@
-// src/hooks/api/bypass/useApproveBypassRequest.ts
 "use client";
 
 import useAxios from "@/hooks/useAxios";
@@ -13,7 +12,7 @@ interface ApproveBypassRequestPayload {
 
 const useApproveBypassRequest = () => {
   const queryClient = useQueryClient();
-  const  axiosInstance  = useAxios();
+  const axiosInstance = useAxios();
   const { data: session } = useSession();
 
   return useMutation({
@@ -24,9 +23,10 @@ const useApproveBypassRequest = () => {
       id: number;
       payload: ApproveBypassRequestPayload;
     }) => {
-      // CRITICAL: Only allow outlet admin to approve
       if (session?.user?.role !== "OUTLET_ADMIN") {
-        throw new Error("Access denied. Only outlet admins can approve bypass requests.");
+        throw new Error(
+          "Access denied. Only outlet admins can approve bypass requests.",
+        );
       }
 
       const { data } = await axiosInstance.post(
@@ -37,17 +37,18 @@ const useApproveBypassRequest = () => {
     },
     onSuccess: async (data) => {
       toast.success("Bypass request approved successfully");
-      
-      // Invalidate outlet-specific queries
-      await queryClient.invalidateQueries({ 
-        queryKey: ["bypass-requests"] 
+
+      await queryClient.invalidateQueries({
+        queryKey: ["bypass-requests"],
       });
-      await queryClient.invalidateQueries({ 
-        queryKey: ["bypass-requests", "stats"] 
+      await queryClient.invalidateQueries({
+        queryKey: ["bypass-requests", "stats"],
       });
     },
     onError: (error: AxiosError<any>) => {
-      toast.error(error.response?.data?.message || "Failed to approve bypass request");
+      toast.error(
+        error.response?.data?.message || "Failed to approve bypass request",
+      );
     },
   });
 };

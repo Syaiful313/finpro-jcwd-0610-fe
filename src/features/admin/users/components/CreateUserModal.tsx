@@ -223,7 +223,6 @@ export default function CreateUserModal({
         </DialogHeader>
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
-          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email *
@@ -246,7 +245,6 @@ export default function CreateUserModal({
             </p>
           </div>
 
-          {/* Name Fields */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-sm font-medium">
@@ -289,7 +287,6 @@ export default function CreateUserModal({
             </div>
           </div>
 
-          {/* Password with Show/Hide */}
           {!isEditMode && (
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium">
@@ -336,7 +333,6 @@ export default function CreateUserModal({
             </div>
           )}
 
-          {/* Role */}
           <div className="space-y-2">
             <Label htmlFor="role" className="text-sm font-medium">
               Role *
@@ -365,7 +361,6 @@ export default function CreateUserModal({
             </p>
           </div>
 
-          {/* Phone Number */}
           <div className="space-y-2">
             <Label htmlFor="phoneNumber" className="text-sm font-medium">
               Nomor Telepon *
@@ -390,7 +385,6 @@ export default function CreateUserModal({
             </p>
           </div>
 
-          {/* Employee Fields */}
           {showEmployeeFields && (
             <>
               <div className="space-y-2">
@@ -455,7 +449,6 @@ export default function CreateUserModal({
             </>
           )}
 
-          {/* Provider */}
           <div className="space-y-2">
             <Label htmlFor="provider" className="text-sm font-medium">
               Provider Login
@@ -480,7 +473,6 @@ export default function CreateUserModal({
             )}
           </div>
 
-          {/* Profile Picture */}
           {!isEditMode && (
             <div className="space-y-2">
               <Label className="text-sm font-medium">
@@ -543,7 +535,6 @@ export default function CreateUserModal({
             </div>
           )}
 
-          {/* Verified Status */}
           <div className="space-y-3">
             <div className="flex flex-row items-center justify-between space-x-4 rounded-lg border p-4">
               <div className="flex-1 space-y-1">

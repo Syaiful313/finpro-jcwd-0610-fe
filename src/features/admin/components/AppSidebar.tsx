@@ -1,39 +1,34 @@
 "use client";
 
-import {
-  BarChartIcon,
-  CameraIcon,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileTextIcon,
-  HelpCircleIcon,
-  LayoutDashboardIcon,
-  PackageIcon,
-  SearchIcon,
-  SettingsIcon,
-  ShoppingCartIcon,
-  StoreIcon,
-  UsersIcon,
-} from "lucide-react";
-import { useSession } from "next-auth/react";
-import * as React from "react";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ModeToggle } from "@/components/ToogleDarkMode";
+import {
+  BarChartIcon,
+  DatabaseIcon,
+  HelpCircleIcon,
+  LayoutDashboardIcon,
+  LogOutIcon,
+  PackageIcon,
+  SettingsIcon,
+  ShoppingCartIcon,
+  StoreIcon,
+  UsersIcon,
+} from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import Link from "next/link";
+import * as React from "react";
 import { NavDocuments } from "./NavDocument";
 import { NavMain } from "./NavMain";
 import { NavSecondary } from "./NavSecondary";
-import { NavUser } from "./NavUser";
+import { ModeToggle } from "@/components/ToogleDarkMode";
 
 const data = {
   user: {
@@ -43,19 +38,19 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Dasbor",
       url: "/admin/dashboard",
       icon: LayoutDashboardIcon,
       roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
-      title: "Management User",
+      title: "Kelola Pengguna",
       url: "/admin/users",
       icon: UsersIcon,
       roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
-      title: "Management Outlet",
+      title: "Kelola Outlet",
       url: "/admin/outlets",
       icon: StoreIcon,
       roles: ["ADMIN"],
@@ -67,87 +62,28 @@ const data = {
       roles: ["ADMIN"],
     },
     {
-      title: "Order Laundry",
+      title: "Pesanan Laundry",
       url: "/admin/orders",
       icon: ShoppingCartIcon,
       roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
-      title: "Bypass Request",
+      title: "Permintaan Bypass",
       url: "/admin/bypass-requests",
       icon: SettingsIcon,
       roles: ["OUTLET_ADMIN"],
     },
-    {
-      title: "Attendance Report",
-      url: "/admin/attendance-report",
-      icon: SettingsIcon,
-      roles: ["OUTLET_ADMIN", "ADMIN"],
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "#",
+      title: "Pengaturan",
+      url: "/user/profile",
       icon: SettingsIcon,
     },
     {
-      title: "Get Help",
-      url: "#",
+      title: "Bantuan",
+      url: "mailto:bubbilfyofficial@gmail.com",
       icon: HelpCircleIcon,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
     },
   ],
   documents: [
@@ -158,16 +94,24 @@ const data = {
       roles: ["ADMIN", "OUTLET_ADMIN"],
     },
     {
-      name: "Laporan Performa",
+      name: "Laporan Kinerja",
       url: "/admin/employee-performances",
       icon: BarChartIcon,
       roles: ["ADMIN", "OUTLET_ADMIN"],
+    },
+    {
+      name: "Laporan Kehadiran",
+      url: "/admin/attendance-report",
+      icon: SettingsIcon,
+      roles: ["OUTLET_ADMIN", "ADMIN"],
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
+
+  const user = session?.user;
 
   const getFilteredNavItems = (items: any[]) => {
     if (!session?.user?.role) return [];
@@ -178,113 +122,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     });
   };
 
-  if (status === "loading") {
-    return (
-      <Sidebar collapsible="offcanvas" {...props}>
-        <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                className="data-[slot=sidebar-menu-button]:!h-auto data-[slot=sidebar-menu-button]:!p-2"
-              >
-                <Link href="/" className="flex w-full items-center">
-                  <Image
-                    src="/logo-text.svg"
-                    alt="Bubblify Logo"
-                    width={180}
-                    height={45}
-                    className="h-11 w-auto max-w-full"
-                  />
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-          
-          {/* Theme Toggle in Header */}
-          <div className="flex justify-end px-2 py-2">
-            <ModeToggle />
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <div className="text-muted-foreground p-4 text-center text-sm">
-            Loading...
-          </div>
-        </SidebarContent>
-      </Sidebar>
-    );
-  }
-
-  if (!session) {
-    return (
-      <Sidebar collapsible="offcanvas" {...props}>
-        <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                className="data-[slot=sidebar-menu-button]:!h-auto data-[slot=sidebar-menu-button]:!p-2"
-              >
-                <Link href="/" className="flex w-full items-center">
-                  <Image
-                    src="/logo-text.svg"
-                    alt="Bubblify Logo"
-                    width={180}
-                    height={45}
-                    className="h-11 w-auto max-w-full"
-                  />
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-          
-          {/* Theme Toggle in Header */}
-          <div className="flex justify-end px-2 py-2">
-            <ModeToggle />
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <NavSecondary items={data.navSecondary} className="mt-auto" />
-        </SidebarContent>
-      </Sidebar>
-    );
-  }
+  const logout = () => {
+    signOut({
+      redirectTo: "/",
+    });
+  };
 
   const filteredNavMain = getFilteredNavItems(data.navMain);
   const filteredDocuments = getFilteredNavItems(data.documents);
-
-  const userForNavUser = {
-    name: session.user?.firstName || "User",
-    email: session.user?.email || "user@example.com",
-    avatar: session.user?.profilePic || "/avatars/default.jpg",
-  };
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!h-auto data-[slot=sidebar-menu-button]:!p-2"
-            >
-              <Link href="/" className="flex w-full items-center">
-                <Image
-                  src="/logo-text.svg"
-                  alt="Bubblify Logo"
-                  width={180}
-                  height={45}
-                  className="h-11 w-auto max-w-full"
-                />
-              </Link>
-            </SidebarMenuButton>
+            <div className="flex items-center px-3">
+              <Image
+                src="/bub-logo.svg"
+                alt="Bubblify"
+                height={100}
+                width={350}
+                className="h-10 w-auto items-center"
+              />
+              <ModeToggle />
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
-        
-        {/* Theme Toggle in Header */}
-        <div className="flex justify-end px-2 py-2">
-          <ModeToggle />
-        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={filteredNavMain} />
@@ -294,7 +157,39 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userForNavUser} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="bg-card w-full rounded-lg border-t p-3">
+              <div className="mb-3 grid grid-cols-[auto_1fr] items-center gap-3">
+                <Avatar className="h-10 w-10 rounded-lg grayscale">
+                  <AvatarImage src={user?.profilePic} alt={user?.lastName} />
+                  <AvatarFallback className="rounded-lg">
+                    {user?.firstName?.[0]}
+                    {user?.lastName?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium">
+                    {user?.firstName} {user?.lastName}
+                  </div>
+                  <div className="text-muted-foreground truncate text-xs">
+                    {user?.email}
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:border-border/80 w-full justify-center transition-all duration-200"
+              >
+                <LogOutIcon className="mr-2 h-4 w-4 opacity-60" />
+                <span className="text-sm">Keluar</span>
+              </Button>
+            </div>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

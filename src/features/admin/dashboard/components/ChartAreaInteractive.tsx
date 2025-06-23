@@ -97,29 +97,27 @@ const getDateRange = (timeRange: string) => {
 };
 
 export function ChartAreaInteractive() {
-  // SEMUA HOOKS HARUS DI BAGIAN ATAS, SEBELUM CONDITIONAL LOGIC
   const isMobile = useIsMobile();
   const { data: session } = useSession();
   const [timeRange, setTimeRange] = React.useState("3m");
 
-  // Effect hook
   React.useEffect(() => {
     if (isMobile) {
       setTimeRange("30d");
     }
   }, [isMobile]);
 
-  // Hitung date range
-  const { startDate, endDate, period } = React.useMemo(() => getDateRange(timeRange), [timeRange]);
+  const { startDate, endDate, period } = React.useMemo(
+    () => getDateRange(timeRange),
+    [timeRange],
+  );
 
-  // Tentukan akses
   const canAccessPage = React.useMemo(() => {
     const isAdmin = session?.user?.role === "ADMIN";
     const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
     return isAdmin || isOutletAdmin;
   }, [session?.user?.role]);
 
-  // API call - selalu dipanggil
   const {
     data: salesData,
     isLoading,
@@ -131,7 +129,6 @@ export function ChartAreaInteractive() {
     all: true,
   });
 
-  // Chart data - selalu dihitung
   const chartData = React.useMemo(() => {
     if (!salesData?.data || !canAccessPage) return [];
 
@@ -142,28 +139,30 @@ export function ChartAreaInteractive() {
     }));
   }, [salesData, canAccessPage]);
 
-  // Helper functions - bisa dijadikan useMemo jika perlu
-  const formatXAxisTick = React.useCallback((value: string) => {
-    if (period === "daily") {
-      const date = new Date(value);
-      return date.toLocaleDateString("id-ID", {
-        month: "short",
-        day: "numeric",
-      });
-    } else {
-      const [year, month] = value.split("-");
-      if (isMobile) {
-        return `${month}/${year.slice(-2)}`;
-      }
-      return new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString(
-        "id-ID",
-        {
+  const formatXAxisTick = React.useCallback(
+    (value: string) => {
+      if (period === "daily") {
+        const date = new Date(value);
+        return date.toLocaleDateString("id-ID", {
           month: "short",
-          year: "numeric",
-        },
-      );
-    }
-  }, [period, isMobile]);
+          day: "numeric",
+        });
+      } else {
+        const [year, month] = value.split("-");
+        if (isMobile) {
+          return `${month}/${year.slice(-2)}`;
+        }
+        return new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString(
+          "id-ID",
+          {
+            month: "short",
+            year: "numeric",
+          },
+        );
+      }
+    },
+    [period, isMobile],
+  );
 
   const getTimeRangeLabel = React.useCallback((range: string) => {
     switch (range) {
@@ -180,7 +179,6 @@ export function ChartAreaInteractive() {
     }
   }, []);
 
-  // CONDITIONAL RETURN SETELAH SEMUA HOOKS
   if (!canAccessPage) {
     return null;
   }

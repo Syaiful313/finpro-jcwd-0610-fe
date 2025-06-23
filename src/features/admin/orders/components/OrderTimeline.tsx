@@ -106,13 +106,10 @@ export function OrderTimeline({
 
   return (
     <div className="overflow-hidden">
-      {/* Desktop Timeline (Horizontal) */}
       <div className="hidden md:block">
         <div className="relative">
-          {/* Connector Line */}
           <div className="bg-muted absolute top-5 left-0 h-0.5 w-full"></div>
 
-          {/* Timeline Steps */}
           <div className="relative flex justify-between">
             {allStatuses.map((status, index) => {
               const stepStatus = getStepStatus(status.key);
@@ -124,7 +121,6 @@ export function OrderTimeline({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex w-20 flex-col items-center">
-                        {/* Status Icon */}
                         <div
                           className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border ${
                             stepStatus === "completed"

@@ -33,8 +33,8 @@ export function OrderItemsSection({ items }: { items: OrderItem[] }) {
     (sum, item) => sum + item.weight * item.quantity,
     0,
   );
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+
+  const total = subtotal;
 
   return (
     <div className="space-y-4">
@@ -105,10 +105,7 @@ export function OrderItemsSection({ items }: { items: OrderItem[] }) {
                   <span className="text-muted-foreground">Subtotal:</span>
                   <span>{formatRupiah(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax (10%):</span>
-                  <span>{formatRupiah(tax)}</span>
-                </div>
+
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Berat:</span>
                   <span>{totalWeight.toFixed(1)} kg</span>

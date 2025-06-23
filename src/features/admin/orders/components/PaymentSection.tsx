@@ -141,7 +141,6 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
             </span>
           </div>
 
-          {/* Payment Breakdown (if available) */}
           {payment.breakdown && (
             <div className="rounded-md border p-4">
               <h3 className="mb-3 font-medium">Rincian Biaya</h3>
@@ -163,7 +162,6 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
             </div>
           )}
 
-          {/* Payment Status */}
           <div className="rounded-md border p-4">
             <div className="mb-4 flex items-center justify-between">
               <span className="font-medium">Status Pembayaran</span>
@@ -206,7 +204,6 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
             </div>
           </div>
 
-          {/* Xendit Payment Details (if available) */}
           {payment.xendit && (
             <div className="rounded-md border p-4">
               <h3 className="mb-3 font-medium">Detail Pembayaran Online</h3>

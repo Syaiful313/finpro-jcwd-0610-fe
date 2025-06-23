@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { REPORT_PERIODS } from "@/constants/salesReport";
+import { REPORT_PERIODS } from "@/lib/config";
 import useGetOutlets from "@/hooks/api/outlet/useGetOutlets";
 import { format } from "date-fns";
 import { RotateCcw } from "lucide-react";
@@ -100,10 +100,8 @@ export function HeaderWithFilterSalesReports() {
 
   return (
     <div className="space-y-3 sm:space-y-6">
-      {/* Mobile Header */}
       <div className="block sm:hidden">
         <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg dark:from-blue-600 dark:to-blue-700">
-          {/* Header content */}
           <div className="px-5 py-14">
             <h1 className="text-2xl font-bold">Laporan Pendapatan</h1>
             <p className="mt-2 opacity-90">
@@ -118,9 +116,7 @@ export function HeaderWithFilterSalesReports() {
           </div>
         </div>
 
-        {/* Filter section - overlapping white card */}
         <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
-          {/* Date Range Picker */}
           <div className="mb-3">
             <DatePickerWithRange
               date={currentDateRange}
@@ -130,7 +126,6 @@ export function HeaderWithFilterSalesReports() {
             />
           </div>
 
-          {/* Period and Outlet Filter */}
           <div className="mb-2 flex gap-2">
             <Select
               value={filters.period}
@@ -154,7 +149,6 @@ export function HeaderWithFilterSalesReports() {
               </SelectContent>
             </Select>
 
-            {/* Only show outlet filter for ADMIN */}
             {isAdmin && outletsData?.data && (
               <Select
                 value={filters.outletId?.toString() || "all"}
@@ -188,7 +182,6 @@ export function HeaderWithFilterSalesReports() {
             )}
           </div>
 
-          {/* Action buttons */}
           <div className="flex gap-1">
             <Button
               variant="outline"
@@ -203,7 +196,6 @@ export function HeaderWithFilterSalesReports() {
         </div>
       </div>
 
-      {/* Desktop Header */}
       <div className="hidden sm:block">
         <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white shadow-lg sm:p-6 dark:from-blue-600 dark:to-blue-700">
           <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
@@ -225,12 +217,9 @@ export function HeaderWithFilterSalesReports() {
         </div>
       </div>
 
-      {/* Responsive Filter Section */}
       <div className="mx-1 mb-6 hidden rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:mx-0 sm:block sm:p-4 lg:p-6 dark:border-gray-700 dark:bg-gray-800">
         <div className="lg:space-y-0">
-          {/* Responsive Layout */}
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-6">
-            {/* Date Range */}
             <div className="flex items-center gap-2 lg:flex-shrink-0">
               <div className="flex-1 lg:w-[280px]">
                 <DatePickerWithRange
@@ -242,7 +231,6 @@ export function HeaderWithFilterSalesReports() {
               </div>
             </div>
 
-            {/* Period Filter */}
             <div className="lg:flex-shrink-0">
               <Select
                 value={filters.period}
@@ -269,7 +257,6 @@ export function HeaderWithFilterSalesReports() {
               </Select>
             </div>
 
-            {/* Outlet Filter - Only show for ADMIN */}
             {isAdmin && outletsData?.data && (
               <div className="lg:flex-shrink-0">
                 <Select
@@ -304,10 +291,8 @@ export function HeaderWithFilterSalesReports() {
               </div>
             )}
 
-            {/* Spacer for desktop */}
             <div className="hidden lg:block lg:flex-1"></div>
 
-            {/* Reset Button */}
             <div className="lg:flex-shrink-0">
               <Button
                 variant="outline"
@@ -322,7 +307,6 @@ export function HeaderWithFilterSalesReports() {
           </div>
         </div>
 
-        {/* Active Filters Indicator - Responsive */}
         {(filters.startDate || filters.endDate || filters.outletId) && (
           <div className="mt-3 flex flex-wrap gap-2 border-t border-gray-100 pt-3 sm:mt-4 sm:pt-4 dark:border-gray-700">
             <span className="flex-shrink-0 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
