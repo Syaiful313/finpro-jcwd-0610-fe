@@ -23,14 +23,14 @@ const AboutPage = () => {
                 role: "Full-stack Developer",
                 src: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1750492587/omi1_rprquf.jpg",
                 linkedin: "https://www.linkedin.com/in/dharma-ayomi-ramadhani",
-                github: "https://github.com/diarifiana",
+                github: "https://github.com/dharmaayomi",
             },
             {
                 name: "Diah",
                 role: "Full-stack Developer",
                 src: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1750492585/diah_pubId.jpg",
                 linkedin: "https://www.linkedin.com/in/diarifiana/",
-                github: "https://github.com/dharmaayomi",
+                github: "https://github.com/diarifiana",
             },
             ].map(({ name, role, src, linkedin, github }, i) => (
             <div className="text-center" key={i}>
