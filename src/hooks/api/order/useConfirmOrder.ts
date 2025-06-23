@@ -1,9 +1,10 @@
 import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const useConfirmOrder = () => {
   const axiosInstance = useAxios();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (uuid: string) => {
         const { data } = await axiosInstance.patch(`/orders/confirm/${uuid}`);
@@ -11,6 +12,7 @@ const useConfirmOrder = () => {
     },
     onSuccess: async (data) => {
       toast.success("Order confirmed");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
     onError: (error) => {
       toast.error(error.message);
