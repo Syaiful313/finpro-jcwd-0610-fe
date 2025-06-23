@@ -10,5 +10,11 @@ export const validationSchema = Yup.object().shape({
     .test("is-future", "Pickup time is at least 1 hour from now", (val) => {
         if (!val) return false;
         return new Date(val) > new Date(Date.now() + 60 * 60 * 1000);
+    })
+    .test("within-working-hours", "Pickup time only available between 9:00 AM and 8:00 PM", (val) => {
+        if (!val) return false;
+        const date = new Date(val);
+        const hour = date.getHours();
+        return hour >= 9 && hour < 19;
     }),
 });

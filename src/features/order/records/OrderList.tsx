@@ -1,5 +1,4 @@
 'use client';
-
 import { FC, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -19,18 +18,9 @@ const OrderList: FC<OrderListProps> = ({ userId }) => {
     serialize: (v) => String(v),
   });  const [limit] = useState(5);
 
-  const [searchTerm, setSearchTerm] = useQueryState('search', {
-    defaultValue: '',
-  });
-
-  const [startDate, setStartDate] = useQueryState('startDate', {
-    defaultValue: '',
-  });
-
-  const [endDate, setEndDate] = useQueryState('endDate', {
-    defaultValue: '',
-  });
-
+  const [searchTerm, setSearchTerm] = useQueryState('search', { defaultValue: '' });
+  const [startDate, setStartDate] = useQueryState('startDate', { defaultValue: '' });
+  const [endDate, setEndDate] = useQueryState('endDate', { defaultValue: '' });
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const { data, isLoading } = useGetOrdersUser({ userId, page: currentPage, limit });
@@ -59,7 +49,7 @@ const OrderList: FC<OrderListProps> = ({ userId }) => {
   const handleAddOrder = () => router.push('/order/request');
 
   return (
-    <div className="mx-auto p-6 text-white">
+    <div className="w-full max-w-6xl mx-auto px-4 py-6 text-white">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold text-primary">My Orders</h1>
         <button
@@ -84,7 +74,7 @@ const OrderList: FC<OrderListProps> = ({ userId }) => {
         </div>
 
         {[startDate, endDate].map((date, i) => (
-          <div className="relative w-full sm:w-1/3" key={i}>
+          <div className="hidden md:flex relative w-full sm:w-1/3" key={i}>
             <Calendar className="absolute top-3 left-3 text-primary w-5 h-5" />
             <input
               type="date"

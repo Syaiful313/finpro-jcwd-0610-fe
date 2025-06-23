@@ -38,9 +38,6 @@ const TestimonialsSection = () => {
                 {testimonials.map((testimonial) => (
                     <div key={testimonial.id} className={`rounded-lg shadow-lg p-6 flex flex-col justify-between min-h-[300px] ${testimonial.bgColor}`}>
                         <div className="mb-4">
-                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mb-4">
-                                <span className="font-bold text-xl text-blue-600">G</span>
-                            </div>
                             <p className="text-white text-lg leading-relaxed">"{testimonial.text}"</p>
                         </div>
                         <div className="flex items-center mt-auto">

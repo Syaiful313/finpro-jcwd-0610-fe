@@ -5,7 +5,7 @@ const MainSection = () => {
     <section className="min-h-screen bg-gray-100 flex flex-col font-inter">
         <div className="bg-white py-16 px-4 md:px-6">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8">
-                <div className="md:flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                <div className="md:flex-1 flex flex-col items-center md:items-start md:text-left">
                     <img src="https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749783555/bags_wmbbk1.svg" alt="Bag Icon" className="mb-4 w-20 h-20" />                    
                     <h2 className="text-4xl font-bold text-gray-800 mb-4">Effortless Everyday Laundry</h2>
                     <p className="text-lg text-gray-600 mb-8 max-w-md">Experience the simplest way to manage your daily laundry needs.</p>
@@ -52,10 +52,16 @@ const MainSection = () => {
                         className="rounded-lg shadow-lg max-w-full h-auto"
                     />
                 </div>
-                <div className="md:flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                <div className="md:flex-1 flex flex-col items-center md:items-start text-left">
                     <img src="https://res.cloudinary.com/dd6hqmwqu/image/upload/v1749783832/clothes_fli33i.svg" alt="Clothes Icon" className="mb-4 w-20 h-20" />                    
-                    <h2 className="text-4xl font-bold text-gray-800 mb-4">Premium Care</h2>
-                    <p className="text-lg text-gray-600 mb-8 max-w-md">Experience premium garment care that saves you time, ensuring you always look your sharpest.</p>
+                    <div className="self-start text-left">
+                        <h2 className="text-4xl font-bold text-gray-800 mb-4">Premium Care</h2>
+                        <p className="text-lg text-gray-600 mb-8 max-w-md">
+                        Experience premium garment care that saves you time, ensuring you always look your sharpest.
+                        </p>
+                    </div>
+                    {/* <h2 className="text-4xl font-bold text-gray-800 mb-4">Premium Care</h2>
+                    <p className="text-lg text-gray-600 mb-8 max-w-md">Experience premium garment care that saves you time, ensuring you always look your sharpest.</p> */}
                     <div className="flex items-start gap-4 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

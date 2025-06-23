@@ -24,6 +24,11 @@ const PickupForm: FC<PickupFormProps> = ({ user, itemVariants, setPendingValues,
               actions.setSubmitting(false); 
               return;
             }
+            if (!user.addresses || user.addresses.length === 0) {
+              toast.error("Please register an address first");
+              actions.setSubmitting(false);
+              return;
+            }
             setPendingValues(values);
             setFormActions(actions);
             setShowConfirmModal(true);

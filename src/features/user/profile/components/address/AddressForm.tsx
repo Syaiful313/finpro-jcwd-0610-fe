@@ -1,8 +1,9 @@
 import { FC } from 'react';
-import { FieldArray, Field, ErrorMessage, useFormikContext, Formik, Form } from 'formik'; // Import Formik and Form
+import { FieldArray, Field, ErrorMessage, useFormikContext, Formik, Form } from 'formik'; 
 import { Address } from '@/types/address';
 import MapPinpoint from './MapPinpoint';
-import { motion } from 'framer-motion'; // Import motion for animations
+import { motion } from 'framer-motion'; 
+import { addressField } from './AddressField';
 
 interface AddressesFormProps {
   name: string;
@@ -18,17 +19,9 @@ export const AddressesForm: FC<AddressesFormProps> = ({ name, onClose }) => {
       {({ push, remove }) => (
         <div className="mb-6 font-sans">
           <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center">Addresses</h2>
-
           {addresses.map((_, index) => (
             <div key={index} className="mb-8 p-8 relative space-y-6">
-              {[
-                { name: 'addressName', label: 'Address Name' },
-                { name: 'addressLine', label: 'Address Line' },
-                { name: 'district', label: 'District' },
-                { name: 'city', label: 'City' },
-                { name: 'province', label: 'Province' },
-                { name: 'postalCode', label: 'Postal Code' },
-              ].map((fieldConfig) => (
+              {addressField.map((fieldConfig) => (
                 <div key={fieldConfig.name} className="relative">
                   <Field
                     name={`${name}.${index}.${fieldConfig.name}`}
@@ -94,26 +87,6 @@ export const AddressesForm: FC<AddressesFormProps> = ({ name, onClose }) => {
           <div className="flex justify-end space-x-3 mt-8">
             <button
               type="button"
-              onClick={() =>
-                push({
-                  addressName: '',
-                  addressLine: '',
-                  district: '',
-                  city: '',
-                  province: '',
-                  postalCode: '',
-                  isPrimary: false,
-                  latitude: 0,
-                  longitude: 0,
-                })
-              }
-              className="px-6 py-2 bg-primary text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-md"
-            >
-              + Add Address
-            </button>
-
-            <button
-              type="button"
               onClick={onClose}
               className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 transition duration-150 ease-in-out"
             >
@@ -126,7 +99,6 @@ export const AddressesForm: FC<AddressesFormProps> = ({ name, onClose }) => {
   );
 };
 
-// This is the component containing the Formik block you provided
 interface ParentComponentProps {
   showAddressForm: boolean;
   setShowAddressForm: (show: boolean) => void;
@@ -150,14 +122,14 @@ export const ParentComponent: FC<ParentComponentProps> = ({ showAddressForm, set
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full overflow-y-auto max-h-[90vh]" // Added overflow-y-auto and max-h for scrollability
+            className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full overflow-y-auto max-h-[90vh]" 
           >
             <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-              {() => ( // Need to return the Form inside Formik's render prop
+              {() => ( 
                 <Form>
                   <AddressesForm name="addresses" onClose={() => setShowAddressForm(false)} />
 
-                  <div className="flex justify-end mt-8"> {/* Moved submit button into a flex container for consistent alignment */}
+                  <div className="flex justify-end mt-8">
                     <button
                       type="submit"
                       className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-md disabled:opacity-50 disabled:cursor-not-allowed" // Styled submit button
