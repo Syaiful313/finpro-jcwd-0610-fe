@@ -112,7 +112,6 @@ const ListOfBypass = () => {
             />
           </CardContent>
 
-          {/* card */}
           <div className="space-y-4">
             {isPending ? (
               <div>

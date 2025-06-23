@@ -23,7 +23,6 @@ const BottomNav: React.FC = () => {
   const [isNavigating, setIsNavigating] = useState(false);
   const { data: session, status } = useSession();
 
-  // Extract role once, memoize it
   const userRole = useMemo(() => session?.user?.role, [session?.user?.role]);
 
   const isActive = useCallback((path: string) => pathname === path, [pathname]);
@@ -47,7 +46,6 @@ const BottomNav: React.FC = () => {
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
   const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
-  // Only recalculate navItems when role actually changes
   const navItems = useMemo(() => {
     if (!userRole) return [];
 
@@ -89,7 +87,6 @@ const BottomNav: React.FC = () => {
     ];
   }, [userRole]);
 
-  // Memoize findIndex operation
   const currentIndex = useMemo(() => {
     if (navItems.length === 0) return 2;
     const index = navItems.findIndex((item) => pathname === item.href);
@@ -119,10 +116,8 @@ const BottomNav: React.FC = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Blue background */}
       <div className="bg-primary dark:bg-accent absolute inset-0 rounded-t-3xl shadow-lg" />
 
-      {/* Navigation content */}
       <div className="relative px-4 py-5">
         <div className="flex items-center justify-between">
           {navItems.map((item, index) => {
@@ -147,7 +142,6 @@ const BottomNav: React.FC = () => {
                   <item.icon className="h-6 w-6" />
                 </button>
 
-                {/* Show label on hover */}
                 {isHovered && (
                   <span className="pointer-events-none absolute -top-10 rounded bg-black/70 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     {item.label}
@@ -159,7 +153,6 @@ const BottomNav: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom safe area */}
       <div className="h-safe-area-inset-bottom bg-[#0080FF]" />
     </div>
   );

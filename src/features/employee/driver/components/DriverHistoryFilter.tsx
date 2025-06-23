@@ -106,7 +106,6 @@ const DriverHistoryFilters: React.FC<DriverHistoryFiltersProps> = ({
 
   return (
     <div className="bg-muted/50 grid grid-cols-1 gap-4 rounded-lg p-4 md:grid-cols-4">
-      {/* Start Date */}
       <div className="space-y-2">
         <div className="text-sm font-medium">Start Date</div>
         <div className="relative">
@@ -123,7 +122,6 @@ const DriverHistoryFilters: React.FC<DriverHistoryFiltersProps> = ({
         </div>
       </div>
 
-      {/* End Date */}
       <div className="space-y-2">
         <div className="text-sm font-medium">End Date</div>
         <div className="relative">
@@ -139,7 +137,6 @@ const DriverHistoryFilters: React.FC<DriverHistoryFiltersProps> = ({
         </div>
       </div>
 
-      {/* Job Type */}
       <div className="space-y-2">
         <div className="text-sm font-medium">Job Type</div>
         <Select
@@ -162,7 +159,6 @@ const DriverHistoryFilters: React.FC<DriverHistoryFiltersProps> = ({
         </Select>
       </div>
 
-      {/* Actions */}
       <div className="space-y-2">
         <div className="text-sm font-medium">Actions</div>
         <div className="flex justify-end gap-2">

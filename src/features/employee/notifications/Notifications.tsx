@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import useGetDriverNotifications from "@/hooks/api/employee/driver/useGetDriverNotification";
+import useGetDriverNotifications from "@/hooks/api/employee/driver/useGetDriverNotifications";
 import useGetWorkerNotification from "@/hooks/api/employee/worker/useGetWorkerNotification";
 import useMarkAllAsRead from "@/hooks/api/notification/useMarkAllAsRead";
 import useMarkAsRead from "@/hooks/api/notification/useMarkAsRead";
@@ -31,6 +31,8 @@ export default function NotificationDropdown() {
     if (isWorker(session)) return "worker";
     return null;
   }, [session]);
+
+  const currentUserId = session?.user?.id;
 
   const { mutate: markNotificationAsRead, isPending: isMarkingRead } =
     useMarkAsRead();
@@ -56,19 +58,36 @@ export default function NotificationDropdown() {
   const { data, isLoading, error } = activeQuery;
 
   const notifications = data?.data || [];
+
+  const isNotificationRead = (notification: NotificationResponse) => {
+    if (!currentUserId) return false;
+    return notification.readByUserIds.includes(currentUserId);
+  };
+
   const unreadCount = useMemo(
     () =>
-      notifications.filter((notif: NotificationResponse) => !notif.isRead)
-        .length,
-    [notifications],
+      notifications.filter(
+        (notif: NotificationResponse) => !isNotificationRead(notif),
+      ).length,
+    [notifications, currentUserId],
   );
 
+  const [markingIds, setMarkingIds] = useState<Set<number>>(new Set());
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
   };
 
   const handleMarkAsRead = (notificationId: number) => {
-    markNotificationAsRead(notificationId);
+    setMarkingIds((prev) => new Set([...prev, notificationId]));
+    markNotificationAsRead(notificationId, {
+      onSettled: () => {
+        setMarkingIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(notificationId);
+          return newSet;
+        });
+      },
+    });
   };
 
   const handleMarkAllAsRead = () => {
@@ -94,7 +113,6 @@ export default function NotificationDropdown() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-80 p-0" sideOffset={8}>
-        {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h3 className="text-lg font-semibold">Notifications</h3>
           {unreadCount > 0 && (
@@ -104,11 +122,10 @@ export default function NotificationDropdown() {
           )}
         </div>
 
-        {/* Notifications List */}
         <ScrollArea className="h-80">
           <div className="p-1">
             {isLoading ? (
-              Array.from({ length: 3 }).map((_, index) => (
+              Array.from({ length: 5 }).map((_, index) => (
                 <div key={index} className="p-3">
                   <NotificationSkeleton />
                 </div>
@@ -137,16 +154,18 @@ export default function NotificationDropdown() {
                     },
                   );
 
+                  const isRead = isNotificationRead(notification);
+
                   return (
                     <div key={notification.id}>
                       <div
-                        className={`p-3 ${!notification.isRead ? "bg-input rounded-sm" : ""}`}
+                        className={`p-3 ${!isRead ? "bg-input rounded-sm" : ""}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <p
                               className={`text-xs leading-5 ${
-                                !notification.isRead
+                                !isRead
                                   ? "text-foreground font-medium"
                                   : "text-muted-foreground"
                               }`}
@@ -157,13 +176,13 @@ export default function NotificationDropdown() {
                               <span className="text-muted-foreground text-xs">
                                 {timeAgo}
                               </span>
-                              {!notification.isRead && (
+                              {!isRead && (
                                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500"></div>
                               )}
                             </div>
                           </div>
 
-                          {!notification.isRead && (
+                          {!isRead && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -171,7 +190,7 @@ export default function NotificationDropdown() {
                               disabled={isMarkingRead}
                               className="h-8 w-8 flex-shrink-0 p-0 hover:bg-blue-100"
                             >
-                              {isMarkingRead ? (
+                              {markingIds.has(notification.id) ? (
                                 <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                               ) : (
                                 <Check className="text-primary h-4 w-4" />
@@ -191,7 +210,6 @@ export default function NotificationDropdown() {
           </div>
         </ScrollArea>
 
-        {/* Mark All as Read Button */}
         {unreadCount > 0 && (
           <>
             <DropdownMenuSeparator />

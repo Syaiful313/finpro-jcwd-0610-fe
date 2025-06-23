@@ -10,7 +10,6 @@ import WorkerOrderList from "./worker/WorkerOrderList";
 const OrderPage = () => {
   const { data: session, status } = useSession();
   const { setBreadcrumbs } = useBreadcrumb();
-  const router = useRouter();
   useEffect(() => {
     setBreadcrumbs([
       { label: "Dashboard", href: "/employee" },
@@ -18,9 +17,6 @@ const OrderPage = () => {
     ]);
   }, [setBreadcrumbs]);
 
-  if (status === "unauthenticated") {
-    router.push("/");
-  }
   return (
     <div>{isDriver(session) ? <DriverOrderList /> : <WorkerOrderList />}</div>
   );

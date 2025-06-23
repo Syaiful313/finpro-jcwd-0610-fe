@@ -1,8 +1,6 @@
 "use client";
 
 import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
-import useAxios from "@/hooks/useAxios";
-import { useSession } from "next-auth/react";
 import Loader from "../../components/Loader";
 import NotClockIn from "../../components/NotClockIn";
 import ListOfStationOrder from "./components/ListOfStationOrder";

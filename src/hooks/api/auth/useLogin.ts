@@ -21,13 +21,13 @@ const useLogin = () => {
     },
     onSuccess: async (data) => {
       try {
-        const result = await signIn("credentials", {
+        const result = (await signIn("credentials", {
           ...data,
           id: data.id.toString(),
           firstName: data.firstName || "",
           lastName: data.lastName || "",
           redirect: false,
-        }) as SignInResponse | undefined;
+        })) as SignInResponse | undefined;
 
         if (result?.ok) {
           toast.success("Login successful");
@@ -35,10 +35,10 @@ const useLogin = () => {
 
           const routes: Record<string, string> = {
             ADMIN: "/admin/dashboard",
-            OUTLET_ADMIN: "/admin/dashboard", 
+            OUTLET_ADMIN: "/admin/dashboard",
             WORKER: "/employee",
             DRIVER: "/employee",
-            CUSTOMER: "/user/profile"
+            CUSTOMER: "/user/profile",
           };
 
           setTimeout(() => {

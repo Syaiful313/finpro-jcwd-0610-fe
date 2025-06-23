@@ -194,8 +194,6 @@ export default function PickUpRequestList() {
   return (
     <div className="p-3 md:p-4">
       <Card className="min-h-screen">
-        {/* Header */}
-
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl font-bold">
             <Package className="h-6 w-6" />
@@ -203,14 +201,12 @@ export default function PickUpRequestList() {
           </CardTitle>
           <CardDescription>View and filter pick up jobs</CardDescription>
         </CardHeader>
-        {/* Filters */}
+
         <CardContent>
           <PickUpRequestFilters onPageReset={handlePageReset} />
         </CardContent>
 
-        {/* Main Content */}
         <div className="px-3 md:px-6">
-          {/* Results Summary */}
           {!isLoading && !isError && (
             <CardContent>
               <div className="flex items-center justify-between">
@@ -227,7 +223,6 @@ export default function PickUpRequestList() {
             </CardContent>
           )}
 
-          {/* Content */}
           {isLoading ? (
             <LoadingState />
           ) : isError ? (
@@ -275,7 +270,6 @@ export default function PickUpRequestList() {
           )}
         </div>
 
-        {/* Map Modal */}
         <MapModal
           selectedRequest={selectedRequest}
           onClose={handleCloseMapModal}

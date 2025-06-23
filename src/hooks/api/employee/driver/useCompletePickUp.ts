@@ -38,6 +38,9 @@ const useCompletePickUp = (pickUpJobId: number) => {
       toast.success("Pickup job completed successfully!");
       queryClient.invalidateQueries({ queryKey: ["pickUpJobs"] });
       queryClient.invalidateQueries({ queryKey: ["driverJobs"] });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
       router.push("/employee");
     },
     onError: (error: AxiosError<any>) => {

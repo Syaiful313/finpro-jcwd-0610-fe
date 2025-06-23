@@ -38,6 +38,9 @@ const useFinishBypassProcess = () => {
       queryClient.invalidateQueries({
         queryKey: ["worker-notifications"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
     },
   });
 };

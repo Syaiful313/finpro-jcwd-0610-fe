@@ -28,7 +28,7 @@ export default function RecentAttendance({
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
-          className="flex animate-pulse items-center gap-3 rounded-xl bg-gray-50/50 p-3 dark:bg-gray-800/50"
+          className="flex animate-pulse items-center gap-3 rounded-xl bg-gray-50/50 p-3 dark:bg-gray-400/50"
         >
           <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-200/20" />
           <div className="flex-1 space-y-2">

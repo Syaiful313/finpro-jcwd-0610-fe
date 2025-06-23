@@ -21,6 +21,9 @@ const useRequestBypass = () => {
         queryKey: ["ListOfBypass"],
         exact: false,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
     },
   });
 };
