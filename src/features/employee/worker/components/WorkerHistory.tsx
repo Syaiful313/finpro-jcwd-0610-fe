@@ -157,7 +157,6 @@ const WorkerHistory = () => {
             />
           </CardContent>
 
-          {/* History Cards */}
           <div className="space-y-4">
             {isPending ? (
               <div className="h-70 space-y-6 p-3 md:p-6">

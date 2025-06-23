@@ -20,8 +20,8 @@ import {
   parseAsString,
   useQueryState,
 } from "nuqs";
-import DriverHistoryFilters from "./DriverHistoryFilter";
 import Loader from "../../components/Loader";
+import DriverHistoryFilters from "./DriverHistoryFilter";
 
 export default function DriverHistory() {
   const router = useRouter();
@@ -91,10 +91,6 @@ export default function DriverHistory() {
     setPage(1);
   };
 
-  // const handleViewDetails = (jobId: number, jobType: "pickup" | "delivery") => {
-  //   router.push(`/employee/orders/order-detail/${orderUuid}`);
-  // };
-
   const handleViewDetails = (jobId: number, jobType: "pickup" | "delivery") => {
     router.push(`/employee/job-history/driver/${jobId}?type=${jobType}`);
   };
@@ -132,7 +128,6 @@ export default function DriverHistory() {
           />
         </CardContent>
 
-        {/* History List */}
         <div className="p-4 md:p-6">
           {!isLoading && !isError && (
             <div className="flex flex-col items-start gap-1 pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
@@ -173,11 +168,9 @@ export default function DriverHistory() {
               <div className="space-y-4">
                 {filteredHistory.map((item) => (
                   <div
-                    // key={`${item.jobType}-${item.order.uuid}`}
                     key={`${item.jobType}-${item.id}`}
                     className="rounded-lg border p-4"
                   >
-                    {/* Header - Mobile: Stack, Desktop: Side by side */}
                     <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex items-start gap-3">
                         <div
@@ -204,7 +197,6 @@ export default function DriverHistory() {
                         </div>
                       </div>
 
-                      {/* Price and Date - Stack on mobile */}
                       <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
                         <div className="text-sm font-medium sm:text-base">
                           {formatRupiah(item.order.totalDeliveryFee)}
@@ -220,14 +212,12 @@ export default function DriverHistory() {
                     </div>
 
                     <div className="space-y-3">
-                      {/* Customer Name */}
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium sm:text-base">
                           {item.order.user.firstName} {item.order.user.lastName}
                         </span>
                       </div>
 
-                      {/* Address */}
                       <div className="flex items-start gap-2">
                         <MapPin className="text-muted-foreground mt-0.5 h-4 w-4 flex-shrink-0" />
                         <span className="text-muted-foreground text-xs leading-relaxed sm:text-sm">
@@ -237,7 +227,6 @@ export default function DriverHistory() {
                         </span>
                       </div>
 
-                      {/* Bottom section - Outlet and Button */}
                       <div className="flex items-center justify-between pt-2">
                         <div className="text-muted-foreground text-xs sm:text-sm">
                           {item.order.outlet.outletName}

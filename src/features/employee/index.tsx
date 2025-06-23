@@ -28,11 +28,6 @@ const EmployeePage: React.FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { setBreadcrumbs } = useBreadcrumb();
-
-  // const { data: attendanceData, isLoading: isTodayAttendanceLoading } =
-  //   useGetTodayAttendance();
-  // const todayAttendance = attendanceData?.data?.[0] || null;
-  // const hasClockedIn = !!todayAttendance && todayAttendance.clockOutAt === null;
   const { data: todayAttendanceData, isLoading: isTodayAttendanceLoading } =
     useGetTodayAttendance();
 
@@ -95,7 +90,7 @@ const EmployeePage: React.FC = () => {
       <div className="to-primary relative bg-gradient-to-br from-[#0051b3] md:h-50 md:rounded-lg dark:bg-none dark:from-gray-800 dark:to-gray-900">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10 md:hidden"
-          style={{ backgroundImage: "url(/laundry.webp)" }}
+          style={{ backgroundImage: "url(/Laundry.webp)" }}
         />
         <div
           className="absolute inset-0 hidden rounded-lg bg-cover bg-center bg-no-repeat opacity-15 md:block"

@@ -36,7 +36,8 @@ export function NavDocuments({
                 onClick={() => router.push(item.url)}
                 className={cn(
                   "hover:bg-accent w-full cursor-pointer justify-start transition-colors",
-                  isActive && "bg-primary font-semibold text-white",
+                  isActive &&
+                    "bg-primary dark:bg-sidebar-accent font-semibold text-white",
                 )}
               >
                 <item.icon className="mr-2 h-4 w-4" />

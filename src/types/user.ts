@@ -36,5 +36,3 @@ export enum Provider {
   GOOGLE = "GOOGLE",
   CREDENTIAL = "CREDENTIAL",
 }
-
-// ini commit

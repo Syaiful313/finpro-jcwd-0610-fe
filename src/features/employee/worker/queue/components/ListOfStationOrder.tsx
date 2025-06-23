@@ -10,11 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import { Badge } from "@/components/ui/badge";
+import Loader from "@/features/employee/components/Loader";
 import useGetStationOrder from "@/hooks/api/employee/worker/useGetStationOrder";
 import formatRupiah from "@/utils/RupiahFormat";
+import { getOrderStatusConfig } from "@/utils/StationOrder";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Eye, MapPin, Package } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   parseAsInteger,
@@ -22,14 +26,8 @@ import {
   parseAsString,
   useQueryState,
 } from "nuqs";
-import StationOrderFilters from "./OrderStationFilter";
-import { getOrderStatusConfig } from "@/utils/StationOrder";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import Image from "next/image";
-import NotClockIn from "@/features/employee/components/NotClockIn";
-import useGetTodayAttendance from "@/hooks/api/employee/attendance/useGetTodayAttendance";
-import Loader from "@/features/employee/components/Loader";
+import StationOrderFilters from "./OrderStationFilter";
 
 const ListOfStationOrder = () => {
   const router = useRouter();
@@ -116,7 +114,6 @@ const ListOfStationOrder = () => {
             />
           </CardContent>
 
-          {/* card */}
           <div className="space-y-4">
             {isPending ? (
               <div>

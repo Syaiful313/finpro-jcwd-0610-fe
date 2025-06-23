@@ -1,9 +1,9 @@
 import { axiosInstance } from "@/lib/axios";
-import { User } from "@/types/user";
 import { useMutation } from "@tanstack/react-query";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import type { SignInResponse } from "next-auth/react";
 
 interface LoginPayload {
   email: string;
@@ -12,26 +12,47 @@ interface LoginPayload {
 
 const useLogin = () => {
   const router = useRouter();
+  const { update } = useSession();
+
   return useMutation({
     mutationFn: async (payload: LoginPayload) => {
       const { data } = await axiosInstance.post("/auth/login", payload);
       return data;
     },
     onSuccess: async (data) => {
-      await signIn("credentials", { ...data, redirect: false });
-      toast.success("Login successful");
-      if (data.role === "ADMIN" || data.role === "OUTLET_ADMIN") {
-        router.push("/admin/dashboard");
-      } else if (data.role === "WORKER" || data.role === "DRIVER") {
-        router.push("/employee");
-      } else {
-        router.push("/");
+      try {
+        const result = (await signIn("credentials", {
+          ...data,
+          id: data.id.toString(),
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          redirect: false,
+        })) as SignInResponse | undefined;
+
+        if (result?.ok) {
+          toast.success("Login successful");
+          await update();
+
+          const routes: Record<string, string> = {
+            ADMIN: "/admin/dashboard",
+            OUTLET_ADMIN: "/admin/dashboard",
+            WORKER: "/employee",
+            DRIVER: "/employee",
+          };
+
+          setTimeout(() => {
+            router.push(routes[data.role] || "/");
+          }, 1000);
+        } else {
+          toast.error("Authentication failed");
+        }
+      } catch (error) {
+        toast.error("Authentication failed");
       }
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Something went wrong';
+      const message = error?.response?.data?.message || "Login failed";
       toast.error(message);
-      console.error(error);
     },
   });
 };

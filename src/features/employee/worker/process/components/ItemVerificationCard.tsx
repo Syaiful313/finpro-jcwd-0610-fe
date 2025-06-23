@@ -112,13 +112,11 @@ export default function ItemVerificationCard({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Verification Items */}
         {verificationItems.map((item, index) => (
           <div
             key={index}
             className="grid grid-cols-1 gap-4 rounded-lg border p-4 md:grid-cols-2"
           >
-            {/* Item Type Selection */}
             <div className="space-y-2.5">
               <Label>Item Type</Label>
               <Select
@@ -144,7 +142,6 @@ export default function ItemVerificationCard({
               </Select>
             </div>
 
-            {/* Quantity Input */}
             <div className="space-y-2.5">
               <Label>Quantity</Label>
               <Input
@@ -160,7 +157,6 @@ export default function ItemVerificationCard({
           </div>
         ))}
 
-        {/* Action Buttons */}
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -180,7 +176,6 @@ export default function ItemVerificationCard({
           </Button>
         </div>
 
-        {/* Success Alert */}
         {isCompleted && (
           <Alert className="border-green-600 bg-green-50 dark:border-green-800 dark:bg-green-900/30">
             <CheckCircle className="h-4 w-4 text-green-500" />

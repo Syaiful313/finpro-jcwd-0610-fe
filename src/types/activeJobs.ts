@@ -36,6 +36,8 @@ export type ActiveJobs = {
     totalPickupFee?: number;
     totalWeight: number;
     updatedAt: string;
+    latitude: number;
+    longitude: number;
     user: {
       firstName: string;
       lastName: string;

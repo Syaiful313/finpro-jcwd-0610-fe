@@ -61,7 +61,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
     }
   };
 
-  // Format address from order data
   const formatFullAddress = (order: ActiveJobs["order"]) => {
     const addressLine = order.addressLine;
     const district = order.district;
@@ -81,8 +80,8 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
 
   const addressInfo = formatFullAddress(job.order);
   const coordinates = {
-    latitude: 0, // You'll need to add latitude/longitude to your ActiveJobs type
-    longitude: 0, // or get them from somewhere else
+    latitude: job?.order?.latitude || 0,
+    longitude: job?.order?.longitude || 0,
   };
   const customerName = `${job.order.user.firstName} ${job.order.user.lastName}`;
   const customerPhone = job.order.user.phoneNumber;
@@ -103,7 +102,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
 
   return (
     <div className="min-h-screen pb-8">
-      {/* Header */}
       <div className="border-b p-4">
         <div className="flex items-center gap-3">
           <Button
@@ -123,7 +121,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
         </div>
       </div>
 
-      {/* Status Progress Indicator */}
       <div className="border-b p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -143,7 +140,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
         </div>
       </div>
 
-      {/* Customer Info Card */}
       <Card className="m-4">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -188,7 +184,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
         </CardContent>
       </Card>
 
-      {/* Map Section */}
       <Card className="m-4">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
@@ -214,7 +209,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
         </CardContent>
       </Card>
 
-      {/* Order Details - Only show for delivery jobs */}
       {data.type === "delivery" && (
         <Card className="m-4">
           <CardHeader>
@@ -275,7 +269,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
         </Card>
       )}
 
-      {/* Job History Status Card */}
       <Card className="m-4">
         <CardHeader>
           <CardTitle>Task Status</CardTitle>
@@ -296,7 +289,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
             </div>
           )}
 
-          {/* Completion Date if available */}
           {job.status === "COMPLETED" && (
             <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-700/20">
               <p className="text-sm font-medium text-green-800 dark:text-green-200">
@@ -320,7 +312,6 @@ const DriverHistoryDetailPage = ({ data }: DriverHistoryDetailProps) => {
         </CardContent>
       </Card>
 
-      {/* Photos Section (if available) */}
       {job.pickUpPhotos && (
         <Card className="m-4">
           <CardHeader>

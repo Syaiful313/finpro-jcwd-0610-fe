@@ -105,7 +105,6 @@ const StationOrderFilters: React.FC<StationOrderFiltersProps> = ({
 
   return (
     <div className="bg-muted/50 grid grid-cols-1 gap-4 rounded-lg p-4 md:grid-cols-4">
-      {/* Start Date */}
       <div className="space-y-2">
         <div className="text-sm font-medium">Start Date</div>
         <div className="relative">
@@ -123,7 +122,6 @@ const StationOrderFilters: React.FC<StationOrderFiltersProps> = ({
         </div>
       </div>
 
-      {/* End Date */}
       <div className="space-y-2">
         <h6 className="text-sm font-medium">End Date</h6>
         <div className="relative">
@@ -140,7 +138,6 @@ const StationOrderFilters: React.FC<StationOrderFiltersProps> = ({
         </div>
       </div>
 
-      {/* Work Type */}
       <div className="space-y-2">
         <h6 className="text-sm font-medium">Work Type</h6>
         <Select
@@ -163,7 +160,6 @@ const StationOrderFilters: React.FC<StationOrderFiltersProps> = ({
         </Select>
       </div>
 
-      {/* Actions */}
       <div className="space-y-2">
         <h6 className="text-sm font-medium">Actions</h6>
         <div className="flex justify-end gap-2">

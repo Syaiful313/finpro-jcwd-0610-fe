@@ -104,7 +104,6 @@ const BypassFilter: React.FC<BypassFilterProps> = ({
 
   return (
     <div className="bg-muted/50 grid grid-cols-1 gap-4 rounded-lg p-4 md:grid-cols-4">
-      {/* Start Date */}
       <div className="space-y-2">
         <div className="text-sm font-medium">Start Date</div>
         <div className="relative">
@@ -122,7 +121,6 @@ const BypassFilter: React.FC<BypassFilterProps> = ({
         </div>
       </div>
 
-      {/* End Date */}
       <div className="space-y-2">
         <h6 className="text-sm font-medium">End Date</h6>
         <div className="relative">
@@ -139,7 +137,6 @@ const BypassFilter: React.FC<BypassFilterProps> = ({
         </div>
       </div>
 
-      {/* Bypass Status */}
       <div className="space-y-2">
         <h6 className="text-sm font-medium">Bypass Status</h6>
         <Select
@@ -162,7 +159,6 @@ const BypassFilter: React.FC<BypassFilterProps> = ({
         </Select>
       </div>
 
-      {/* Actions */}
       <div className="space-y-2">
         <h6 className="text-sm font-medium">Actions</h6>
         <div className="flex justify-end gap-2">
