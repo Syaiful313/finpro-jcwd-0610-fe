@@ -34,8 +34,8 @@ export const createOutletValidationSchema = ({
 
     serviceRadius: Yup.number()
       .required("Radius layanan wajib diisi")
-      .min(0.1, "Radius layanan minimal 0.1 km")
-      .max(50, "Radius layanan maksimal 50 km")
+      .min(0.5, "Radius layanan minimal 0.5 km")
+      .max(15, "Radius layanan maksimal 15 km")
       .typeError("Radius layanan harus berupa angka"),
 
     isActive: Yup.boolean().required("Status aktif wajib dipilih"),
@@ -68,12 +68,12 @@ export const validateServiceRadius = (radius: number) => {
     return "Radius layanan harus berupa angka";
   }
 
-  if (rad < 0.1) {
-    return "Radius layanan minimal 0.1 km";
+  if (rad < 0.5) {
+    return "Radius layanan minimal 0.5 km";
   }
 
-  if (rad > 50) {
-    return "Radius layanan maksimal 50 km";
+  if (rad > 15) {
+    return "Radius layanan maksimal 15 km";
   }
 
   return null;

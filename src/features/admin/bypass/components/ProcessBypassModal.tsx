@@ -1,4 +1,3 @@
-// ProcessBypassModal.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BypassRequest } from "@/types/bypass";
 import { useFormik } from "formik";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import * as Yup from "yup";
 
 interface ProcessBypassModalProps {
@@ -63,56 +62,65 @@ export default function ProcessBypassModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent 
+      <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
         className="max-h-[90vh] overflow-y-auto sm:max-w-[500px] [&>button]:hidden"
       >
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
-            <div className={`rounded-full p-2 ${isApprove ? "bg-green-100" : "bg-red-100"}`}>
-              <ActionIcon className={`h-5 w-5 ${isApprove ? "text-green-600" : "text-red-600"}`} />
+            <div
+              className={`rounded-full p-2 ${isApprove ? "bg-green-100" : "bg-red-100"}`}
+            >
+              <ActionIcon
+                className={`h-5 w-5 ${isApprove ? "text-green-600" : "text-red-600"}`}
+              />
             </div>
             {isApprove ? "Approve" : "Reject"} Bypass Request
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm">
-            {isApprove 
-              ? "Provide approval note for this bypass request" 
-              : "Provide rejection reason for this bypass request"
-            }
+            {isApprove
+              ? "Provide approval note for this bypass request"
+              : "Provide rejection reason for this bypass request"}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
-          {/* Request Info */}
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Request Details</h4>
+            <h4 className="mb-3 font-medium text-gray-900">Request Details</h4>
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex justify-between">
-                <span className="font-medium">Order:</span> 
-                <span>#{request.orderWorkProcesses[0]?.order?.orderNumber}</span>
+                <span className="font-medium">Order:</span>
+                <span>
+                  #{request.orderWorkProcesses[0]?.order?.orderNumber}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Station:</span> 
+                <span className="font-medium">Station:</span>
                 <span>{request.orderWorkProcesses[0]?.workerType}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Worker:</span> 
-                <span>{request.orderWorkProcesses[0]?.employee?.user?.firstName} {request.orderWorkProcesses[0]?.employee?.user?.lastName}</span>
+                <span className="font-medium">Worker:</span>
+                <span>
+                  {request.orderWorkProcesses[0]?.employee?.user?.firstName}{" "}
+                  {request.orderWorkProcesses[0]?.employee?.user?.lastName}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Customer:</span> 
-                <span>{request.orderWorkProcesses[0]?.order?.user?.firstName} {request.orderWorkProcesses[0]?.order?.user?.lastName}</span>
+                <span className="font-medium">Customer:</span>
+                <span>
+                  {request.orderWorkProcesses[0]?.order?.user?.firstName}{" "}
+                  {request.orderWorkProcesses[0]?.order?.user?.lastName}
+                </span>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className="mt-3 border-t border-gray-200 pt-3">
               <span className="font-medium text-gray-700">Reason:</span>
-              <p className="mt-1 text-sm text-gray-600 bg-white rounded p-2 border">
+              <p className="mt-1 rounded border bg-white p-2 text-sm text-gray-600">
                 {request.reason}
               </p>
             </div>
           </div>
 
-          {/* Admin Note Input */}
           <div className="space-y-2">
             <Label htmlFor="adminNote" className="text-sm font-medium">
               Admin Note *
@@ -135,10 +143,13 @@ export default function ProcessBypassModal({
               )}
             </div>
             {formik.touched.adminNote && formik.errors.adminNote && (
-              <p className="mt-1 text-xs text-red-500">{formik.errors.adminNote}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {formik.errors.adminNote}
+              </p>
             )}
             <p className="text-muted-foreground text-xs">
-              Provide clear explanation for your {type === "approve" ? "approval" : "rejection"} decision
+              Provide clear explanation for your{" "}
+              {type === "approve" ? "approval" : "rejection"} decision
             </p>
           </div>
         </form>
@@ -156,10 +167,12 @@ export default function ProcessBypassModal({
           <Button
             type="submit"
             onClick={() => formik.handleSubmit()}
-            disabled={isProcessing || !formik.isValid || !formik.values.adminNote.trim()}
+            disabled={
+              isProcessing || !formik.isValid || !formik.values.adminNote.trim()
+            }
             className={`w-full sm:w-auto ${
-              isApprove 
-                ? "bg-green-600 hover:bg-green-700" 
+              isApprove
+                ? "bg-green-600 hover:bg-green-700"
                 : "bg-red-600 hover:bg-red-700"
             }`}
           >
@@ -180,4 +193,3 @@ export default function ProcessBypassModal({
     </Dialog>
   );
 }
-

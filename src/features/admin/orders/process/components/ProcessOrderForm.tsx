@@ -312,7 +312,6 @@ export function ProcessOrderForm({
 
           return (
             <Form className="space-y-3 sm:space-y-4 md:space-y-6">
-              {/* Header */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
@@ -338,9 +337,7 @@ export function ProcessOrderForm({
               </div>
 
               <div className="grid gap-3 sm:gap-4 md:gap-6 lg:grid-cols-3">
-                {/* Main Form */}
                 <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:col-span-2">
-                  {/* Total Weight Card */}
                   <TotalWeightCard
                     hasPerKg={hasPerKg}
                     totalWeight={values.totalWeight}
@@ -350,7 +347,6 @@ export function ProcessOrderForm({
                     orderItemsLength={values.orderItems.length}
                   />
 
-                  {/* Order Items Card */}
                   <OrderItemsCard
                     orderItems={values.orderItems}
                     laundryItems={laundryItems}
@@ -363,10 +359,8 @@ export function ProcessOrderForm({
                   />
                 </div>
 
-                {/* Enhanced Summary Sidebar */}
                 <div className="space-y-3 sm:space-y-4 md:space-y-6">
                   <div className="sticky top-4 space-y-3 sm:space-y-4 md:space-y-6">
-                    {/* Order Summary Card */}
                     <OrderSummaryCard
                       totalWeight={values.totalWeight}
                       hasPerKg={hasPerKg}
@@ -381,7 +375,6 @@ export function ProcessOrderForm({
                       onNavigateBack={handleNavigation}
                     />
 
-                    {/* Info Card */}
                     <InfoCard />
                   </div>
                 </div>

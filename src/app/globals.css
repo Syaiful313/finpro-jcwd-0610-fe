@@ -158,4 +158,73 @@
   }
 }
 
-@import 'leaflet/dist/leaflet.css';
+@supports (view-transition-name: root) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.8s;
+    animation-timing-function: ease-in-out;
+  }
+
+  ::view-transition-new(root) {
+    clip-path: circle(0% at var(--transition-origin, 0% 0%));
+    animation-name: circleExpand;
+  }
+
+  @keyframes circleExpand {
+    to {
+      clip-path: circle(150% at var(--transition-origin, 0% 0%));
+    }
+  }
+}
+
+.theme-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;
+  transition: clip-path 0.8s ease-in-out;
+}
+
+.theme-transition.to-dark {
+  background: #0a0a0a;
+  clip-path: circle(0% at 0% 0%);
+}
+
+.theme-transition.to-dark.active {
+  clip-path: circle(150% at 0% 0%);
+}
+
+.theme-transition.to-light {
+  background: white; 
+  clip-path: circle(0% at 100% 100%);
+}
+
+.theme-transition.to-light.active {
+  clip-path: circle(150% at 100% 100%);
+}
+
+.theme-transition.to-system {
+  background: var(--background, white);
+  clip-path: circle(0% at 0% 0%);
+}
+
+.theme-transition.to-system.active {
+  clip-path: circle(150% at 0% 0%);
+}
+
+* {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    fill 0.3s ease;
+}
+
+.theme-switching * {
+  transition: none !important;
+}
+
+@import "leaflet/dist/leaflet.css";

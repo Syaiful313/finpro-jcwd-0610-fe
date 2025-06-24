@@ -1,4 +1,3 @@
-// hooks/api/sales-report/useGetSalesReport.ts
 "use client";
 import useAxios from "@/hooks/useAxios";
 import { SalesReportQueries, SalesReportResponse } from "@/types/sales-report";
@@ -12,7 +11,7 @@ const useGetSalesReport = (queries?: SalesReportQueries) => {
     queryFn: async () => {
       const { data } = await axiosInstance.get<SalesReportResponse>(
         "/reports/sales-report",
-        { params: queries }
+        { params: queries },
       );
       return data;
     },

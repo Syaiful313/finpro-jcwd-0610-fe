@@ -247,7 +247,6 @@ const OrderCard = ({
   showOutlet?: boolean;
 }) => (
   <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 dark:border-blue-500 bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-900/50 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/70">
-    {/* Header */}
     <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-700/50 p-3.5">
       <div className="flex items-center gap-2.5">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-sm font-semibold text-white">
@@ -268,9 +267,7 @@ const OrderCard = ({
       </div>
     </div>
 
-    {/* Body */}
     <div className="p-3.5">
-      {/* Contact list */}
       <div className="mb-3 flex flex-col gap-2">
         <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
           <User className="h-3.5 w-3.5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
@@ -292,7 +289,6 @@ const OrderCard = ({
         </div>
       </div>
 
-      {/* Tracking Info */}
       {order.tracking.currentWorker && (
         <div className="mb-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 p-2">
           <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
@@ -307,7 +303,6 @@ const OrderCard = ({
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex gap-2">
         <button
           onClick={() => onViewDetail(order)}
@@ -563,12 +558,10 @@ export function OrderManagementTable() {
   return (
     <>
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
-        {/* Mobile Header */}
         <div className="block sm:hidden">
           <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-lg">
-            {/* Header content */}
             <div className="px-4 py-14">
-              <h1 className="text-2xl font-bold">Order Management</h1>
+              <h1 className="text-2xl font-bold">Manajemen Pesanan</h1>
               <p className="mt-2 opacity-90">
                 {isAdmin
                   ? "Lihat dan kelola semua pesanan dengan tracking lengkap"
@@ -577,9 +570,7 @@ export function OrderManagementTable() {
             </div>
           </div>
 
-          {/* Search and filter section - overlapping white card */}
           <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-lg dark:shadow-gray-900/50">
-            {/* Search input */}
             <div className="relative mb-3">
               <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <input
@@ -591,7 +582,6 @@ export function OrderManagementTable() {
               />
             </div>
 
-            {/* Tabs for outlet admin */}
             {isOutletAdmin && (
               <div className="mb-3">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -603,9 +593,7 @@ export function OrderManagementTable() {
               </div>
             )}
 
-            {/* Filter buttons */}
             <div className="space-y-3">
-              {/* First row - Outlet (only for admin) */}
               {isAdmin && (
                 <div className="flex gap-2">
                   <DropdownMenu>
@@ -672,7 +660,6 @@ export function OrderManagementTable() {
                 </div>
               )}
 
-              {/* Status and Employee row */}
               <div className="flex gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -783,7 +770,6 @@ export function OrderManagementTable() {
                 </DropdownMenu>
               </div>
 
-              {/* Date range row - Hidden on pending tab */}
               {activeTab !== "pending" && (
                 <div className="flex gap-2">
                   <Input
@@ -810,10 +796,9 @@ export function OrderManagementTable() {
           </div>
         </div>
 
-        {/* Desktop Header */}
         <div className="hidden sm:block">
           <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-6 text-white shadow-lg">
-            <h1 className="text-2xl font-bold">Order Management</h1>
+            <h1 className="text-2xl font-bold">Manajemen Pesanan</h1>
             <p className="mt-2 opacity-90">
               {isAdmin
                 ? "Lihat dan kelola semua pesanan dengan tracking lengkap"
@@ -822,9 +807,7 @@ export function OrderManagementTable() {
           </div>
         </div>
 
-        {/* Desktop Tabs and Search & Filter Section */}
         <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
-          {/* Tabs for outlet admin */}
           {isOutletAdmin && (
             <div className="mb-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -847,7 +830,6 @@ export function OrderManagementTable() {
           )}
 
           <div className="space-y-4">
-            {/* Search */}
             <div className="relative w-full">
               <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <Input
@@ -858,7 +840,6 @@ export function OrderManagementTable() {
               />
             </div>
 
-            {/* Filters */}
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:items-center lg:gap-4">
               <div className="flex flex-col gap-3 sm:flex-row lg:items-center lg:gap-3">
                 {isAdmin && (
@@ -1044,7 +1025,6 @@ export function OrderManagementTable() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row lg:items-center lg:gap-3">
-                {/* Date range - Hidden on pending tab */}
                 {activeTab !== "pending" && (
                   <div className="flex gap-2">
                     <Input
@@ -1094,7 +1074,6 @@ export function OrderManagementTable() {
           className="mx-1 sm:mx-0"
         >
           <TabsContent value="all" className="space-y-4">
-            {/* Mobile Card View */}
             <div className="block sm:hidden">
               {isLoading ? (
                 <div className="flex h-32 items-center justify-center">
@@ -1130,7 +1109,6 @@ export function OrderManagementTable() {
               )}
             </div>
 
-            {/* Desktop Table View */}
             <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
               <div className="overflow-x-auto">
                 <Table>
@@ -1142,7 +1120,7 @@ export function OrderManagementTable() {
                       <TableHead
                         className={`${isAdmin ? "hidden min-w-[120px] sm:min-w-[160px] lg:table-cell" : "hidden min-w-[150px] sm:min-w-[200px] md:table-cell"} text-xs sm:text-sm dark:text-gray-300`}
                       >
-                        Customer
+                        Pelanggan
                       </TableHead>
                       {isAdmin && (
                         <TableHead className="hidden min-w-[100px] text-xs sm:min-w-[120px] sm:text-sm md:table-cell dark:text-gray-300">
@@ -1231,10 +1209,8 @@ export function OrderManagementTable() {
               </div>
             </div>
 
-            {/* Pagination */}
             {ordersData?.meta && (
               <>
-                {/* Desktop Pagination */}
                 <div className="mx-1 hidden justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:mx-0 sm:flex">
                   <PaginationSection
                     page={ordersData.meta.page}
@@ -1246,7 +1222,6 @@ export function OrderManagementTable() {
                   />
                 </div>
 
-                {/* Mobile Pagination */}
                 <div className="flex justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-3 sm:hidden">
                   <PaginationSection
                     page={ordersData.meta.page}

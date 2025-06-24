@@ -106,10 +106,17 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
       ),
       actualTime: toNullIfUndefined(orderDetail.schedule?.actualPickupTime),
       driver: orderDetail.pickup?.jobs?.[0]?.driver
-        ? {
-            name: safeString(orderDetail.pickup.jobs[0].driver),
-            phone: orderDetail.pickup.jobs[0].driverPhone,
-          }
+        ? (() => {
+            const driver = orderDetail.pickup!.jobs![0].driver as
+              | { name?: string }
+              | string
+              | undefined;
+            return {
+              name:
+                typeof driver === "string" ? driver : safeString(driver?.name),
+              phone: orderDetail.pickup!.jobs![0].driverPhone,
+            };
+          })()
         : undefined,
     },
 
@@ -119,9 +126,16 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
         orderDetail.schedule?.scheduledDeliveryTime,
       ),
       actualTime: toNullIfUndefined(orderDetail.schedule?.actualDeliveryTime),
+
       driver: orderDetail.delivery?.jobs?.[0]?.driver
         ? {
-            name: safeString(orderDetail.delivery.jobs[0].driver),
+            name:
+              typeof orderDetail.delivery.jobs[0].driver === "string"
+                ? orderDetail.delivery.jobs[0].driver
+                : safeString(
+                    (orderDetail.delivery.jobs[0].driver as { name?: string })
+                      ?.name,
+                  ),
             phone: orderDetail.delivery.jobs[0].driverPhone,
           }
         : undefined,
@@ -169,7 +183,6 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
             />
           </div>
 
-          {/* New sections for additional data */}
           {orderDetail.delivery?.info && (
             <div className="bg-card mb-4 rounded-lg border p-4 shadow-sm">
               <h3 className="mb-3 text-lg font-semibold">

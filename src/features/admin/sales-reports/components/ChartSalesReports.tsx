@@ -255,7 +255,6 @@ export function ChartSalesReports() {
           <EmptyState onRefresh={handleRefresh} />
         ) : (
           <div className="w-full">
-            {/* Mobile Responsive Chart */}
             <div className="block sm:hidden">
               <ChartContainer
                 config={chartConfig}
@@ -347,7 +346,6 @@ export function ChartSalesReports() {
               </ChartContainer>
             </div>
 
-            {/* Desktop Chart */}
             <div className="hidden sm:block">
               <ChartContainer
                 config={chartConfig}
