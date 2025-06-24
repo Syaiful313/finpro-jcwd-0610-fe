@@ -80,7 +80,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
             <p className="text-sm text-gray-500 mb-2">Scan to track this order</p>
             <div className="inline-block p-3 bg-gray-100 rounded-xl">
                 <QRCodeCanvas
-                value={`http://192.168.1.2:3000/order/${order.uuid}`}
+                value={`http://bubblifly.site/order/${order.uuid}`}
                 size={100}
                 level="H"
                 bgColor="#ffffff"
@@ -104,6 +104,14 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
                     hour: "2-digit",
                     minute: "2-digit",
                     })}
+                </span>
+                </span>
+            )}
+            {order.orderStatus === "WAITING_FOR_PICKUP" && (
+                <span className="text-sm text-gray-500 w-full sm:w-auto text-left sm:text-right">
+                For order cancellations, please contact our support team at{" "}
+                <span className="font-semibold">
+                    +62-8567-7658-888
                 </span>
                 </span>
             )}
