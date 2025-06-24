@@ -38,6 +38,7 @@ const useLogin = () => {
             OUTLET_ADMIN: "/admin/dashboard",
             WORKER: "/employee",
             DRIVER: "/employee",
+            CUSTOMER: "/user/profile",
           };
 
           setTimeout(() => {

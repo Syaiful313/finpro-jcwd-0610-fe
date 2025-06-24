@@ -1,7 +1,6 @@
-import { Order } from "@/features/admin/dashboard/components/OrdersNew";
 import { Employee } from "./employee";
 import { DriverTaskStatus } from "./enum";
-import { Outlet } from "./outlet";
+import { Order } from "./order";
 
 export interface RequestList {
   id: number;
