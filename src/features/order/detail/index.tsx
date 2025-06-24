@@ -68,11 +68,11 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
             </div>
             <div className="flex justify-between">
                 <span className="text-sm">Delivery Fee</span>
-                <span className="text-sm font-medium">Rp {order.totalDeliveryFee?.toFixed(2)}</span>
+                <span className="text-sm font-medium">Rp {order.totalDeliveryFee?.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
             <div className="flex justify-between border-t pt-4 text-lg font-bold">
                 <span>Total</span>
-                <span>Rp {order.totalPrice?.toFixed(2)}</span>
+                <span>Rp {order.totalPrice?.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
             </div>
 
