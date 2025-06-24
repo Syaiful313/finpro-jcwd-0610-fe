@@ -17,7 +17,6 @@ const useCreatePaymentLink = () => {
     },
     onSuccess: async (data) => {
       toast.success("Payment link created");
-      console.log(data);
       router.push(data?.updatedOrder?.invoiceUrl);
     },
     onError: (error) => {

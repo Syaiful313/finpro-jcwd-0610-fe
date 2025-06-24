@@ -68,11 +68,11 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
             </div>
             <div className="flex justify-between">
                 <span className="text-sm">Delivery Fee</span>
-                <span className="text-sm font-medium">Rp {order.totalDeliveryFee?.toFixed(2)}</span>
+                <span className="text-sm font-medium">Rp {order.totalDeliveryFee?.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
             <div className="flex justify-between border-t pt-4 text-lg font-bold">
                 <span>Total</span>
-                <span>Rp {order.totalPrice?.toFixed(2)}</span>
+                <span>Rp {order.totalPrice?.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
             </div>
 
@@ -80,7 +80,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
             <p className="text-sm text-gray-500 mb-2">Scan to track this order</p>
             <div className="inline-block p-3 bg-gray-100 rounded-xl">
                 <QRCodeCanvas
-                value={`http://192.168.1.2:3000/order/${order.uuid}`}
+                value={`http://bubblifly.site/order/${order.uuid}`}
                 size={100}
                 level="H"
                 bgColor="#ffffff"
@@ -91,7 +91,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
         </section>
 
         <footer className="flex flex-col sm:flex-row sm:justify-end sm:items-end gap-4 pt-6 border-t w-full">
-            {order.actualDeliveryTime && (
+            {order.actualDeliveryTime && order.orderStatus !== "COMPLETED" && (
                 <span className="text-sm text-gray-500 w-full sm:w-auto text-left sm:text-right">
                 Your order will be auto-confirmed on{" "}
                 <span className="font-semibold">
@@ -104,6 +104,14 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
                     hour: "2-digit",
                     minute: "2-digit",
                     })}
+                </span>
+                </span>
+            )}
+            {order.orderStatus === "WAITING_FOR_PICKUP" && (
+                <span className="text-sm text-gray-500 w-full sm:w-auto text-left sm:text-right">
+                For order cancellations, please contact our support team at{" "}
+                <span className="font-semibold">
+                    +62-8567-7658-888
                 </span>
                 </span>
             )}
