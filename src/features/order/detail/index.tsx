@@ -91,7 +91,7 @@ const OrderDetailPage: FC<OrderDetailPageProps> = ({ uuid }) => {
         </section>
 
         <footer className="flex flex-col sm:flex-row sm:justify-end sm:items-end gap-4 pt-6 border-t w-full">
-            {order.actualDeliveryTime && (
+            {order.actualDeliveryTime && order.orderStatus !== "COMPLETED" && (
                 <span className="text-sm text-gray-500 w-full sm:w-auto text-left sm:text-right">
                 Your order will be auto-confirmed on{" "}
                 <span className="font-semibold">
