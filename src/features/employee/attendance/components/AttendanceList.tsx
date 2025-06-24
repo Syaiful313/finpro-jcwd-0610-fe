@@ -56,6 +56,7 @@ const AttendanceList = () => {
     "employeeId",
     parseAsInteger,
   );
+  console.log("role", session?.user?.role);
 
   const itemsPerPage = 10;
 

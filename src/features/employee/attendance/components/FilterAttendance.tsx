@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { format } from "date-fns";
 import {
+  parseAsInteger,
   parseAsIsoDateTime,
   parseAsString,
-  parseAsInteger,
   useQueryState,
 } from "nuqs";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Filter, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Filter, Search } from "lucide-react";
 
 interface AttendanceFiltersProps {
   onApply: (filters: {
