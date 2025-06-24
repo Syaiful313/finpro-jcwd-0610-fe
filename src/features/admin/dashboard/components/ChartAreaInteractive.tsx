@@ -107,11 +107,16 @@ export function ChartAreaInteractive() {
     }
   }, [isMobile]);
 
-  const isAdmin = session?.user?.role === "ADMIN";
-  const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
-  const canAccessPage = isAdmin || isOutletAdmin;
+  const { startDate, endDate, period } = React.useMemo(
+    () => getDateRange(timeRange),
+    [timeRange],
+  );
 
-  const { startDate, endDate, period } = getDateRange(timeRange);
+  const canAccessPage = React.useMemo(() => {
+    const isAdmin = session?.user?.role === "ADMIN";
+    const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
+    return isAdmin || isOutletAdmin;
+  }, [session?.user?.role]);
 
   const {
     data: salesData,
@@ -124,46 +129,42 @@ export function ChartAreaInteractive() {
     all: true,
   });
 
-  if (!canAccessPage) {
-    return null;
-  }
-
   const chartData = React.useMemo(() => {
-    if (!salesData?.data) return [];
+    if (!salesData?.data || !canAccessPage) return [];
 
     return salesData.data.map((item) => ({
       date: item.period,
       income: item.totalIncome,
       orders: item.totalOrders,
     }));
-  }, [salesData]);
+  }, [salesData, canAccessPage]);
 
-  const totalIncome = salesData?.summary?.totalIncome || 0;
-  const totalOrders = salesData?.summary?.totalOrders || 0;
-
-  const formatXAxisTick = (value: string) => {
-    if (period === "daily") {
-      const date = new Date(value);
-      return date.toLocaleDateString("id-ID", {
-        month: "short",
-        day: "numeric",
-      });
-    } else {
-      const [year, month] = value.split("-");
-      if (isMobile) {
-        return `${month}/${year.slice(-2)}`;
-      }
-      return new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString(
-        "id-ID",
-        {
+  const formatXAxisTick = React.useCallback(
+    (value: string) => {
+      if (period === "daily") {
+        const date = new Date(value);
+        return date.toLocaleDateString("id-ID", {
           month: "short",
-          year: "numeric",
-        },
-      );
-    }
-  };
+          day: "numeric",
+        });
+      } else {
+        const [year, month] = value.split("-");
+        if (isMobile) {
+          return `${month}/${year.slice(-2)}`;
+        }
+        return new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString(
+          "id-ID",
+          {
+            month: "short",
+            year: "numeric",
+          },
+        );
+      }
+    },
+    [period, isMobile],
+  );
 
-  const getTimeRangeLabel = (range: string) => {
+  const getTimeRangeLabel = React.useCallback((range: string) => {
     switch (range) {
       case "7d":
         return "7 hari terakhir";
@@ -176,7 +177,14 @@ export function ChartAreaInteractive() {
       default:
         return "3 bulan terakhir";
     }
-  };
+  }, []);
+
+  if (!canAccessPage) {
+    return null;
+  }
+
+  const totalIncome = salesData?.summary?.totalIncome || 0;
+  const totalOrders = salesData?.summary?.totalOrders || 0;
 
   return (
     <Card className="@container/card">

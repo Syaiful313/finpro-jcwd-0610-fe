@@ -31,7 +31,7 @@ export function SiteHeaderEmployeePerformance() {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage className="text-primary text-base font-medium">
-               Performa Karyawan
+                Performa Karyawan
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>

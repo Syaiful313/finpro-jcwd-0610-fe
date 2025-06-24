@@ -41,11 +41,9 @@ export default function EditLaundryItemModal({
 }: EditLaundryItemModalProps) {
   const updateLaundryItemMutation = useUpdateLaundryItem(laundryItem.id);
 
-  // Dynamic validation schema based on pricing type
   const validationSchema = useMemo(() => {
-    return createLaundryItemValidationSchema({ 
+    return createLaundryItemValidationSchema({
       isEditMode: true,
-      // Pass current pricing type to validation schema if supported
     });
   }, []);
 
@@ -63,7 +61,8 @@ export default function EditLaundryItemModal({
       const updateLaundryItemPayload = {
         name: values.name,
         category: values.category,
-        basePrice: values.pricingType === "PER_KG" ? 0 : Number(values.basePrice),
+        basePrice:
+          values.pricingType === "PER_KG" ? 0 : Number(values.basePrice),
         pricingType: values.pricingType as "PER_PIECE" | "PER_KG",
         isActive: values.isActive,
       };
@@ -75,32 +74,32 @@ export default function EditLaundryItemModal({
         },
       });
     },
-    // Custom validation function to handle PER_KG case
+
     validate: (values) => {
       const errors: any = {};
-      
-      // Name validation
+
       if (!values.name || values.name.trim() === "") {
         errors.name = "Nama item wajib diisi";
       }
-      
-      // Category validation
+
       if (!values.category || values.category.trim() === "") {
         errors.category = "Kategori wajib diisi";
       }
-      
-      // Pricing type validation
+
       if (!values.pricingType) {
         errors.pricingType = "Tipe pricing wajib dipilih";
       }
-      
-      // Base price validation - only required for PER_PIECE
+
       if (values.pricingType === "PER_PIECE") {
-        if (!values.basePrice || values.basePrice === "" || Number(values.basePrice) <= 0) {
+        if (
+          !values.basePrice ||
+          values.basePrice === "" ||
+          Number(values.basePrice) <= 0
+        ) {
           errors.basePrice = "Harga wajib diisi untuk tipe Per Piece";
         }
       }
-      
+
       return errors;
     },
   });
@@ -114,27 +113,35 @@ export default function EditLaundryItemModal({
 
   const handlePricingTypeChange = (value: string) => {
     formik.setFieldValue("pricingType", value);
-    // Reset price when switching to PER_KG and clear any basePrice errors
+
     if (value === "PER_KG") {
-      formik.setFieldValue("basePrice", "0"); // Set to "0" instead of empty string
-      formik.setFieldError("basePrice", undefined); // Clear any existing basePrice errors
+      formik.setFieldValue("basePrice", "0");
+      formik.setFieldError("basePrice", undefined);
     }
   };
 
   const isLoading = updateLaundryItemMutation.isPending;
   const isPriceRequired = formik.values.pricingType === "PER_PIECE";
 
-  // Custom validation check for submit button
   const isFormValid = () => {
-    const hasNameError = !formik.values.name || formik.values.name.trim() === "";
-    const hasCategoryError = !formik.values.category || formik.values.category.trim() === "";
+    const hasNameError =
+      !formik.values.name || formik.values.name.trim() === "";
+    const hasCategoryError =
+      !formik.values.category || formik.values.category.trim() === "";
     const hasPricingTypeError = !formik.values.pricingType;
-    
-    // For PER_PIECE, check if basePrice is valid
-    const hasPriceError = formik.values.pricingType === "PER_PIECE" && 
-      (!formik.values.basePrice || formik.values.basePrice === "" || Number(formik.values.basePrice) <= 0);
-    
-    return !hasNameError && !hasCategoryError && !hasPricingTypeError && !hasPriceError;
+
+    const hasPriceError =
+      formik.values.pricingType === "PER_PIECE" &&
+      (!formik.values.basePrice ||
+        formik.values.basePrice === "" ||
+        Number(formik.values.basePrice) <= 0);
+
+    return (
+      !hasNameError &&
+      !hasCategoryError &&
+      !hasPricingTypeError &&
+      !hasPriceError
+    );
   };
 
   return (
@@ -144,14 +151,15 @@ export default function EditLaundryItemModal({
         className="max-h-[90vh] overflow-y-auto sm:max-w-[600px] [&>button]:hidden"
       >
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-xl font-semibold">Edit Item Laundry</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            Edit Item Laundry
+          </DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm">
             Edit informasi item laundry yang sudah ada
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
-          {/* Item Name */}
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium">
               Nama Item *
@@ -166,16 +174,13 @@ export default function EditLaundryItemModal({
               disabled={isLoading}
             />
             {formik.touched.name && formik.errors.name && (
-              <p className="mt-1 text-xs text-red-500">
-                {formik.errors.name}
-              </p>
+              <p className="mt-1 text-xs text-red-500">{formik.errors.name}</p>
             )}
             <p className="text-muted-foreground text-xs">
               Nama item harus unik dan mudah dikenali oleh pelanggan
             </p>
           </div>
 
-          {/* Category */}
           <div className="space-y-2">
             <Label htmlFor="category" className="text-sm font-medium">
               Kategori *
@@ -199,7 +204,6 @@ export default function EditLaundryItemModal({
             </p>
           </div>
 
-          {/* Pricing Type */}
           <div className="space-y-2">
             <Label htmlFor="pricingType" className="text-sm font-medium">
               Tipe Pricing *
@@ -237,7 +241,6 @@ export default function EditLaundryItemModal({
             </p>
           </div>
 
-          {/* Conditional Base Price */}
           {isPriceRequired && (
             <div className="space-y-2">
               <Label htmlFor="basePrice" className="text-sm font-medium">
@@ -266,25 +269,24 @@ export default function EditLaundryItemModal({
             </div>
           )}
 
-          {/* PER_KG Info Box */}
           {formik.values.pricingType === "PER_KG" && (
             <div className="rounded-lg bg-purple-50 p-4">
               <div className="flex items-start gap-3">
-                <Tag className="h-5 w-5 text-purple-600 mt-0.5" />
+                <Tag className="mt-0.5 h-5 w-5 text-purple-600" />
                 <div className="space-y-1">
                   <h4 className="text-sm font-medium text-purple-900">
                     Item Per Kilogram
                   </h4>
                   <p className="text-xs text-purple-700">
-                    Untuk item dengan tipe pricing per kg, harga akan dihitung berdasarkan berat saat pemesanan. 
-                    Tidak perlu memasukkan harga tetap.
+                    Untuk item dengan tipe pricing per kg, harga akan dihitung
+                    berdasarkan berat saat pemesanan. Tidak perlu memasukkan
+                    harga tetap.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Active Status */}
           <div className="space-y-3">
             <div className="flex flex-row items-center justify-between space-x-4 rounded-lg border p-4">
               <div className="flex-1 space-y-1">
@@ -305,20 +307,27 @@ export default function EditLaundryItemModal({
             </div>
           </div>
 
-          {/* Info Box */}
           <div className="rounded-lg bg-blue-50 p-4">
             <div className="flex items-start gap-3">
-              <Package className="h-5 w-5 text-blue-600 mt-0.5" />
+              <Package className="mt-0.5 h-5 w-5 text-blue-600" />
               <div className="space-y-1">
                 <h4 className="text-sm font-medium text-blue-900">
                   Tips Edit Item Laundry
                 </h4>
-                <ul className="text-xs text-blue-700 space-y-1">
+                <ul className="space-y-1 text-xs text-blue-700">
                   <li>• Pastikan nama item tetap unik dan mudah dipahami</li>
                   <li>• Perubahan kategori akan mempengaruhi pengelompokan</li>
-                  <li>• <strong>Per Piece:</strong> Update harga akan berlaku untuk pesanan baru</li>
-                  <li>• <strong>Per Kg:</strong> Harga tidak perlu diisi, dihitung saat pemesanan</li>
-                  <li>• Status non-aktif akan menyembunyikan item dari pelanggan</li>
+                  <li>
+                    • <strong>Per Piece:</strong> Update harga akan berlaku
+                    untuk pesanan baru
+                  </li>
+                  <li>
+                    • <strong>Per Kg:</strong> Harga tidak perlu diisi, dihitung
+                    saat pemesanan
+                  </li>
+                  <li>
+                    • Status non-aktif akan menyembunyikan item dari pelanggan
+                  </li>
                 </ul>
               </div>
             </div>

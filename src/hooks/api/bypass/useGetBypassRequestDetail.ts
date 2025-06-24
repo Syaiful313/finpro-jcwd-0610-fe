@@ -1,4 +1,3 @@
-// src/hooks/api/bypass/useGetBypassRequestDetail.ts
 "use client";
 
 import { axiosInstance } from "@/lib/axios";
@@ -8,7 +7,7 @@ import { useSession } from "next-auth/react";
 
 const useGetBypassRequestDetail = (id: number) => {
   const { data: session } = useSession();
-  
+
   return useQuery({
     queryKey: ["bypass-requests", id],
     queryFn: async () => {
@@ -19,7 +18,8 @@ const useGetBypassRequestDetail = (id: number) => {
       }>(`/bypass-requests/${id}`);
       return data;
     },
-    enabled: !!id && id > 0 && !!session && session.user?.role === "OUTLET_ADMIN", // ONLY OUTLET_ADMIN
+    enabled:
+      !!id && id > 0 && !!session && session.user?.role === "OUTLET_ADMIN",
   });
 };
 

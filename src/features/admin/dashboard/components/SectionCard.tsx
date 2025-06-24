@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardDescription,
@@ -14,7 +13,6 @@ import {
   Building2,
   DollarSign,
   ShoppingCart,
-  TrendingDownIcon,
   TrendingUpIcon,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -52,8 +50,16 @@ const LoadingCard = () => (
   </Card>
 );
 
+const SessionLoadingState = () => (
+  <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <LoadingCard key={i} />
+    ))}
+  </div>
+);
+
 export function SectionCards() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const isAdmin = session?.user?.role === "ADMIN";
   const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
@@ -69,6 +75,10 @@ export function SectionCards() {
     });
 
   const isLoading = totalIncomeLoading || currentMonthLoading;
+
+  if (status === "loading") {
+    return <SessionLoadingState />;
+  }
 
   if (!canAccessPage) {
     return (
@@ -95,9 +105,6 @@ export function SectionCards() {
       icon: DollarSign,
       description: "Total pendapatan keseluruhan",
       change: currentIncome > 0 ? 12.5 : 0,
-      trending: currentIncome > 0 ? "up" : "stable",
-      trendText:
-        currentIncome > 0 ? "Trending up this month" : "No data available",
     },
     {
       title: "Pendapatan Bulan Ini",
@@ -105,8 +112,6 @@ export function SectionCards() {
       icon: TrendingUpIcon,
       description: "Pendapatan bulan berjalan",
       change: currentIncome > 0 ? 8.2 : 0,
-      trending: currentIncome > 0 ? "up" : "stable",
-      trendText: currentIncome > 0 ? "Strong performance" : "No orders yet",
     },
     {
       title: "Total Pesanan",
@@ -114,8 +119,6 @@ export function SectionCards() {
       icon: ShoppingCart,
       description: "Pesanan yang telah selesai",
       change: currentOrders > 0 ? 5.3 : 0,
-      trending: currentOrders > 0 ? "up" : "stable",
-      trendText: currentOrders > 0 ? "Steady growth" : "Waiting for orders",
     },
     {
       title: "Pesanan Bulan Ini",
@@ -123,8 +126,6 @@ export function SectionCards() {
       icon: Building2,
       description: "Pesanan bulan berjalan",
       change: currentOrders > 0 ? 15.8 : 0,
-      trending: currentOrders > 0 ? "up" : "stable",
-      trendText: currentOrders > 0 ? "Excellent performance" : "No activity",
     },
   ];
 
@@ -134,9 +135,6 @@ export function SectionCards() {
         ? Array.from({ length: 4 }).map((_, i) => <LoadingCard key={i} />)
         : cardsData.map((card, index) => {
             const IconComponent = card.icon;
-            const TrendIcon =
-              card.trending === "up" ? TrendingUpIcon : TrendingDownIcon;
-            const isPositive = card.trending === "up" && card.change > 0;
 
             return (
               <Card key={index} className="@container/card">
@@ -148,25 +146,8 @@ export function SectionCards() {
                   <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
                     {card.value}
                   </CardTitle>
-                  {card.change > 0 && (
-                    <div className="absolute top-4 right-4">
-                      <Badge
-                        variant="outline"
-                        className={`flex gap-1 rounded-lg text-xs ${
-                          isPositive
-                            ? "border-green-200 bg-green-50 text-green-700"
-                            : "border-gray-200 bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        <TrendIcon className="size-3" />+{card.change}%
-                      </Badge>
-                    </div>
-                  )}
                 </CardHeader>
                 <CardFooter className="flex-col items-start gap-1 text-sm">
-                  <div className="line-clamp-1 flex gap-2 font-medium">
-                    {card.trendText} <TrendIcon className="size-4" />
-                  </div>
                   <div className="text-muted-foreground">
                     {card.description}
                   </div>

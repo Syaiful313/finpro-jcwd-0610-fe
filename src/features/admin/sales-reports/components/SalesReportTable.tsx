@@ -94,11 +94,11 @@ const SalesReportCard = ({
   const initials = getInitials(item.period);
 
   return (
-    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-500 dark:border-blue-400 bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-900/50 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/70">
+    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-500 bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:border-blue-400 dark:bg-gray-800 dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70">
       {/* Header */}
-      <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-700/50 p-3.5">
+      <div className="border-b border-slate-200 bg-slate-50 p-3.5 dark:border-gray-700 dark:bg-gray-700/50">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-sm font-semibold text-white">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-semibold text-white dark:from-blue-600 dark:to-blue-700">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ const SalesReportCard = ({
               {formatPeriodDisplay(item.period, periodType)}
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="rounded-full bg-green-100 dark:bg-green-900/20 px-2 py-1 text-xs font-semibold text-green-700 dark:text-green-400">
+              <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/20 dark:text-green-400">
                 {formatNumber(item.totalOrders)} pesanan
               </span>
             </div>
@@ -114,11 +114,9 @@ const SalesReportCard = ({
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-3.5">
-        {/* Income */}
         <div className="mb-3">
-          <div className="mb-1 text-xs font-medium tracking-wide text-gray-500 dark:text-gray-400 uppercase">
+          <div className="mb-1 text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
             Total Pendapatan
           </div>
           <div className="text-lg leading-relaxed font-bold text-slate-900 dark:text-gray-100">
@@ -126,7 +124,6 @@ const SalesReportCard = ({
           </div>
         </div>
 
-        {/* Stats */}
         <div className="mb-3 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
@@ -165,7 +162,7 @@ const SalesReportRow = ({
     item.totalOrders > 0 ? item.totalIncome / item.totalOrders : 0;
 
   return (
-    <TableRow className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+    <TableRow className="border-b hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
       <TableCell className={getCellClass("index")}>{index}</TableCell>
 
       <TableCell className={getCellClass("period")}>
@@ -173,7 +170,7 @@ const SalesReportRow = ({
           <div className="font-medium break-words text-gray-900 dark:text-gray-100">
             {formatPeriodDisplay(item.period, periodType)}
           </div>
-          <div className="mt-1 text-xs break-words text-gray-500 dark:text-gray-400 sm:hidden">
+          <div className="mt-1 text-xs break-words text-gray-500 sm:hidden dark:text-gray-400">
             {formatNumber(item.totalOrders)} pesanan
           </div>
         </div>
@@ -194,7 +191,7 @@ const SalesReportRow = ({
       </TableCell>
 
       <TableCell className={getCellClass("average")}>
-        <div className="text-muted-foreground dark:text-gray-400 text-right">
+        <div className="text-muted-foreground text-right dark:text-gray-400">
           {formatCurrency(averageOrder)}
         </div>
       </TableCell>
@@ -221,10 +218,10 @@ export function SalesReportTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500 dark:text-red-400 sm:text-base">
+          <span className="text-sm text-red-500 sm:text-base dark:text-red-400">
             Access Denied
           </span>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
             You don't have permission to view sales reports.
           </p>
         </div>
@@ -278,12 +275,13 @@ export function SalesReportTable() {
 
   return (
     <>
-      {/* Mobile Card View */}
       <div className="block sm:hidden">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-            <span className="text-sm dark:text-gray-300">Memuat data laporan...</span>
+            <span className="text-sm dark:text-gray-300">
+              Memuat data laporan...
+            </span>
           </div>
         ) : error ? (
           <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
@@ -304,9 +302,9 @@ export function SalesReportTable() {
             ))}
           </div>
         ) : (
-          <div className="mx-5 mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-center">
-            <div className="bg-muted/50 dark:bg-gray-700/50 mb-4 inline-block rounded-full p-4">
-              <BarChart3 className="text-muted-foreground dark:text-gray-400 h-8 w-8" />
+          <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-800">
+            <div className="bg-muted/50 mb-4 inline-block rounded-full p-4 dark:bg-gray-700/50">
+              <BarChart3 className="text-muted-foreground h-8 w-8 dark:text-gray-400" />
             </div>
             <span className="mb-4 block text-sm text-gray-500 dark:text-gray-400">
               {filters.startDate || filters.endDate
@@ -317,9 +315,8 @@ export function SalesReportTable() {
         )}
       </div>
 
-      {/* Desktop Table View */}
-      <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
-        <div className="rounded-t-2xl border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-6">
+      <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block dark:border-gray-700">
+        <div className="rounded-t-2xl border-b border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-500 dark:text-blue-400" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -363,7 +360,9 @@ export function SalesReportTable() {
                   <TableCell colSpan={5} className="h-32 text-center">
                     <div className="flex items-center justify-center">
                       <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                      <span className="text-sm dark:text-gray-300">Memuat data laporan...</span>
+                      <span className="text-sm dark:text-gray-300">
+                        Memuat data laporan...
+                      </span>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -394,9 +393,13 @@ export function SalesReportTable() {
                     />
                   ))}
                   {salesData.summary && (
-                    <TableRow className="bg-muted/50 dark:bg-gray-700/50 font-semibold">
-                      <TableCell className="dark:text-gray-200">Total</TableCell>
-                      <TableCell className="font-medium dark:text-gray-200">Keseluruhan</TableCell>
+                    <TableRow className="bg-muted/50 font-semibold dark:bg-gray-700/50">
+                      <TableCell className="dark:text-gray-200">
+                        Total
+                      </TableCell>
+                      <TableCell className="font-medium dark:text-gray-200">
+                        Keseluruhan
+                      </TableCell>
                       <TableCell className="text-center dark:text-gray-200">
                         {formatNumber(salesData.summary.totalOrders)}
                       </TableCell>
@@ -413,8 +416,8 @@ export function SalesReportTable() {
                 <TableRow>
                   <TableCell colSpan={5} className="h-32 text-center">
                     <div className="flex flex-col items-center justify-center space-y-3">
-                      <div className="bg-muted/50 dark:bg-gray-700/50 rounded-full p-4">
-                        <BarChart3 className="text-muted-foreground dark:text-gray-400 h-8 w-8" />
+                      <div className="bg-muted/50 rounded-full p-4 dark:bg-gray-700/50">
+                        <BarChart3 className="text-muted-foreground h-8 w-8 dark:text-gray-400" />
                       </div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
                         {filters.startDate || filters.endDate
@@ -430,9 +433,8 @@ export function SalesReportTable() {
         </div>
       </div>
 
-      {/* Desktop Pagination */}
       {salesData?.meta && (
-        <div className="mx-1 hidden justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-6 sm:mx-0 sm:flex">
+        <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white px-4 py-6 sm:mx-0 sm:flex dark:border-gray-700 dark:bg-gray-800">
           <PaginationSection
             page={salesData.meta.page}
             take={PAGE_SIZE}
@@ -444,9 +446,8 @@ export function SalesReportTable() {
         </div>
       )}
 
-      {/* Mobile Pagination */}
       {salesData?.meta && (
-        <div className="flex justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-3 sm:hidden">
+        <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden dark:border-gray-700 dark:bg-gray-800">
           <PaginationSection
             page={salesData.meta.page}
             take={PAGE_SIZE}

@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useCallback, useState } from "react";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 const getCellClass = (columnId: string) => {
   const baseClass = "py-2 px-2 sm:py-3 sm:px-4";
@@ -55,7 +55,9 @@ const StatusBadge = ({ status }: { status: string }) => (
 
 const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
   <div className="flex flex-col">
-    <div className="font-medium break-words text-gray-900 dark:text-gray-100">{name}</div>
+    <div className="font-medium break-words text-gray-900 dark:text-gray-100">
+      {name}
+    </div>
     <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400">
       <User className="mr-1 h-3 w-3" />
       <span className="break-all">{email}</span>
@@ -65,7 +67,11 @@ const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
 
 const PickupInfo = ({ pickupInfo }: { pickupInfo: any }) => {
   if (!pickupInfo) {
-    return <div className="text-xs text-gray-500 dark:text-gray-400">No pickup info</div>;
+    return (
+      <div className="text-xs text-gray-500 dark:text-gray-400">
+        No pickup info
+      </div>
+    );
   }
 
   return (
@@ -88,11 +94,10 @@ const PendingOrderCard = ({
   onProcessOrder: (orderId: string) => void;
   isProcessing: boolean;
 }) => (
-  <div className="overflow-hidden rounded-2xl border-l-4 border-orange-400 dark:border-orange-500 bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-900/50 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/70">
-    {/* Header */}
-    <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-700/50 p-3.5">
+  <div className="overflow-hidden rounded-2xl border-l-4 border-orange-400 bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:border-orange-500 dark:bg-gray-800 dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70">
+    <div className="border-b border-slate-200 bg-slate-50 p-3.5 dark:border-gray-700 dark:bg-gray-700/50">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 text-sm font-semibold text-white">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-sm font-semibold text-white dark:from-orange-600 dark:to-orange-700">
           {order.orderNumber.slice(-2)}
         </div>
         <div className="min-w-0 flex-1">
@@ -110,9 +115,7 @@ const PendingOrderCard = ({
       </div>
     </div>
 
-    {/* Body */}
     <div className="p-3.5">
-      {/* Contact list */}
       <div className="mb-3 flex flex-col gap-2">
         <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400">
           <User className="h-3.5 w-3.5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
@@ -138,9 +141,8 @@ const PendingOrderCard = ({
         </div>
       </div>
 
-      {/* Driver Info */}
       {order.pickupInfo && (
-        <div className="mb-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 p-2">
+        <div className="mb-3 rounded-lg bg-blue-50 p-2 dark:bg-blue-950/30">
           <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
             <User className="h-3 w-3" />
             <span className="font-medium">{order.pickupInfo.driver}</span>
@@ -153,10 +155,11 @@ const PendingOrderCard = ({
         </div>
       )}
 
-      {/* Address Details */}
-      <div className="mb-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 p-2">
+      <div className="mb-3 rounded-lg bg-gray-50 p-2 dark:bg-gray-700/50">
         <div className="text-xs text-gray-600 dark:text-gray-300">
-          <div className="font-medium text-gray-800 dark:text-gray-100">Alamat Lengkap:</div>
+          <div className="font-medium text-gray-800 dark:text-gray-100">
+            Alamat Lengkap:
+          </div>
           <div className="mt-1">
             {order.address.district}, {order.address.city}
           </div>
@@ -164,12 +167,11 @@ const PendingOrderCard = ({
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2">
         <button
           onClick={() => onProcessOrder(order.uuid)}
           disabled={isProcessing}
-          className="flex-1 rounded-lg border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 transition-colors hover:bg-orange-50 dark:hover:bg-orange-950/30 disabled:opacity-50"
+          className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-orange-400 dark:hover:bg-orange-950/30"
         >
           {isProcessing ? (
             <>
@@ -197,13 +199,13 @@ const PendingOrderRow = ({
   onProcessOrder: (orderId: string) => void;
   isProcessing: boolean;
 }) => (
-  <TableRow className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+  <TableRow className="border-b hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
     <TableCell className={getCellClass("orderNumber")}>
       <div className="flex flex-col">
         <div className="font-medium break-words text-gray-900 dark:text-gray-100">
           {order.orderNumber}
         </div>
-        <div className="mt-1 text-xs break-words text-gray-500 dark:text-gray-400 md:hidden">
+        <div className="mt-1 text-xs break-words text-gray-500 md:hidden dark:text-gray-400">
           {order.customer.name}
         </div>
       </div>
@@ -244,7 +246,7 @@ const PendingOrderRow = ({
           variant="ghost"
           onClick={() => onProcessOrder(order.uuid)}
           disabled={isProcessing}
-          className="h-7 w-7 p-0 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 sm:h-8 sm:w-8"
+          className="h-7 w-7 p-0 text-orange-600 hover:bg-orange-50 sm:h-8 sm:w-8 dark:text-orange-400 dark:hover:bg-orange-950/30"
         >
           {isProcessing ? (
             <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
@@ -307,10 +309,10 @@ export function PendingOrdersTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500 dark:text-red-400 sm:text-base">
+          <span className="text-sm text-red-500 sm:text-base dark:text-red-400">
             Access Denied
           </span>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
             Only outlet admin can view pending orders.
           </p>
         </div>
@@ -323,19 +325,19 @@ export function PendingOrdersTable() {
   return (
     <>
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
-        {/* Loading State */}
         {isLoading && (
           <div className="flex h-32 items-center justify-center">
             <div className="text-center">
               <Loader2 className="mx-auto h-6 w-6 animate-spin" />
-              <span className="mt-2 block text-sm dark:text-gray-300">Memuat data pesanan...</span>
+              <span className="mt-2 block text-sm dark:text-gray-300">
+                Memuat data pesanan...
+              </span>
             </div>
           </div>
         )}
 
-        {/* Error State */}
         {!isLoading && error && (
-          <div className="mx-5 mt-4 rounded-2xl border border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-6 text-center">
+          <div className="mx-5 mt-4 rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-700 dark:bg-red-900/20">
             <div className="text-sm text-red-600 dark:text-red-400">
               Kesalahan memuat data pesanan
             </div>
@@ -353,9 +355,8 @@ export function PendingOrdersTable() {
           </div>
         )}
 
-        {/* Empty State */}
         {!isLoading && !error && totalItems === 0 && (
-          <div className="mx-5 mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-center">
+          <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-800">
             <Clock className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
             <span className="mt-3 block text-sm text-gray-500 dark:text-gray-400">
               Tidak ada pesanan yang perlu diproses
@@ -371,10 +372,8 @@ export function PendingOrdersTable() {
           </div>
         )}
 
-        {/* Content */}
         {!isLoading && !error && totalItems > 0 && (
           <>
-            {/* Mobile Card View */}
             <div className="block sm:hidden">
               <div className="space-y-2 px-3 pt-2">
                 {pendingOrdersResponse?.data?.map((order) => (
@@ -388,8 +387,7 @@ export function PendingOrdersTable() {
               </div>
             </div>
 
-            {/* Desktop Table View */}
-            <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
+            <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block dark:border-gray-700">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -428,11 +426,9 @@ export function PendingOrdersTable() {
               </div>
             </div>
 
-            {/* Pagination */}
             {pendingOrdersResponse?.meta && (
               <>
-                {/* Desktop Pagination */}
-                <div className="mx-1 hidden justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:mx-0 sm:flex">
+                <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex dark:border-gray-700 dark:bg-gray-800">
                   <PaginationSection
                     page={pendingOrdersResponse.meta.page}
                     take={pendingOrdersResponse.meta.take}
@@ -443,8 +439,7 @@ export function PendingOrdersTable() {
                   />
                 </div>
 
-                {/* Mobile Pagination */}
-                <div className="flex justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-3 sm:hidden">
+                <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden dark:border-gray-700 dark:bg-gray-800">
                   <PaginationSection
                     page={pendingOrdersResponse.meta.page}
                     take={pendingOrdersResponse.meta.take}

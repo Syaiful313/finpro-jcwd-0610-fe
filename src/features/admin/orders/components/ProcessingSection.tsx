@@ -161,7 +161,6 @@ export function ProcessingSection({
 
       {isExpanded && (
         <div className="space-y-4">
-          {/* Process Cards */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {renderProcessCard(
               "Pencucian",
@@ -182,7 +181,6 @@ export function ProcessingSection({
             )}
           </div>
 
-          {/* Current Worker Info (if available) */}
           {processingInfo.current && (
             <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-4">
               <h3 className="mb-2 font-medium text-blue-900">

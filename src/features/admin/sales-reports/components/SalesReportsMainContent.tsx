@@ -1,11 +1,11 @@
 "use client";
 
-import { ERROR_MESSAGES } from "@/constants/salesReport";
 import { AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { ChartSalesReports } from "./ChartSalesReports";
 import { SalesReportTable } from "./SalesReportTable";
 import { SectionCards } from "./SectionCard";
+import { ERROR_MESSAGES } from "@/lib/config";
 
 const AccessDeniedState = () => (
   <div className="flex h-64 items-center justify-center px-4">
@@ -13,8 +13,12 @@ const AccessDeniedState = () => (
       <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
         <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
       </div>
-      <h3 className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">Akses Ditolak</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{ERROR_MESSAGES.ACCESS_DENIED}</p>
+      <h3 className="mb-2 text-lg font-semibold text-red-600 dark:text-red-400">
+        Akses Ditolak
+      </h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        {ERROR_MESSAGES.ACCESS_DENIED}
+      </p>
       <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
         Anda perlu akses admin atau outlet admin untuk melihat laporan
         penjualan.
@@ -30,8 +34,10 @@ export function SalesReportsMainContent() {
     return (
       <div className="flex h-64 items-center justify-center px-4">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 dark:border-blue-400 border-t-transparent"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Memuat halaman...</p>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent dark:border-blue-400"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Memuat halaman...
+          </p>
         </div>
       </div>
     );

@@ -1,9 +1,9 @@
 import { axiosInstance } from "@/lib/axios";
 import { useMutation } from "@tanstack/react-query";
+import type { SignInResponse } from "next-auth/react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { SignInResponse } from "next-auth/react";
 
 interface LoginPayload {
   email: string;
@@ -38,7 +38,6 @@ const useLogin = () => {
             OUTLET_ADMIN: "/admin/dashboard",
             WORKER: "/employee",
             DRIVER: "/employee",
-            CUSTOMER: "/user/profile",
           };
 
           setTimeout(() => {

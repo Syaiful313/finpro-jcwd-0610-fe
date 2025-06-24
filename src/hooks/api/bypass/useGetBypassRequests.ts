@@ -1,4 +1,3 @@
-// src/hooks/api/bypass/useGetBypassRequests.ts
 "use client";
 
 import { axiosInstance } from "@/lib/axios";
@@ -14,7 +13,7 @@ interface GetBypassRequestsQueries extends PaginationQueries {
 
 const useGetBypassRequests = (queries?: GetBypassRequestsQueries) => {
   const { data: session } = useSession();
-  
+
   return useQuery({
     queryKey: ["bypass-requests", queries],
     queryFn: async () => {
@@ -24,7 +23,7 @@ const useGetBypassRequests = (queries?: GetBypassRequestsQueries) => {
       );
       return data;
     },
-    enabled: !!session && session.user?.role === "OUTLET_ADMIN", // ONLY OUTLET_ADMIN
+    enabled: !!session && session.user?.role === "OUTLET_ADMIN",
   });
 };
 

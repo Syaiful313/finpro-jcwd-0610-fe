@@ -1,5 +1,3 @@
-// src/types/bypass.ts
-
 export interface BypassRequest {
   id: number;
   reason: string;
@@ -107,7 +105,6 @@ export interface ProcessBypassRequestPayload {
   adminNote: string;
 }
 
-// Response types
 export interface BypassApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -124,7 +121,6 @@ export interface BypassListResponse extends BypassApiResponse {
   };
 }
 
-// Enums for type safety
 export enum BypassStatus {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
@@ -137,7 +133,6 @@ export enum WorkerType {
   PACKING = "PACKING",
 }
 
-// Filter types
 export interface BypassRequestFilters {
   status?: BypassStatus;
   workerType?: WorkerType;
@@ -147,7 +142,6 @@ export interface BypassRequestFilters {
   sortOrder?: "asc" | "desc";
 }
 
-// Form types
 export interface ApproveBypassFormData {
   adminNote: string;
 }

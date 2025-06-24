@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
   Table,
@@ -62,8 +63,10 @@ const getCellClass = (columnId: string) => {
 const RoleBadge = ({ role }: { role: string }) => {
   const getRoleBadgeStyle = (role: string) => {
     const styles = {
-      WORKER: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-      DRIVER: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+      WORKER:
+        "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+      DRIVER:
+        "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
     };
     return styles[role as keyof typeof styles] || styles.WORKER;
   };
@@ -103,8 +106,14 @@ const EmployeeCard = ({
 
   const getRoleColors = (role: string) => {
     const roleColors = {
-      WORKER: { avatar: "bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700" },
-      DRIVER: { avatar: "bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700" },
+      WORKER: {
+        avatar:
+          "bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700",
+      },
+      DRIVER: {
+        avatar:
+          "bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700",
+      },
     };
     return roleColors[role as keyof typeof roleColors] || roleColors.WORKER;
   };
@@ -112,9 +121,8 @@ const EmployeeCard = ({
   const roleColors = getRoleColors(employee.role);
 
   return (
-    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 dark:border-blue-500 bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-900/50 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/70">
-      {/* Header */}
-      <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-700/50 p-3.5">
+    <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:border-blue-500 dark:bg-gray-800 dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70">
+      <div className="border-b border-slate-200 bg-slate-50 p-3.5 dark:border-gray-700 dark:bg-gray-700/50">
         <div className="flex items-center gap-2.5">
           <div
             className={`h-9 w-9 ${roleColors.avatar} flex flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white`}
@@ -135,12 +143,12 @@ const EmployeeCard = ({
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-3.5">
-        {/* Performance Stats */}
         <div className="mb-3 space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="font-medium text-gray-700 dark:text-gray-300">Total Pekerjaan:</span>
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              Total Pekerjaan:
+            </span>
             <span className="font-bold text-blue-600 dark:text-blue-400">
               {employee.totalJobs}
             </span>
@@ -153,7 +161,9 @@ const EmployeeCard = ({
           </div>
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Tingkat Penyelesaian:</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                Tingkat Penyelesaian:
+              </span>
               <span className="font-medium text-gray-900 dark:text-gray-100">
                 {employee.completionRate.toFixed(1)}%
               </span>
@@ -162,26 +172,25 @@ const EmployeeCard = ({
           </div>
         </div>
 
-        {/* Job Details */}
         <div className="space-y-2">
           <div className="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">
             Detail Pekerjaan:
           </div>
           {employee.role === "WORKER" ? (
             <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 p-2 text-center">
+              <div className="rounded-lg bg-blue-50 p-2 text-center dark:bg-blue-950/30">
                 <div className="font-semibold text-blue-600 dark:text-blue-400">
                   {(employee as any).totalWashingJobs}
                 </div>
                 <div className="text-gray-600 dark:text-gray-400">Cuci</div>
               </div>
-              <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-2 text-center">
+              <div className="rounded-lg bg-green-50 p-2 text-center dark:bg-green-950/30">
                 <div className="font-semibold text-green-600 dark:text-green-400">
                   {(employee as any).totalIroningJobs}
                 </div>
                 <div className="text-gray-600 dark:text-gray-400">Setrika</div>
               </div>
-              <div className="rounded-lg bg-orange-50 dark:bg-orange-950/30 p-2 text-center">
+              <div className="rounded-lg bg-orange-50 p-2 text-center dark:bg-orange-950/30">
                 <div className="font-semibold text-orange-600 dark:text-orange-400">
                   {(employee as any).totalPackingJobs}
                 </div>
@@ -190,13 +199,13 @@ const EmployeeCard = ({
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-lg bg-purple-50 dark:bg-purple-950/30 p-2 text-center">
+              <div className="rounded-lg bg-purple-50 p-2 text-center dark:bg-purple-950/30">
                 <div className="font-semibold text-purple-600 dark:text-purple-400">
                   {(employee as any).totalPickupJobs}
                 </div>
                 <div className="text-gray-600 dark:text-gray-400">Pickup</div>
               </div>
-              <div className="rounded-lg bg-indigo-50 dark:bg-indigo-950/30 p-2 text-center">
+              <div className="rounded-lg bg-indigo-50 p-2 text-center dark:bg-indigo-950/30">
                 <div className="font-semibold text-indigo-600 dark:text-indigo-400">
                   {(employee as any).totalDeliveryJobs}
                 </div>
@@ -217,13 +226,15 @@ const EmployeeRow = ({
   employee: EmployeePerformanceData;
   index: number;
 }) => (
-  <TableRow className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+  <TableRow className="border-b hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
     <TableCell className={getCellClass("index")}>{index}</TableCell>
 
     <TableCell className={getCellClass("name")}>
       <div className="flex flex-col">
-        <div className="font-medium break-words text-gray-900 dark:text-gray-100">{employee.employeeName}</div>
-        <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 md:hidden">
+        <div className="font-medium break-words text-gray-900 dark:text-gray-100">
+          {employee.employeeName}
+        </div>
+        <div className="mt-1 text-xs text-gray-500 md:hidden dark:text-gray-400">
           {employee.outletName}
         </div>
       </div>
@@ -244,21 +255,33 @@ const EmployeeRow = ({
     <TableCell className={getCellClass("jobs")}>
       {employee.role === "WORKER" ? (
         <div className="space-y-1 text-xs">
-          <div className="text-gray-700 dark:text-gray-300">Cuci: {(employee as any).totalWashingJobs}</div>
-          <div className="text-gray-700 dark:text-gray-300">Setrika: {(employee as any).totalIroningJobs}</div>
-          <div className="text-gray-700 dark:text-gray-300">Packing: {(employee as any).totalPackingJobs}</div>
+          <div className="text-gray-700 dark:text-gray-300">
+            Cuci: {(employee as any).totalWashingJobs}
+          </div>
+          <div className="text-gray-700 dark:text-gray-300">
+            Setrika: {(employee as any).totalIroningJobs}
+          </div>
+          <div className="text-gray-700 dark:text-gray-300">
+            Packing: {(employee as any).totalPackingJobs}
+          </div>
         </div>
       ) : (
         <div className="space-y-1 text-xs">
-          <div className="text-gray-700 dark:text-gray-300">Pickup: {(employee as any).totalPickupJobs}</div>
-          <div className="text-gray-700 dark:text-gray-300">Delivery: {(employee as any).totalDeliveryJobs}</div>
+          <div className="text-gray-700 dark:text-gray-300">
+            Pickup: {(employee as any).totalPickupJobs}
+          </div>
+          <div className="text-gray-700 dark:text-gray-300">
+            Delivery: {(employee as any).totalDeliveryJobs}
+          </div>
         </div>
       )}
     </TableCell>
 
     <TableCell className={getCellClass("total")}>
       <div className="space-y-1">
-        <div className="font-medium text-gray-900 dark:text-gray-100">{employee.totalJobs}</div>
+        <div className="font-medium text-gray-900 dark:text-gray-100">
+          {employee.totalJobs}
+        </div>
         <div className="text-xs text-gray-500 dark:text-gray-400">
           {employee.completedJobs} selesai
         </div>
@@ -336,7 +359,9 @@ export function EmployeePerformanceTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2 text-sm sm:text-base dark:text-gray-300">Memuat sesi...</span>
+        <span className="ml-2 text-sm sm:text-base dark:text-gray-300">
+          Memuat sesi...
+        </span>
       </div>
     );
   }
@@ -345,10 +370,10 @@ export function EmployeePerformanceTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500 dark:text-red-400 sm:text-base">
+          <span className="text-sm text-red-500 sm:text-base dark:text-red-400">
             Akses Ditolak
           </span>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
             Anda tidak memiliki izin untuk melihat halaman ini.
           </p>
         </div>
@@ -359,10 +384,8 @@ export function EmployeePerformanceTable() {
   return (
     <>
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
-        {/* Mobile Header */}
         <div className="block sm:hidden">
-          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-lg">
-            {/* Header content */}
+          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg dark:from-blue-600 dark:to-blue-700">
             <div className="px-4 py-14">
               <h1 className="text-2xl font-bold">Performa Karyawan</h1>
               <p className="mt-2 opacity-90">
@@ -371,15 +394,16 @@ export function EmployeePerformanceTable() {
             </div>
           </div>
 
-          {/* Summary Cards - overlapping */}
           {performanceData?.summary && (
             <div className="relative mx-4 -mt-12 mb-4">
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-lg dark:shadow-gray-900/50">
+                <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     <div>
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Total</p>
+                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                        Total
+                      </p>
                       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         {isLoading
                           ? "..."
@@ -388,7 +412,7 @@ export function EmployeePerformanceTable() {
                     </div>
                   </div>
                 </div>
-                <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-lg dark:shadow-gray-900/50">
+                <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <div>
@@ -407,27 +431,23 @@ export function EmployeePerformanceTable() {
             </div>
           )}
 
-          {/* Search and filter section - overlapping white card */}
-          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-lg dark:shadow-gray-900/50">
-            {/* Search input - Line 1 */}
+          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
             <div className="relative mb-3">
               <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-              <input
+              <Input
                 type="text"
                 placeholder="Cari berdasarkan nama karyawan..."
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none text-gray-900 dark:text-gray-100"
+                className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 pr-4 pl-10 text-sm text-gray-900 transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:bg-gray-800 dark:focus:ring-blue-400"
               />
             </div>
 
-            {/* Filter buttons - Line 2 */}
             <div className="space-y-3">
-              {/* Role and Outlet filters */}
               <div className="flex gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700">
+                    <Button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:border-gray-600 dark:bg-blue-600 dark:hover:bg-blue-700">
                       <Filter className="h-4 w-4" />
                       <span>
                         {filters.role
@@ -436,12 +456,15 @@ export function EmployeePerformanceTable() {
                             ]?.label
                           : "Semua Peran"}
                       </span>
-                    </button>
+                    </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 dark:bg-gray-800 dark:border-gray-700">
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-48 dark:border-gray-700 dark:bg-gray-800"
+                  >
                     <DropdownMenuItem
                       onClick={() => updateFilters({ role: "" })}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Semua Peran
                     </DropdownMenuItem>
@@ -449,7 +472,7 @@ export function EmployeePerformanceTable() {
                       <DropdownMenuItem
                         key={role}
                         onClick={() => updateFilters({ role })}
-                        className="dark:hover:bg-gray-700 dark:text-gray-100"
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         {config.label}
                       </DropdownMenuItem>
@@ -460,7 +483,7 @@ export function EmployeePerformanceTable() {
                 {isAdmin && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-sm text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-4 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                         <Filter className="h-4 w-4" />
                         <span className="truncate">
                           {filters.outletId
@@ -471,10 +494,13 @@ export function EmployeePerformanceTable() {
                         </span>
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 dark:bg-gray-800 dark:border-gray-700">
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-48 dark:border-gray-700 dark:bg-gray-800"
+                    >
                       <DropdownMenuItem
                         onClick={() => updateFilters({ outletId: "" })}
-                        className="dark:hover:bg-gray-700 dark:text-gray-100"
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         Semua Outlet
                       </DropdownMenuItem>
@@ -484,7 +510,7 @@ export function EmployeePerformanceTable() {
                           onClick={() =>
                             updateFilters({ outletId: outlet.id.toString() })
                           }
-                          className="dark:hover:bg-gray-700 dark:text-gray-100"
+                          className="dark:text-gray-100 dark:hover:bg-gray-700"
                         >
                           {outlet.outletName}
                         </DropdownMenuItem>
@@ -494,35 +520,33 @@ export function EmployeePerformanceTable() {
                 )}
               </div>
 
-              {/* Date filters */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+                  <Label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                     Tanggal Mulai
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     type="date"
                     value={filters.startDate}
                     onChange={(e) =>
                       updateFilters({ startDate: e.target.value })
                     }
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 text-gray-900 dark:text-gray-100"
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                   />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                     Tanggal Akhir
                   </label>
-                  <input
+                  <Input
                     type="date"
                     value={filters.endDate}
                     onChange={(e) => updateFilters({ endDate: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 text-gray-900 dark:text-gray-100"
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                   />
                 </div>
               </div>
 
-              {/* Reset button */}
               <Button
                 variant="outline"
                 onClick={() =>
@@ -542,7 +566,7 @@ export function EmployeePerformanceTable() {
                   !filters.startDate &&
                   !filters.endDate
                 }
-                className="h-10 w-full rounded-xl border-gray-200 dark:border-gray-600 text-sm dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                className="h-10 w-full rounded-xl border-gray-200 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
               >
                 Reset Filter
               </Button>
@@ -550,9 +574,8 @@ export function EmployeePerformanceTable() {
           </div>
         </div>
 
-        {/* Desktop Header */}
         <div className="hidden sm:block">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-6 text-white shadow-lg">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg dark:from-blue-600 dark:to-blue-700">
             <h1 className="text-2xl font-bold">Performa Karyawan</h1>
             <p className="mt-2 opacity-90">
               Pantau dan analisis performa karyawan di semua outlet
@@ -560,10 +583,9 @@ export function EmployeePerformanceTable() {
           </div>
         </div>
 
-        {/* Desktop Summary Cards */}
         {performanceData?.summary && (
           <div className="hidden gap-4 px-0 sm:grid sm:grid-cols-4">
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -573,38 +595,42 @@ export function EmployeePerformanceTable() {
                     {isLoading ? "..." : performanceData.summary.totalEmployees}
                   </p>
                 </div>
-                <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 p-2">
+                <div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-950/30">
                   <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </div>
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pekerja</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Pekerja
+                  </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {isLoading ? "..." : performanceData.summary.totalWorkers}
                   </p>
                 </div>
-                <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-2">
+                <div className="rounded-lg bg-green-50 p-2 dark:bg-green-950/30">
                   <UserCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
               </div>
             </div>
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Driver</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Driver
+                  </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {isLoading ? "..." : performanceData.summary.totalDrivers}
                   </p>
                 </div>
-                <div className="rounded-lg bg-purple-50 dark:bg-purple-950/30 p-2">
+                <div className="rounded-lg bg-purple-50 p-2 dark:bg-purple-950/30">
                   <Truck className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
               </div>
             </div>
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -616,7 +642,7 @@ export function EmployeePerformanceTable() {
                       : `${performanceData.summary.averageCompletionRate.toFixed(1)}%`}
                   </p>
                 </div>
-                <div className="rounded-lg bg-orange-50 dark:bg-orange-950/30 p-2">
+                <div className="rounded-lg bg-orange-50 p-2 dark:bg-orange-950/30">
                   <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 </div>
               </div>
@@ -624,9 +650,7 @@ export function EmployeePerformanceTable() {
           </div>
         )}
 
-        {/* Desktop Search & Filter Section */}
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
-          {/* Search Input - Line 1 */}
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6 dark:border-gray-700 dark:bg-gray-800">
           <div className="mb-4">
             <div className="relative w-full">
               <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
@@ -634,20 +658,18 @@ export function EmployeePerformanceTable() {
                 placeholder="Cari berdasarkan nama karyawan..."
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="rounded-xl border-gray-200 dark:border-gray-600 pl-12 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100"
+                className="rounded-xl border-gray-200 pl-12 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               />
             </div>
           </div>
 
-          {/* Filters - Line 2 */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            {/* Filter buttons */}
             <div className="flex flex-wrap gap-3">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="h-10 rounded-xl border-gray-200 dark:border-gray-600 text-sm dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                    className="h-10 rounded-xl border-gray-200 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                   >
                     <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                     <span className="truncate">
@@ -660,10 +682,13 @@ export function EmployeePerformanceTable() {
                     <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 dark:bg-gray-800 dark:border-gray-700">
-                  <DropdownMenuItem 
+                <DropdownMenuContent
+                  align="end"
+                  className="w-48 dark:border-gray-700 dark:bg-gray-800"
+                >
+                  <DropdownMenuItem
                     onClick={() => updateFilters({ role: "" })}
-                    className="dark:hover:bg-gray-700 dark:text-gray-100"
+                    className="dark:text-gray-100 dark:hover:bg-gray-700"
                   >
                     Semua Peran
                   </DropdownMenuItem>
@@ -671,7 +696,7 @@ export function EmployeePerformanceTable() {
                     <DropdownMenuItem
                       key={role}
                       onClick={() => updateFilters({ role })}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       {config.label}
                     </DropdownMenuItem>
@@ -684,7 +709,7 @@ export function EmployeePerformanceTable() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-10 rounded-xl border-gray-200 dark:border-gray-600 text-sm dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                      className="h-10 rounded-xl border-gray-200 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                     >
                       <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                       <span className="truncate">
@@ -697,10 +722,13 @@ export function EmployeePerformanceTable() {
                       <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 dark:bg-gray-800 dark:border-gray-700">
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-48 dark:border-gray-700 dark:bg-gray-800"
+                  >
                     <DropdownMenuItem
                       onClick={() => updateFilters({ outletId: "" })}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Semua Outlet
                     </DropdownMenuItem>
@@ -710,7 +738,7 @@ export function EmployeePerformanceTable() {
                         onClick={() =>
                           updateFilters({ outletId: outlet.id.toString() })
                         }
-                        className="dark:hover:bg-gray-700 dark:text-gray-100"
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         {outlet.outletName}
                       </DropdownMenuItem>
@@ -738,46 +766,46 @@ export function EmployeePerformanceTable() {
                   !filters.startDate &&
                   !filters.endDate
                 }
-                className="h-10 rounded-xl border-gray-200 dark:border-gray-600 text-sm dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                className="h-10 rounded-xl border-gray-200 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
               >
                 Reset
               </Button>
             </div>
 
-            {/* Date Range Filters */}
             <div className="grid grid-cols-2 gap-4 lg:w-80">
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+                <Label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Tanggal Mulai
-                </label>
+                </Label>
                 <Input
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => updateFilters({ startDate: e.target.value })}
-                  className="rounded-xl border-gray-200 dark:border-gray-600 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100"
+                  className="rounded-xl border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+                <Label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Tanggal Akhir
-                </label>
+                </Label>
                 <Input
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => updateFilters({ endDate: e.target.value })}
-                  className="rounded-xl border-gray-200 dark:border-gray-600 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100"
+                  className="rounded-xl border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Card View */}
         <div className="block sm:hidden">
           {isLoading ? (
             <div className="flex h-32 items-center justify-center">
               <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-              <span className="text-sm dark:text-gray-300">Memuat data performa...</span>
+              <span className="text-sm dark:text-gray-300">
+                Memuat data performa...
+              </span>
             </div>
           ) : error ? (
             <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
@@ -797,7 +825,7 @@ export function EmployeePerformanceTable() {
               ))}
             </div>
           ) : (
-            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-center">
+            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-800">
               <span className="mb-4 block text-sm text-gray-500 dark:text-gray-400">
                 Tidak ada data performa karyawan ditemukan
               </span>
@@ -805,8 +833,7 @@ export function EmployeePerformanceTable() {
           )}
         </div>
 
-        {/* Desktop Table View */}
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block dark:border-gray-700">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -840,7 +867,9 @@ export function EmployeePerformanceTable() {
                     <TableCell colSpan={7} className="h-32 text-center">
                       <div className="flex items-center justify-center">
                         <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                        <span className="text-sm dark:text-gray-300">Memuat...</span>
+                        <span className="text-sm dark:text-gray-300">
+                          Memuat...
+                        </span>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -882,9 +911,8 @@ export function EmployeePerformanceTable() {
           </div>
         </div>
 
-        {/* Desktop Pagination */}
         {performanceData?.meta && (
-          <div className="mx-1 hidden justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:mx-0 sm:flex">
+          <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex dark:border-gray-700 dark:bg-gray-800">
             <PaginationSection
               page={performanceData.meta.page}
               take={performanceData.meta.perPage}
@@ -896,9 +924,8 @@ export function EmployeePerformanceTable() {
           </div>
         )}
 
-        {/* Mobile Pagination */}
         {performanceData?.meta && (
-          <div className="flex justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-3 sm:hidden">
+          <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden dark:border-gray-700 dark:bg-gray-800">
             <PaginationSection
               page={performanceData.meta.page}
               take={performanceData.meta.perPage}

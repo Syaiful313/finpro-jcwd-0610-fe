@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Outlet as ApiOutlet } from "@/hooks/api/outlet/useGetOutlets";
 import useUpdateOutlet from "@/hooks/api/outlet/useUpdateOutlet";
@@ -90,14 +91,15 @@ export default function EditOutletModal({
         className="max-h-[90vh] overflow-y-auto sm:max-w-[700px] [&>button]:hidden"
       >
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-xl font-semibold">Edit Outlet</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            Edit Outlet
+          </DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm">
             Edit informasi outlet yang sudah ada
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
-          {/* Outlet Name */}
           <div className="space-y-2">
             <Label htmlFor="outletName" className="text-sm font-medium">
               Nama Outlet *
@@ -121,7 +123,6 @@ export default function EditOutletModal({
             </p>
           </div>
 
-          {/* Address */}
           <div className="space-y-2">
             <Label htmlFor="address" className="text-sm font-medium">
               Alamat *
@@ -141,32 +142,30 @@ export default function EditOutletModal({
               </p>
             )}
             <p className="text-muted-foreground text-xs">
-              Masukkan alamat lengkap untuk memudahkan pelanggan menemukan outlet
+              Masukkan alamat lengkap untuk memudahkan pelanggan menemukan
+              outlet
             </p>
           </div>
 
-          {/* Location Picker Section */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-blue-600" />
-              <Label className="text-sm font-medium">
-                Lokasi Outlet *
-              </Label>
+              <Label className="text-sm font-medium">Lokasi Outlet *</Label>
             </div>
-            
+
             <LocationPicker
               latitude={Number(formik.values.latitude)}
               longitude={Number(formik.values.longitude)}
               onLocationChange={handleLocationChange}
               className="w-full"
             />
-            
+
             <p className="text-muted-foreground text-xs">
-              Pilih lokasi outlet dengan mengklik pada peta atau drag marker untuk posisi yang tepat
+              Pilih lokasi outlet dengan mengklik pada peta atau drag marker
+              untuk posisi yang tepat
             </p>
           </div>
 
-          {/* Manual Coordinates Input (readonly for reference) */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="latitude" className="text-sm font-medium">
@@ -220,35 +219,116 @@ export default function EditOutletModal({
             Koordinat akan otomatis terisi saat Anda memilih lokasi di peta
           </p>
 
-          {/* Service Radius */}
-          <div className="space-y-2">
-            <Label htmlFor="serviceRadius" className="text-sm font-medium">
+          <div className="space-y-4">
+            <Label
+              htmlFor="serviceRadius"
+              className="flex items-center gap-2 text-sm font-medium"
+            >
+              <MapPin className="h-4 w-4 text-blue-600" />
               Radius Layanan (km) *
             </Label>
+
+            <div className="space-y-4 rounded-lg bg-gray-50 p-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600">
+                  {formik.values.serviceRadius || 0}
+                </div>
+                <div className="text-muted-foreground text-sm">kilometer</div>
+              </div>
+
+              <Slider
+                value={[Number(formik.values.serviceRadius) || 0]}
+                onValueChange={(value) =>
+                  formik.setFieldValue("serviceRadius", value[0])
+                }
+                max={15}
+                min={0.5}
+                step={0.5}
+                className="w-full"
+                disabled={isLoading}
+              />
+
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  {
+                    label: "Dekat",
+                    value: 2.0,
+                    desc: "Sekitar kelurahan",
+                    time: "5-10 mnt",
+                  },
+                  {
+                    label: "Sedang",
+                    value: 5.0,
+                    desc: "Antar kecamatan",
+                    time: "15-20 mnt",
+                  },
+                  {
+                    label: "Jauh",
+                    value: 8.0,
+                    desc: "Dalam kota",
+                    time: "20-30 mnt",
+                  },
+                  {
+                    label: "Maksimal",
+                    value: 12.0,
+                    desc: "Lintas kota",
+                    time: "30-45 mnt",
+                  },
+                ].map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() =>
+                      formik.setFieldValue("serviceRadius", preset.value)
+                    }
+                    disabled={isLoading}
+                    className={`rounded-lg p-3 text-left text-xs transition-all ${
+                      Math.abs(
+                        Number(formik.values.serviceRadius) - preset.value,
+                      ) < 0.5
+                        ? "bg-blue-600 text-white"
+                        : "border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    }`}
+                  >
+                    <div className="text-sm font-bold">{preset.label}</div>
+                    <div className="font-medium">{preset.value}km</div>
+                    <div className="mt-1 opacity-75">{preset.desc}</div>
+                    <div className="text-xs opacity-60">{preset.time}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Input
               id="serviceRadius"
               name="serviceRadius"
               type="number"
-              step="0.1"
-              min="0.1"
-              max="50"
-              placeholder="5.0"
+              step="0.5"
+              min="0.5"
+              max="15"
+              placeholder="Manual input (0.5-15 km)"
               value={formik.values.serviceRadius}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={isLoading}
+              className="text-center"
             />
+
             {formik.touched.serviceRadius && formik.errors.serviceRadius && (
               <p className="mt-1 text-xs text-red-500">
                 {formik.errors.serviceRadius}
               </p>
             )}
-            <p className="text-muted-foreground text-xs">
-              Jarak maksimal layanan dari outlet (0.1 - 50 km)
-            </p>
+
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+              <p className="text-xs text-blue-700">
+                💡 <strong>Tips:</strong> Radius optimal untuk delivery 3-8 km,
+                service business 5-12 km. Pertimbangkan traffic dan waktu tempuh
+                di area Anda.
+              </p>
+            </div>
           </div>
 
-          {/* Active Status */}
           <div className="space-y-3">
             <div className="flex flex-row items-center justify-between space-x-4 rounded-lg border p-4">
               <div className="flex-1 space-y-1">

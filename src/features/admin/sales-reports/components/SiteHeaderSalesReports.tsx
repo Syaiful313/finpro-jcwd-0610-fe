@@ -23,14 +23,14 @@ export function SiteHeaderSalesReports() {
             <BreadcrumbItem>
               <Link
                 href="/admin/dashboard"
-                className="text-muted-foreground hover:text-primary text-sm md:text-base font-medium"
+                className="text-muted-foreground hover:text-primary text-sm font-medium md:text-base"
               >
                 Dashboard
               </Link>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-primary text-sm md:text-base font-medium">
+              <BreadcrumbPage className="text-primary text-sm font-medium md:text-base">
                 Sales Reports
               </BreadcrumbPage>
             </BreadcrumbItem>

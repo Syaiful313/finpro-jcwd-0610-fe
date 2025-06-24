@@ -69,7 +69,7 @@ export function OrderItemsCard({
     <Card>
       <CardHeader className="pb-3 sm:pb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="flex items-center gap-2 pb-3 md:pb-0 text-lg sm:text-xl">
+          <CardTitle className="flex items-center gap-2 pb-3 text-lg sm:text-xl md:pb-0">
             <Package className="h-5 w-5" />
             Item Laundry
           </CardTitle>
@@ -159,7 +159,6 @@ export function OrderItemsCard({
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4 pt-0">
-                        {/* Laundry Item Selection */}
                         <div className="space-y-2">
                           <Label className="text-sm">Barang Cucian</Label>
                           <Select
@@ -211,7 +210,6 @@ export function OrderItemsCard({
                             )}
                         </div>
 
-                        {/* Quantity or Weight based on pricing type */}
                         {laundryItem && (
                           <>
                             {laundryItem.pricingType === "PER_PIECE" ? (
@@ -276,7 +274,6 @@ export function OrderItemsCard({
                           </>
                         )}
 
-                        {/* Additional Details */}
                         <div className="grid grid-cols-1 gap-2 sm:gap-3 md:grid-cols-3 md:gap-4">
                           <div className="space-y-2">
                             <Label className="text-sm">Warna</Label>
@@ -319,7 +316,6 @@ export function OrderItemsCard({
                           </div>
                         </div>
 
-                        {/* Item Details */}
                         <div className="space-y-3">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <Label className="text-sm">
@@ -458,7 +454,6 @@ export function OrderItemsCard({
                           </FieldArray>
                         </div>
 
-                        {/* Item Price Calculation */}
                         {laundryItem &&
                           ((item.quantity && item.quantity > 0) ||
                             (item.weight && item.weight > 0)) && (
