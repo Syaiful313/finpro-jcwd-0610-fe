@@ -15,6 +15,6 @@ export const validationSchema = Yup.object().shape({
         if (!val) return false;
         const date = new Date(val);
         const hour = date.getHours();
-        return hour >= 9 && hour < 19;
+        return hour >= 9 && hour < 20;
     }),
 });
