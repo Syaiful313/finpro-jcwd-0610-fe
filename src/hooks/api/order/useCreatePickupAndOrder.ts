@@ -1,5 +1,6 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -24,8 +25,8 @@ const useCreatePickupAndOrder = (userId: number) => {
       toast.success("Order created successfully!");
       router.push('/user/profile')
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: (error: AxiosError) => {
+      toast.error((error.response?.data as { message: string })?.message);
       console.error("Create order error", error);
     },
   });
