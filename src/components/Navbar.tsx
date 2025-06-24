@@ -20,8 +20,6 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  console.log("session", session)
-
   return (
     <header>
       <nav data-state={menuState && 'active'} className="fixed z-20 w-full px-2">

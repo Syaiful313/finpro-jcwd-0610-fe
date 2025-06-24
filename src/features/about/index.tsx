@@ -14,7 +14,7 @@ const AboutPage = () => {
             {
                 name: "Syaiful",
                 role: "Full-stack Developer",
-                src: "/team/member1.jpg",
+                src: "https://res.cloudinary.com/dd6hqmwqu/image/upload/v1750741122/syaiful.jpg",
                 linkedin: "https://www.linkedin.com/in/muhammad-syaiful-mu-min-599a27283/",
                 github: "https://github.com/Syaiful313",
             },
