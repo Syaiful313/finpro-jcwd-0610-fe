@@ -32,27 +32,12 @@ interface ProcessOrderItem {
   orderItemDetails: OrderItemDetail[];
 }
 
-
-interface CustomerAddress {
-  latitude: number;
-  longitude: number;
-}
-
-interface OutletInfo {
-  latitude: number;
-  longitude: number;
-  deliveryBaseFee: number;
-  deliveryPerKm: number;
-  serviceRadius: number;
-}
-
 interface ProcessOrderFormProps {
   orderId: string;
   orderNumber?: string;
   customerName?: string;
-  customerAddress?: CustomerAddress | null;
-  outletInfo?: OutletInfo | null;
 }
+
 interface FormValues {
   totalWeight: number;
   orderItems: ProcessOrderItem[];
