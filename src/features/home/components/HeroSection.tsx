@@ -80,7 +80,6 @@ const HeroSection = () => {
               className="absolute top-0 left-0 h-full w-full object-cover rounded-lg"
             >
               <source src="https://res.cloudinary.com/dd6hqmwqu/video/upload/8756709-uhd_4096_2160_25fps_jiftsm.mp4?_s=vp-2.5.0" type="video/mp4" />
-              Your browser does not support the video tag.
             </video>
           </div>
         </div>
