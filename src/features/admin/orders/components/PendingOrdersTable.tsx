@@ -279,7 +279,7 @@ export function PendingOrdersTable() {
     page,
     take: PAGE_SIZE,
     sortBy: "createdAt",
-    sortOrder: "asc",
+    sortOrder: "desc",
   });
 
   const handleProcessOrder = useCallback(
