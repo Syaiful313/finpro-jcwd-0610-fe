@@ -9,7 +9,7 @@ const FaqSection = () => {
   };
 
   return (
-  <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 sm:p-10">
+  <div className="bg-white flex flex-col items-center justify-center md:p-24">
     <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-neutral-800 mb-12 text-center">
       Frequently Asked Questions
     </h1>

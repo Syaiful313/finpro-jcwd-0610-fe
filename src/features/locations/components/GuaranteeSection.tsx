@@ -1,7 +1,7 @@
 const GuaranteeSection = () => {
   return (
     <section className="bg-white pb-16 md:py-24 px-6 sm:px-12 text-start md:text-center">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto py-20">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-primary mb-8">
             Your Satisfaction, Guaranteed
             </h2>

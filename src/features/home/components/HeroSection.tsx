@@ -24,7 +24,7 @@ const HeroSection = () => {
 
   return (
     <section className="relative h-[300px] md:h-screen w-full overflow-hidden">
-      <video autoPlay muted loop className="h-full w-full object-cover">
+      <video autoPlay muted loop playsInline className="h-full w-full object-cover">
         <source src="https://res.cloudinary.com/dd6hqmwqu/video/upload/8756709-uhd_4096_2160_25fps_jiftsm.mp4?_s=vp-2.5.0" type="video/mp4" />
       </video>
       <div className="absolute inset-0 z-10 flex flex-col items-start justify-start text-md md:text-2xl text-muted px-8 py-20 md:p-40 gap-y-4">
