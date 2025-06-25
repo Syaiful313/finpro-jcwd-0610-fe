@@ -5,7 +5,7 @@ const EnvFriendlySection = () => {
             <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-6">
             We Care for Your Clothes and the Planet
             </h2>
-            <p className="text-xl sm:text-2xl text-black mb-16 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl sm:text-2xl text-black mb-16 max-w-3xl mx-auto leading-relaxed py-12">
             Our commitment goes beyond laundry. We use less water, safe materials, and smart logistics. All to keep things clean, for you and the environment.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 text-left">

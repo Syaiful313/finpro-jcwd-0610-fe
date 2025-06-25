@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 const PricingSection = () => {
     const router = useRouter();
   return (
-    <section id="pricing" className="min-h-screen bg-white flex items-center justify-center px-4 md:px-12 py-24">
+    <section id="pricing" className="bg-white flex items-center justify-center px-4 md:px-12 py-24">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-1 flex flex-col justify-center text-left">
                 <h2 className="text-5xl font-extrabold text-primary leading-tight mb-6">

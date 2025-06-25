@@ -35,7 +35,7 @@ const StepsSection = () => {
     ];
 
     return (
-      <section className="min-h-screen bg-white flex items-center justify-center px-6 pb-24 lg:p-12 font-sans">
+      <section className="bg-white flex items-center justify-center px-6 pb-24 lg:p-12 font-sans">
         <div className="max-w-6xl mx-auto w-full">
           <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-12 text-center">
             How do we prepare your clothes for cleaning?
