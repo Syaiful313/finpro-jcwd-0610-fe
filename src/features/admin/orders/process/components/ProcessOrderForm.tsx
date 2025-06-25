@@ -5,7 +5,7 @@ import useGetLaundryItems from "@/hooks/api/order/useGetLaundryItems";
 import useProcessOrder, {
   cleanPayload,
 } from "@/hooks/api/order/useProcessOrder";
-import { DistanceCalculator } from "@/utils/distanceCalculator";
+
 import { Form, Formik, FormikProps } from "formik";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -32,25 +32,10 @@ interface ProcessOrderItem {
   orderItemDetails: OrderItemDetail[];
 }
 
-interface CustomerAddress {
-  latitude: number;
-  longitude: number;
-}
-
-interface OutletInfo {
-  latitude: number;
-  longitude: number;
-  deliveryBaseFee: number;
-  deliveryPerKm: number;
-  serviceRadius: number;
-}
-
 interface ProcessOrderFormProps {
   orderId: string;
   orderNumber?: string;
   customerName?: string;
-  customerAddress?: CustomerAddress | null;
-  outletInfo?: OutletInfo | null;
 }
 
 interface FormValues {
@@ -62,8 +47,6 @@ export function ProcessOrderForm({
   orderId,
   orderNumber,
   customerName,
-  customerAddress,
-  outletInfo,
 }: ProcessOrderFormProps) {
   const router = useRouter();
   const formikRef = useRef<FormikProps<FormValues>>(null);
@@ -186,13 +169,6 @@ export function ProcessOrderForm({
     }, 0);
   };
 
-  const deliveryEstimation = useMemo(() => {
-    return DistanceCalculator.getDeliveryEstimation(
-      customerAddress || null,
-      outletInfo || null,
-    );
-  }, [customerAddress, outletInfo]);
-
   const getLaundryItemById = (id: number) => {
     if (!laundryItems || !Array.isArray(laundryItems)) return undefined;
     return laundryItems.find((item) => item.id === id);
@@ -304,9 +280,7 @@ export function ProcessOrderForm({
           isSubmitting,
         }) => {
           const laundrySubtotal = calculateLaundrySubtotal(values.orderItems);
-          const estimatedTotal =
-            laundrySubtotal +
-            (deliveryEstimation.success ? deliveryEstimation.fee! : 0);
+
           const totalItems = values.orderItems.length;
           const hasPerKg = hasPerKgItems(values.orderItems);
 
@@ -366,8 +340,6 @@ export function ProcessOrderForm({
                       hasPerKg={hasPerKg}
                       totalItems={totalItems}
                       laundrySubtotal={laundrySubtotal}
-                      estimatedTotal={estimatedTotal}
-                      deliveryEstimation={deliveryEstimation}
                       isProcessing={isProcessing || isSubmitting}
                       isValid={isValid}
                       orderItemsLength={values.orderItems.length}

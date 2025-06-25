@@ -309,68 +309,6 @@ export default function ViewBypassDetailModal({
               </div>
             </div>
           )}
-
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1 text-sm font-medium">
-              <MapPin className="h-4 w-4" />
-              Outlet Information
-            </Label>
-            <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-                <div>
-                  <span className="font-medium text-gray-700">
-                    Outlet Name:
-                  </span>
-                  <p className="mt-1">
-                    {request.approvedByEmployee.outlet.outletName}
-                  </p>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-700">Address:</span>
-                  <p className="mt-1">
-                    {request.approvedByEmployee.outlet.address}
-                  </p>
-                </div>
-              </div>
-              <div className="border-t border-gray-200 pt-2">
-                <span className="font-medium text-gray-700">
-                  Responsible Admin:
-                </span>
-                <p className="mt-1">
-                  {request.approvedByEmployee.user.firstName}{" "}
-                  {request.approvedByEmployee.user.lastName}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {request.approvedByEmployee.user.email}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1 text-sm font-medium">
-              <Calendar className="h-4 w-4" />
-              Timeline
-            </Label>
-            <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm">
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-700">Created:</span>
-                <span className="text-gray-600">
-                  {formatDate(request.createdAt)}
-                </span>
-              </div>
-              {request.updatedAt !== request.createdAt && (
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">
-                    Last Updated:
-                  </span>
-                  <span className="text-gray-600">
-                    {formatDate(request.updatedAt)}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         <DialogFooter className="flex flex-col-reverse space-y-2 space-y-reverse pt-6 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-2">

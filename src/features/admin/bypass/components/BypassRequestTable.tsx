@@ -129,6 +129,60 @@ const WorkerTypeBadge = ({ type }: { type: string }) => {
   );
 };
 
+const LoadingSkeleton = ({ message }: { message: string }) => (
+  <div className="flex h-64 items-center justify-center px-1">
+    <Loader2 className="h-6 w-6 animate-spin" />
+    <span className="ml-2 text-sm sm:text-base dark:text-gray-300">
+      {message}
+    </span>
+  </div>
+);
+
+const AccessDeniedMessage = () => (
+  <div className="flex h-64 items-center justify-center px-1">
+    <div className="text-center">
+      <span className="text-sm text-red-500 sm:text-base dark:text-red-400">
+        Akses Ditolak
+      </span>
+      <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
+        Hanya admin outlet yang dapat mengelola permintaan bypass.
+      </p>
+    </div>
+  </div>
+);
+
+const EmptyState = () => (
+  <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-800">
+    <AlertTriangle className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+    <span className="mt-4 block text-sm text-gray-500 dark:text-gray-400">
+      Tidak ada permintaan bypass ditemukan untuk outlet Anda
+    </span>
+  </div>
+);
+
+const ErrorMessage = ({ error }: { error: any }) => (
+  <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
+    <div className="text-sm">Terjadi kesalahan saat memuat data</div>
+    <div className="mt-1 text-xs text-red-400 dark:text-red-300">
+      {error.message || "Kesalahan tidak diketahui"}
+    </div>
+  </div>
+);
+
+const MobileLoadingSkeleton = () => (
+  <div className="space-y-2 px-3 pt-2">
+    {[...Array(3)].map((_, i) => (
+      <div
+        key={i}
+        className="animate-pulse rounded-2xl border bg-white p-4 dark:bg-gray-800"
+      >
+        <div className="mb-2 h-4 rounded bg-gray-200 dark:bg-gray-700"></div>
+        <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+    ))}
+  </div>
+);
+
 const BypassRequestCard = ({
   request,
   index,
@@ -338,6 +392,7 @@ const BypassRequestRow = ({
 export function BypassRequestTable() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
+
   const approveBypassMutation = useApproveBypassRequest();
   const rejectBypassMutation = useRejectBypassRequest();
 
@@ -371,8 +426,6 @@ export function BypassRequestTable() {
     viewingRequest: null as BypassRequest | null,
     processType: null as "approve" | "reject" | null,
   });
-
-  const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
 
   const {
     data: bypassData,
@@ -480,34 +533,20 @@ export function BypassRequestTable() {
   };
 
   if (!session) {
-    return (
-      <div className="flex h-64 items-center justify-center px-1">
-        <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2 text-sm sm:text-base dark:text-gray-300">
-          Memuat sesi...
-        </span>
-      </div>
-    );
+    return <LoadingSkeleton message="Memuat sesi..." />;
   }
 
-  if (!isOutletAdmin) {
-    return (
-      <div className="flex h-64 items-center justify-center px-1">
-        <div className="text-center">
-          <span className="text-sm text-red-500 sm:text-base dark:text-red-400">
-            Akses Ditolak
-          </span>
-          <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
-            Hanya admin outlet yang dapat mengelola permintaan bypass.
-          </p>
-        </div>
-      </div>
-    );
+  if (session?.user?.role !== "OUTLET_ADMIN") {
+    return <AccessDeniedMessage />;
   }
+
+  const isProcessing =
+    approveBypassMutation.isPending || rejectBypassMutation.isPending;
 
   return (
     <>
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
+        {/* Mobile Header */}
         <div className="block sm:hidden">
           <div className="rounded-b-3xl bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg dark:from-orange-600 dark:to-orange-700">
             <div className="px-4 py-14">
@@ -548,6 +587,7 @@ export function BypassRequestTable() {
             </div>
           </div>
 
+          {/* Mobile Filters */}
           <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
             <div className="flex gap-2">
               <DropdownMenu>
@@ -615,6 +655,7 @@ export function BypassRequestTable() {
           </div>
         </div>
 
+        {/* Desktop Header */}
         <div className="hidden sm:block">
           <div className="rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 p-6 text-white shadow-lg dark:from-orange-600 dark:to-orange-700">
             <h1 className="text-2xl font-bold">
@@ -654,6 +695,7 @@ export function BypassRequestTable() {
           </div>
         </div>
 
+        {/* Desktop Filters */}
         <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -745,21 +787,12 @@ export function BypassRequestTable() {
           </div>
         </div>
 
+        {/* Mobile Content */}
         <div className="block sm:hidden">
           {isLoading ? (
-            <div className="flex h-32 items-center justify-center">
-              <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-              <span className="text-sm dark:text-gray-300">
-                Memuat permintaan bypass outlet...
-              </span>
-            </div>
+            <MobileLoadingSkeleton />
           ) : error ? (
-            <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
-              <div className="text-sm">Terjadi kesalahan saat memuat data</div>
-              <div className="mt-1 text-xs text-red-400 dark:text-red-300">
-                {error.message || "Kesalahan tidak diketahui"}
-              </div>
-            </div>
+            <ErrorMessage error={error} />
           ) : bypassData?.data?.length ? (
             <div className="space-y-2 px-3 pt-2">
               {bypassData.data.map((request, index) => (
@@ -770,23 +803,16 @@ export function BypassRequestTable() {
                   onView={handleViewDetail}
                   onApprove={handleApprove}
                   onReject={handleReject}
-                  isProcessing={
-                    approveBypassMutation.isPending ||
-                    rejectBypassMutation.isPending
-                  }
+                  isProcessing={isProcessing}
                 />
               ))}
             </div>
           ) : (
-            <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-800">
-              <AlertTriangle className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-              <span className="mt-4 block text-sm text-gray-500 dark:text-gray-400">
-                Tidak ada permintaan bypass ditemukan untuk outlet Anda
-              </span>
-            </div>
+            <EmptyState />
           )}
         </div>
 
+        {/* Desktop Table */}
         <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block dark:border-gray-700">
           <div className="overflow-x-auto">
             <Table>
@@ -855,10 +881,7 @@ export function BypassRequestTable() {
                       onView={handleViewDetail}
                       onApprove={handleApprove}
                       onReject={handleReject}
-                      isProcessing={
-                        approveBypassMutation.isPending ||
-                        rejectBypassMutation.isPending
-                      }
+                      isProcessing={isProcessing}
                     />
                   ))
                 ) : (
@@ -879,6 +902,7 @@ export function BypassRequestTable() {
           </div>
         </div>
 
+        {/* Desktop Pagination */}
         {bypassData?.meta && (
           <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex dark:border-gray-700 dark:bg-gray-800">
             <PaginationSection
@@ -895,6 +919,7 @@ export function BypassRequestTable() {
           </div>
         )}
 
+        {/* Mobile Pagination */}
         {bypassData?.meta && (
           <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden dark:border-gray-700 dark:bg-gray-800">
             <PaginationSection
@@ -912,6 +937,7 @@ export function BypassRequestTable() {
         )}
       </div>
 
+      {/* Process Modal */}
       {selected.processingRequest && selected.processType && (
         <ProcessBypassModal
           open={modals.showProcess}
@@ -919,12 +945,11 @@ export function BypassRequestTable() {
           request={selected.processingRequest}
           type={selected.processType}
           onConfirm={confirmProcess}
-          isProcessing={
-            approveBypassMutation.isPending || rejectBypassMutation.isPending
-          }
+          isProcessing={isProcessing}
         />
       )}
 
+      {/* Detail Modal */}
       {selected.viewingRequest && (
         <ViewBypassDetailModal
           open={modals.showDetail}

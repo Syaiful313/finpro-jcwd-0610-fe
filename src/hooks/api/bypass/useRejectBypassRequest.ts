@@ -3,39 +3,30 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 interface RejectBypassRequestPayload {
   adminNote: string;
 }
 
+interface BypassMutationParams {
+  id: number;
+  payload: RejectBypassRequestPayload;
+}
+
 const useRejectBypassRequest = () => {
   const queryClient = useQueryClient();
   const axiosInstance = useAxios();
-  const { data: session } = useSession();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: number;
-      payload: RejectBypassRequestPayload;
-    }) => {
-      if (session?.user?.role !== "OUTLET_ADMIN") {
-        throw new Error(
-          "Access denied. Only outlet admins can reject bypass requests.",
-        );
-      }
-
-      const { data } = await axiosInstance.post(
+    mutationFn: async ({ id, payload }: BypassMutationParams) => {
+      const { data } = await axiosInstance.patch(
         `/bypass-requests/${id}/reject`,
         payload,
       );
       return data;
     },
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       toast.success("Bypass request rejected successfully");
 
       await queryClient.invalidateQueries({
