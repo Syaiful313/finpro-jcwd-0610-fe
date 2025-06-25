@@ -14,6 +14,7 @@ const useClockOut = () => {
       queryClient.invalidateQueries({ queryKey: ["attendanceToday"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["claimed-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["driverJobs"] });
     },
   });
 };
