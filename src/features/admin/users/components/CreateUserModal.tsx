@@ -449,30 +449,6 @@ export default function CreateUserModal({
             </>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="provider" className="text-sm font-medium">
-              Provider Login
-            </Label>
-            <Select
-              value={formik.values.provider}
-              onValueChange={(value) => formik.setFieldValue("provider", value)}
-              disabled={isLoading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih provider" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="CREDENTIAL">Email/Password</SelectItem>
-                <SelectItem value="GOOGLE">Google</SelectItem>
-              </SelectContent>
-            </Select>
-            {formik.touched.provider && formik.errors.provider && (
-              <p className="mt-1 text-xs text-red-500">
-                {formik.errors.provider}
-              </p>
-            )}
-          </div>
-
           {!isEditMode && (
             <div className="space-y-2">
               <Label className="text-sm font-medium">
