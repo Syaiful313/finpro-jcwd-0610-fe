@@ -1,5 +1,6 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 
 const useMarkAllNotif = () => {

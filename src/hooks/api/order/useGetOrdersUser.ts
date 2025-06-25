@@ -21,12 +21,8 @@ const useGetOrdersUser = ({ userId, page, limit }: GetOrdersParams) => {
   return useQuery<PaginatedOrderResponse>({
     queryKey: ["orders-user", userId, page, limit],
     queryFn: async () => {
-      const session = await getSession();
-      const token = session?.user.accessToken;
-      if (!token) throw new Error("No auth token found");
-
       const response = await axiosInstance.get(
-        `/orders/user/${userId}?page=${page}&limit=${limit}`
+        `/orders/user/${userId}?page=${page}&limit=${limit}`,
       );
 
       const { orders, total, page: currentPage } = response.data;
@@ -38,8 +34,8 @@ const useGetOrdersUser = ({ userId, page, limit }: GetOrdersParams) => {
         limit,
       };
     },
-    enabled: !!userId && !!page && !!limit, 
+    enabled: !!userId && !!page && !!limit,
   });
 };
 
-export default useGetOrdersUser
+export default useGetOrdersUser;

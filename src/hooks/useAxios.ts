@@ -9,7 +9,8 @@ const useAxios = () => {
     const requestIntercept = axiosInstance.interceptors.request.use(
       async (config) => {
         const session = await getSession();
-        const accessToken = session?.user.accessToken;
+        const accessToken = session?.user.accessToken || (session as any)?.backendToken;
+    
         if (accessToken) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
