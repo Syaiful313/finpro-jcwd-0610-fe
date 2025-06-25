@@ -126,6 +126,8 @@ export const getBypassStatusConfig = (status: string): StatusConfig => {
     REJECTED: {
       label: "Rejected",
       variant: "destructive",
+      className:
+        "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-300 dark:border-red-400/30",
     },
   };
 

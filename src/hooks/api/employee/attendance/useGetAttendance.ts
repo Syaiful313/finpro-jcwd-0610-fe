@@ -1,3 +1,4 @@
+import useAxios from "@/hooks/useAxios";
 import { axiosInstance } from "@/lib/axios";
 import { Attendance } from "@/types/attendance";
 import { PageableResponse, PaginationQueries } from "@/types/pagination";
@@ -12,6 +13,7 @@ interface GetAttendanceProps extends PaginationQueries {
 }
 
 const useGetAttendance = (queries?: GetAttendanceProps) => {
+  const axiosInstance = useAxios();
   return useQuery({
     queryKey: ["attendance", queries],
     queryFn: async () => {
