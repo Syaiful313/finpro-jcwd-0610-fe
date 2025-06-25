@@ -85,8 +85,6 @@ export default function OrdersProcessDetailPage({
                 orderId={orderId}
                 orderNumber={orderDetail.orderNumber}
                 customerName={orderDetail.customer.name}
-                customerAddress={orderDetail.customerCoordinates || null}
-                outletInfo={outletInfo}
               />
             </div>
           )}
