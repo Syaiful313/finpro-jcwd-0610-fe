@@ -26,7 +26,6 @@ import {
   ChevronDownIcon,
   Edit,
   Filter,
-  FilterIcon,
   Loader2,
   Package,
   PackagePlus,
@@ -113,18 +112,12 @@ const PriceInfo = ({
   pricingType: "PER_PIECE" | "PER_KG";
 }) => (
   <div className="text-center">
-    {pricingType === "PER_KG" ? (
-      <div className="text-sm font-medium text-gray-400 dark:text-gray-500">
-        -
-      </div>
-    ) : (
-      <>
-        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-          Rp {basePrice.toLocaleString("id-ID")}
-        </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400">per pcs</div>
-      </>
-    )}
+    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+      Rp {basePrice.toLocaleString("id-ID")}
+    </div>
+    <div className="text-xs text-gray-500 dark:text-gray-400">
+      {pricingType === "PER_PIECE" ? "per pcs" : "per kg"}
+    </div>
   </div>
 );
 
@@ -207,20 +200,13 @@ const LaundryItemCard = ({
               <span>Harga:</span>
             </div>
             <div className="text-right">
-              {laundryItem.pricingType === "PER_KG" ? (
-                <div className="text-sm font-medium text-gray-400 dark:text-gray-500">
-                  -
-                </div>
-              ) : (
-                <>
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Rp {laundryItem.basePrice.toLocaleString("id-ID")}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    per pcs
-                  </div>
-                </>
-              )}
+              {/* UPDATED: Now shows price for both PER_PIECE and PER_KG */}
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Rp {laundryItem.basePrice.toLocaleString("id-ID")}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {laundryItem.pricingType === "PER_PIECE" ? "per pcs" : "per kg"}
+              </div>
             </div>
           </div>
           <div className="flex items-center justify-center gap-2 text-xs text-green-600 dark:text-green-400">
@@ -623,48 +609,6 @@ export function LaundryItemManagementTable() {
                 <span className="xs:inline hidden">Tambah Item</span>
                 <span className="xs:hidden">Tambah</span>
               </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
-                  >
-                    <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                    <span className="truncate text-xs sm:text-sm">
-                      {filters.isActive == null
-                        ? "Semua Status"
-                        : filters.isActive
-                          ? "Active"
-                          : "Inactive"}
-                    </span>
-                    <ChevronDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-48 dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <DropdownMenuItem
-                    onClick={() => updateFilters({ isActive: null })}
-                    className="dark:text-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Semua Status
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => updateFilters({ isActive: true })}
-                    className="dark:text-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Active Only
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => updateFilters({ isActive: false })}
-                    className="dark:text-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Inactive Only
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

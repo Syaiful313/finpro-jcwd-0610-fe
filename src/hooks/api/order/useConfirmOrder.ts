@@ -7,8 +7,8 @@ const useConfirmOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (uuid: string) => {
-        const { data } = await axiosInstance.patch(`/orders/confirm/${uuid}`);
-        return data;
+      const { data } = await axiosInstance.patch(`/orders/confirm/${uuid}`);
+      return data;
     },
     onSuccess: async (data) => {
       toast.success("Order confirmed");
