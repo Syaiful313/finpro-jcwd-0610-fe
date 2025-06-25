@@ -2,7 +2,7 @@ import Link from "next/link"
 
 const MainSection = () => {
   return (
-    <section className="min-h-screen bg-gray-100 flex flex-col font-inter">
+    <section className="bg-white flex flex-col font-inter">
         <div className="bg-white py-16 px-4 md:px-6">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8">
                 <div className="md:flex-1 flex flex-col items-center md:items-start md:text-left">
@@ -60,8 +60,6 @@ const MainSection = () => {
                         Experience premium garment care that saves you time, ensuring you always look your sharpest.
                         </p>
                     </div>
-                    {/* <h2 className="text-4xl font-bold text-gray-800 mb-4">Premium Care</h2>
-                    <p className="text-lg text-gray-600 mb-8 max-w-md">Experience premium garment care that saves you time, ensuring you always look your sharpest.</p> */}
                     <div className="flex items-start gap-4 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

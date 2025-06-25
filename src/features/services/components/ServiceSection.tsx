@@ -6,7 +6,7 @@ const ServiceSection = () => {
     const router = useRouter();
 
   return (
-    <section className="min-h-screen bg-white flex items-center justify-center px-6 pt-24 pb-12">
+    <section className="bg-white flex items-center justify-center px-6 pt-24 pb-12">
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center overflow-hidden">
             <div className="px-8 py-12 lg:py-16">
                 <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-6 leading-tight">
