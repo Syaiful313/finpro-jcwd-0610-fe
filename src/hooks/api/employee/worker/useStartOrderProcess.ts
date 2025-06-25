@@ -36,6 +36,9 @@ const useStartOrderProcess = () => {
         queryKey: ["orders"],
       });
     },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+    },
   });
 };
 export default useStartOrderProcess;

@@ -1,5 +1,7 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 const useRequestBypass = () => {
   const axiosInstance = useAxios();
@@ -24,6 +26,9 @@ const useRequestBypass = () => {
       queryClient.invalidateQueries({
         queryKey: ["orders"],
       });
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
     },
   });
 };
