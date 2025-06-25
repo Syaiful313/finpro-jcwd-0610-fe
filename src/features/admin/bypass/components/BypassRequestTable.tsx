@@ -393,7 +393,6 @@ export function BypassRequestTable() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
-  // ✅ Gunakan hooks terpisah sesuai implementasi Anda
   const approveBypassMutation = useApproveBypassRequest();
   const rejectBypassMutation = useRejectBypassRequest();
 
@@ -533,17 +532,14 @@ export function BypassRequestTable() {
     });
   };
 
-  // ✅ Loading state untuk session
   if (!session) {
     return <LoadingSkeleton message="Memuat sesi..." />;
   }
 
-  // ✅ Simplified access control - hanya cek role dari session
   if (session?.user?.role !== "OUTLET_ADMIN") {
     return <AccessDeniedMessage />;
   }
 
-  // ✅ Processing state menggunakan hooks yang ada
   const isProcessing =
     approveBypassMutation.isPending || rejectBypassMutation.isPending;
 
