@@ -26,7 +26,8 @@ const useGetStationOrder = (queries?: useGetStationOrderProps) => {
       });
       return data;
     },
-
+    staleTime: 12 * 60 * 60 * 1000,
+    gcTime: 13 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });

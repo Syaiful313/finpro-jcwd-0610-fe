@@ -1,5 +1,7 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 const useMarkAllAsRead = () => {
   const axiosInstance = useAxios();
@@ -14,8 +16,8 @@ const useMarkAllAsRead = () => {
       queryClient.invalidateQueries({ queryKey: ["driver-notifications"] });
       queryClient.invalidateQueries({ queryKey: ["worker-notifications"] });
     },
-    onError: (error) => {
-      console.error("Error marking all notifications as read:", error);
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
     },
   });
 };

@@ -15,6 +15,7 @@ import {
   workerConfigs,
   WorkerType,
 } from "@/utils/OrderConfig";
+import { Axios, AxiosError } from "axios";
 
 interface UseProcessOrderLogicProps {
   uuid: string;
@@ -181,9 +182,10 @@ export default function useProcessOrderLogic({
             exact: false,
           });
         },
-        onError: (err: any) =>
+        onError: (errror: AxiosError<any>) =>
           toast.error(
-            err?.response?.data?.message || "Failed to submit bypass request.",
+            errror?.response?.data?.message ||
+              "Failed to submit bypass request.",
           ),
       },
     );
@@ -218,9 +220,10 @@ export default function useProcessOrderLogic({
               `/employee/orders/complete/${uuid}?station=${workerType}`,
             );
           },
-          onError: (err: any) =>
+          onError: (errror: AxiosError<any>) =>
             toast.error(
-              err?.response?.data?.message || "Failed to complete bypass.",
+              errror?.response?.data?.message ||
+                "Failed to Complete order bypass.",
             ),
         },
       );
@@ -234,9 +237,9 @@ export default function useProcessOrderLogic({
               `/employee/orders/complete/${uuid}?station=${workerType}`,
             );
           },
-          onError: (err: any) =>
+          onError: (errror: AxiosError<any>) =>
             toast.error(
-              err?.response?.data?.message || "Failed to complete process.",
+              errror?.response?.data?.message || "Failed to Complete order .",
             ),
         },
       );

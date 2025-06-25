@@ -1,5 +1,7 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 const useClockOut = () => {
   const axiosInstance = useAxios();
@@ -15,6 +17,9 @@ const useClockOut = () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["claimed-requests"] });
       queryClient.invalidateQueries({ queryKey: ["driverJobs"] });
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
     },
   });
 };

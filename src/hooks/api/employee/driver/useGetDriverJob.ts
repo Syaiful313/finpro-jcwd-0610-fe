@@ -35,8 +35,8 @@ const useGetDriverJobs = (
       );
       return data;
     },
-    staleTime: 8 * 60 * 60 * 1000,
-    gcTime: 9 * 60 * 60 * 1000,
+    staleTime: 12 * 60 * 60 * 1000,
+    gcTime: 13 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,

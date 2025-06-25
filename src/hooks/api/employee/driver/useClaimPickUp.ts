@@ -1,5 +1,7 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 const useClaimPickUp = () => {
   const axiosInstance = useAxios();
@@ -22,6 +24,9 @@ const useClaimPickUp = () => {
         exact: false,
       });
       return data;
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
     },
   });
 };

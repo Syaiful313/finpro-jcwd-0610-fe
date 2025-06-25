@@ -1,5 +1,4 @@
 import useAxios from "@/hooks/useAxios";
-import { axiosInstance } from "@/lib/axios";
 import { Attendance } from "@/types/attendance";
 import { PageableResponse, PaginationQueries } from "@/types/pagination";
 import { useQuery } from "@tanstack/react-query";
@@ -23,8 +22,8 @@ const useGetAttendance = (queries?: GetAttendanceProps) => {
       );
       return data;
     },
-    staleTime: 8 * 60 * 60 * 1000,
-    gcTime: 9 * 60 * 60 * 1000,
+    staleTime: 12 * 60 * 60 * 1000,
+    gcTime: 13 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,

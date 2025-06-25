@@ -30,6 +30,14 @@ export default function CustomerInfoCard({
   copyAddress,
   callCustomer,
 }: CustomerInfoCardProps) {
+  const getScheduledTime = () => {
+    if (jobData.type === "pickup") {
+      return job?.pickUpScheduleOutlet;
+    } else {
+      return job?.order?.scheduledDeliveryTime;
+    }
+  };
+
   return (
     <Card className="m-4">
       <CardHeader className="pb-3">
@@ -64,7 +72,7 @@ export default function CustomerInfoCard({
         <div className="flex items-center gap-4 text-sm">
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4 text-gray-500" />
-            <span>{formatDate(job?.order?.scheduledDeliveryTime)}</span>
+            <span>{formatDate(getScheduledTime())}</span>
           </div>
           <Badge variant="outline">{jobData.type.toUpperCase()}</Badge>
         </div>

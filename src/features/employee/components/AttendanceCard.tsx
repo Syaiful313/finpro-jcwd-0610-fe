@@ -39,19 +39,13 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
       onSuccess: () => {
         toast.success("Clock In successful");
       },
-      onError: () => {
-        toast.error("Failed to Clock In");
-      },
     });
   };
 
   const handleClockOut = () => {
     clockOut(undefined, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast.success("Clock Out successful");
-      },
-      onError: (error) => {
-        toast.error("Failed to Clock Out");
       },
     });
   };
