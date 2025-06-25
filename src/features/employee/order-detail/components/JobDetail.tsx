@@ -24,6 +24,7 @@ import JobStatusCard from "./JobStatusCard";
 import LocationCard from "./LocationCard";
 import OrderDetailsCard from "./OrderDetailsCard";
 import StatusProgress from "./StatusProgress";
+import { AxiosError } from "axios";
 
 interface DriverOrderDetailPageProps {
   jobData: DriverJobResponse;

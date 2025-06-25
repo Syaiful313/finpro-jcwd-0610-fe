@@ -200,13 +200,13 @@ const EmployeePage: React.FC = () => {
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Shift Start
                   </span>
-                  <span className="font-semibold">08:00 WIB</span>
+                  <span className="font-semibold">09:00 WIB</span>
                 </div>
                 <div className="flex items-center justify-between border-b border-gray-100 py-2 dark:border-gray-700">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Shift End
                   </span>
-                  <span className="font-semibold">17:00 WIB</span>
+                  <span className="font-semibold">20:00 WIB</span>
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
