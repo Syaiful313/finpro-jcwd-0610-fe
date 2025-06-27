@@ -36,7 +36,7 @@ const useGetLaundryItems = (
   options?: UseGetLaundryItemsOptions,
 ) => {
   const axiosInstance = useAxios();
-  const endpoint = `/laundry-item`;
+  const endpoint = `/laundry-items`;
   const queryKey = ["laundryItems", queries];
   const defaultQueries = {
     take: 10,

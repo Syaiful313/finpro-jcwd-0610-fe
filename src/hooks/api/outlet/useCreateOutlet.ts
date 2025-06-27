@@ -22,7 +22,7 @@ const useCreateOutlet = () => {
 
   return useMutation({
     mutationFn: async (payload: CreateOutletPayload) => {
-      const { data } = await axiosInstance.post("/outlet", {
+      const { data } = await axiosInstance.post("/outlets", {
         outletName: payload.outletName,
         address: payload.address,
         latitude: payload.latitude,

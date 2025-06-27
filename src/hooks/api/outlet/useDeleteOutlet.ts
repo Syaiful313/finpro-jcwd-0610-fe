@@ -13,7 +13,7 @@ const useDeleteOutlet = () => {
 
   return useMutation({
     mutationFn: async (outletId: number) => {
-      const { data } = await axiosInstance.delete(`/outlet/${outletId}`);
+      const { data } = await axiosInstance.delete(`/outlets/${outletId}`);
       return data;
     },
     onSuccess: (data) => {
