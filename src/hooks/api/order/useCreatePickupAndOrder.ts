@@ -1,5 +1,5 @@
 import useAxios from "@/hooks/useAxios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ interface PayloadCreatePickupAndOrder {
 const useCreatePickupAndOrder = (userId: number) => {
   const axiosInstance = useAxios();
   const router = useRouter();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: PayloadCreatePickupAndOrder) => {
       const { data } = await axiosInstance.post(`/orders`, payload);
@@ -21,6 +22,9 @@ const useCreatePickupAndOrder = (userId: number) => {
     onSuccess: async (data) => {
       toast.success("Order created successfully!");
       router.push("/user/profile");
+      queryClient.invalidateQueries({
+        queryKey: ["driver-notifications"],
+      });
     },
     onError: (error: AxiosError) => {
       toast.error((error.response?.data as { message: string })?.message);

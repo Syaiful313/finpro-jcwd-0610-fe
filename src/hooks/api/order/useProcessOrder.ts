@@ -78,6 +78,8 @@ const useProcessOrder = () => {
         queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
         queryClient.invalidateQueries({ queryKey: ["WorkerOrderDetails"] }),
         queryClient.invalidateQueries({ queryKey: ["availableRequest"] }),
+        queryClient.invalidateQueries({ queryKey: ["worker-notifications"] }),
+        queryClient.invalidateQueries({ queryKey: ["driver-notifications"] }),
       ]);
 
       router.push("/admin/orders");
