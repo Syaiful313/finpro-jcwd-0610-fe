@@ -10,7 +10,7 @@ const useGetEmployeePerformance = (queries?: EmployeePerformanceQueries) => {
     queryKey: ["employee-performance", queries],
     queryFn: async () => {
       const { data } = await axiosInstance.get<EmployeePerformanceResponse>(
-        "/employee-performance",
+        "/employee-performances",
         { params: queries }
       );
       return data;

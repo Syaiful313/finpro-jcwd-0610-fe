@@ -41,7 +41,7 @@ const useUpdateOutlet = (outletId: number) => {
       }
 
       const { data } = await axiosInstance.patch(
-        `/outlet/${outletId}`,
+        `/outlets/${outletId}`,
         updateData,
       );
       return data;
