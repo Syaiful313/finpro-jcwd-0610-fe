@@ -76,16 +76,19 @@ const getNavDataByRole = (role: Role) => {
           title: "Order List",
           url: "/employee/orders",
           icon: ListIcon,
+          exact: true,
         },
         {
           title: "Pick Up",
           url: "/employee/orders/pick-up",
           icon: PackageIcon,
+          exact: true,
         },
         {
           title: "Delivery",
           url: "/employee/orders/delivery",
           icon: TruckIcon,
+          exact: true,
         },
       ],
     };
@@ -108,6 +111,7 @@ const getNavDataByRole = (role: Role) => {
           title: "Bypass Request",
           url: "/employee/orders/bypass",
           icon: FileTextIcon,
+          exact: true,
         },
       ],
     };

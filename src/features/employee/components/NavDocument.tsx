@@ -18,6 +18,7 @@ export function NavDocuments({
     name: string;
     url: string;
     icon: LucideIcon;
+    exact?: boolean;
   }[];
 }) {
   const pathname = usePathname();

@@ -17,8 +17,9 @@ export default function NotFound() {
             width={500}
             height={213}
             style={{ objectFit: "contain" }}
-            priority
+            priority={false}
             className="dark:opacity-80 dark:mix-blend-screen"
+            loading="lazy"
           />
         </div>
         <Link

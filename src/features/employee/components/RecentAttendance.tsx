@@ -160,7 +160,7 @@ export default function RecentAttendance({
               if (logItem.title === "Clock In") {
                 const hour = date.getHours();
                 const minute = date.getMinutes();
-                const isLate = hour > 8 || (hour === 8 && minute > 0);
+                const isLate = hour > 9 || (hour === 9 && minute > 0);
                 status = isLate ? "Late" : "On Time";
                 if (isLate) {
                   statusColor = "text-primary dark:text-orange-300";
@@ -170,7 +170,7 @@ export default function RecentAttendance({
               if (logItem.title === "Clock Out") {
                 const hour = date.getHours();
                 const minute = date.getMinutes();
-                const isEarly = hour < 17 || (hour === 17 && minute === 0);
+                const isEarly = hour < 20 || (hour === 20 && minute === 0);
                 status = isEarly ? "Early Leave" : "On Time";
                 if (isEarly) {
                   statusColor = "text-primary dark:text-orange-300";

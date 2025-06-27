@@ -7,8 +7,8 @@ interface GetAttendanceProps extends PaginationQueries {
   search?: string;
   employeeId?: number;
   perPage?: number;
-  dateFrom?: string;
-  dateTo?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 const useGetAttendance = (queries?: GetAttendanceProps) => {

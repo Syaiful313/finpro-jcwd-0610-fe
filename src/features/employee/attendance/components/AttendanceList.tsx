@@ -34,6 +34,7 @@ import {
 import Loader from "../../components/Loader";
 import AttendanceFilters from "./FilterAttendance";
 import { useMemo } from "react";
+import { start } from "repl";
 
 const AttendanceList = () => {
   const { data: session } = useSession();
@@ -73,8 +74,8 @@ const AttendanceList = () => {
       sortBy: "clockInAt",
       sortOrder: "desc",
       search: querySearchTerm,
-      dateFrom: formattedDateFrom,
-      dateTo: formattedDateTo,
+      startDate: formattedDateFrom,
+      endDate: formattedDateTo,
       employeeId: queryEmployeeId ?? undefined,
     };
   }, [page, querySearchTerm, queryDateFrom, queryDateTo, queryEmployeeId]);
@@ -133,8 +134,8 @@ const AttendanceList = () => {
       const clockInHour = clockInTime.getHours();
 
       if (
-        clockInHour > 8 ||
-        (clockInHour === 8 && clockInTime.getMinutes() > 0)
+        clockInHour > 9 ||
+        (clockInHour === 9 && clockInTime.getMinutes() > 0)
       ) {
         status = "Late";
         variant = "outline";

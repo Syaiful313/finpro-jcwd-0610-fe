@@ -103,7 +103,7 @@ const data = {
       name: "Laporan Kehadiran",
       url: "/admin/attendance-report",
       icon: SettingsIcon,
-      roles: ["OUTLET_ADMIN", "ADMIN"],
+      roles: ["OUTLET_ADMIN"],
     },
   ],
 };
