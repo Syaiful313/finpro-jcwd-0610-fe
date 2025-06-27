@@ -41,6 +41,9 @@ const useFinishBypassProcess = () => {
         queryKey: ["worker-notifications"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["driver-notifications"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["orders"],
       });
       queryClient.invalidateQueries({

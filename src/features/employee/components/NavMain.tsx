@@ -19,6 +19,7 @@ export function NavMain({
     title: string;
     url: string;
     icon?: LucideIcon;
+    exact?: boolean;
   }[];
 }) {
   const pathname = usePathname();
@@ -30,8 +31,18 @@ export function NavMain({
         <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
         <SidebarMenu>
           {items.map((item) => {
-            const isActive = pathname === item.url;
+            let isActive = false;
 
+            if (item.url === "/employee") {
+              isActive = pathname === "/employee";
+            } else if (item.exact) {
+              isActive = pathname === item.url;
+            } else if (item.url === "/employee/orders") {
+              isActive = pathname === "/employee/orders";
+            } else {
+              isActive =
+                pathname === item.url || pathname.startsWith(item.url + "/");
+            }
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton

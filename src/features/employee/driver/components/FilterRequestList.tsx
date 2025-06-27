@@ -57,6 +57,7 @@ const RequestListFilters: React.FC<RequestListFiltersProps> = ({
         <div className="relative flex-1">
           <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
           <Input
+            name="search"
             placeholder="Search by order number or customer name..."
             value={search}
             onChange={handleSearchChange}

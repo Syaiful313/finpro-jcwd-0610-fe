@@ -111,6 +111,7 @@ const DriverHistoryFilters: React.FC<DriverHistoryFiltersProps> = ({
         <div className="relative">
           <Input
             type="date"
+            name="dateFrom"
             value={formatDateForInput(localDateFrom)}
             onChange={(e) =>
               setLocalDateFrom(parseDateFromInput(e.target.value))
@@ -127,6 +128,7 @@ const DriverHistoryFilters: React.FC<DriverHistoryFiltersProps> = ({
         <div className="relative">
           <Input
             type="date"
+            name="dateTo"
             value={formatDateForInput(localDateTo)}
             onChange={(e) => setLocalDateTo(parseDateFromInput(e.target.value))}
             min={getMinDateForEndDate()}

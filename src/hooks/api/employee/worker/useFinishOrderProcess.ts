@@ -32,6 +32,9 @@ const useFinishOrderProcess = () => {
         queryKey: ["worker-notifications"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["driver-notifications"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["orders"],
       });
     },

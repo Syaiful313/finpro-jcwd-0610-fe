@@ -24,16 +24,15 @@ import {
   Phone,
   Truck,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
-import ErrorState from "./ErrorState";
-import MapModal from "./MapModal";
-import RequestListFilters from "./FilterRequestList";
-import Image from "next/image";
 import Loader from "../../components/Loader";
+import ErrorState from "./ErrorState";
+import RequestListFilters from "./FilterRequestList";
+import MapModal from "./MapModal";
 
 export default function RequestList() {
   const [search] = useQueryState("search", { defaultValue: "" });
@@ -41,7 +40,6 @@ export default function RequestList() {
   const [activeTab] = useQueryState("tab", { defaultValue: "All" });
   const [sortOrder] = useQueryState("sortOrder", { defaultValue: "desc" });
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [showMap, setShowMap] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const [claimingRequestId, setClaimingRequestId] = useState<number | null>(
     null,
@@ -92,7 +90,8 @@ export default function RequestList() {
       }
       toast.success(`Successfully claimed ${jobType} request`);
     } catch (error) {
-      toast.error(`Failed to claim ${jobType} request. Please try again.`);
+    } finally {
+      setClaimingRequestId(null);
     }
   };
 
