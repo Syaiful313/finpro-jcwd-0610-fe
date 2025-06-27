@@ -91,7 +91,7 @@ export default function RequestList() {
       toast.success(`Successfully claimed ${jobType} request`);
     } catch (error) {
     } finally {
-      setClaimingRequestId(null); // Reset loading state
+      setClaimingRequestId(null);
     }
   };
 
