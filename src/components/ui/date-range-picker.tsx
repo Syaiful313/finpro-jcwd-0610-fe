@@ -47,9 +47,7 @@ function CustomCalendar({
     days.push(date);
   }
 
-  const handleDateClick = (date: Date) => {
-    console.log("Date clicked:", date, "Current selected:", selected);
-    
+  const handleDateClick = (date: Date) => {    
     if (!selected?.from) {
       onSelect({ from: date, to: undefined });
     } else if (selected.from && !selected.to) {
@@ -188,7 +186,6 @@ export function DatePickerWithRange({
   const [currentMonth, setCurrentMonth] = React.useState(date?.from || new Date());
 
   const handleDateSelect = (selectedDate: DateRange | undefined) => {
-    console.log("handleDateSelect called with:", selectedDate);
     onDateChange(selectedDate);
     
     if (selectedDate?.from && selectedDate?.to) {
