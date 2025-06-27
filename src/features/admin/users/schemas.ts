@@ -46,7 +46,7 @@ export const createUserValidationSchema = ({
             function (value) {
               if (!value || value.trim() === "") return true;
               return (
-                /[A-Z]/.test(value) && 
+                /[A-Z]/.test(value) &&
                 /\d/.test(value) &&
                 /[!@#$%^&*(),.?":{}|<>]/.test(value) &&
                 value.length >= 8
@@ -73,16 +73,30 @@ export const createUserValidationSchema = ({
 
     outletId: Yup.string().when("role", {
       is: (role: string) => ["OUTLET_ADMIN", "WORKER", "DRIVER"].includes(role),
-      then: (schema) => schema.required("Outlet wajib dipilih untuk role ini"),
+      then: (schema) =>
+        isEditMode
+          ? schema.optional() // ✅ Optional di edit mode
+          : schema.required("Outlet wajib dipilih untuk role ini"),
       otherwise: (schema) => schema.optional(),
     }),
 
     npwp: Yup.string().when("role", {
       is: (role: string) => ["OUTLET_ADMIN", "WORKER", "DRIVER"].includes(role),
       then: (schema) =>
-        schema
-          .required("NPWP wajib diisi untuk role ini")
-          .matches(/^[0-9]{15}$/, "NPWP harus berupa 15 digit angka"),
+        isEditMode
+          ? schema
+              .optional() // ✅ Optional di edit mode
+              .test(
+                "npwp-format",
+                "NPWP harus berupa 15 digit angka",
+                function (value) {
+                  if (!value || value.trim() === "") return true; // Allow empty
+                  return /^[0-9]{15}$/.test(value);
+                },
+              )
+          : schema
+              .required("NPWP wajib diisi untuk role ini")
+              .matches(/^[0-9]{15}$/, "NPWP harus berupa 15 digit angka"),
       otherwise: (schema) => schema.optional(),
     }),
   });

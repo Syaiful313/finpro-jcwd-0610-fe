@@ -33,9 +33,6 @@ const useRequestBypass = () => {
     onError: (error: AxiosError<any>) => {
       toast.error(error.response?.data.message);
     },
-    onError: (error: AxiosError<any>) => {
-      toast.error(error.response?.data.message);
-    },
   });
 };
 export default useRequestBypass;

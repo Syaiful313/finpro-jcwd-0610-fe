@@ -819,7 +819,7 @@ export function LaundryItemManagementTable() {
           <div className="mx-1 hidden justify-center rounded-2xl border-t px-4 py-6 sm:mx-0 sm:flex">
             <PaginationSection
               page={laundryItemsData.meta.page}
-              take={laundryItemsData.meta.take}
+              take={PAGE_SIZE}
               total={laundryItemsData.meta.total}
               hasNext={
                 laundryItemsData.meta.page * laundryItemsData.meta.take <
@@ -835,7 +835,7 @@ export function LaundryItemManagementTable() {
           <div className="flex justify-center rounded-2xl border-t p-3 sm:hidden">
             <PaginationSection
               page={laundryItemsData.meta.page}
-              take={laundryItemsData.meta.take}
+              take={PAGE_SIZE}
               total={laundryItemsData.meta.total}
               hasNext={
                 laundryItemsData.meta.page * laundryItemsData.meta.take <
