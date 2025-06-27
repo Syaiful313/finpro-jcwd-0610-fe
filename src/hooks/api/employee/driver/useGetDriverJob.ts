@@ -30,7 +30,7 @@ const useGetDriverJobs = (
     queryKey: ["driverJobs", queries],
     queryFn: async () => {
       const { data } = await axiosInstance.get<PageableResponse<ActiveJobs>>(
-        `/driver`,
+        `/drivers`,
         { params: queries },
       );
       return data;

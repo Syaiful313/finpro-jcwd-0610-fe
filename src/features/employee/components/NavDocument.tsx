@@ -28,7 +28,8 @@ export function NavDocuments({
       <SidebarGroupLabel>Report</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          const isActive = pathname === item.url;
+          const isActive =
+            pathname === item.url || pathname.startsWith(item.url + "/");
 
           return (
             <SidebarMenuItem key={item.name}>

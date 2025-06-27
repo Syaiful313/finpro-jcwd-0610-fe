@@ -1,11 +1,10 @@
 "use client";
 
-import { Box, Loader2, MapPin, TruckIcon } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import useGetDriverJobs from "@/hooks/api/employee/driver/useGetDriverJob";
+import { Box, MapPin, TruckIcon } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Loader from "../../components/Loader";
 
 interface ActiveJobsProps {
