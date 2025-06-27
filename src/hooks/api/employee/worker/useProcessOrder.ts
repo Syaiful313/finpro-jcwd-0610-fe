@@ -15,7 +15,8 @@ import {
   workerConfigs,
   WorkerType,
 } from "@/utils/OrderConfig";
-import { AxiosError } from "axios";
+import { Axios, AxiosError } from "axios";
+
 
 interface UseProcessOrderLogicProps {
   uuid: string;

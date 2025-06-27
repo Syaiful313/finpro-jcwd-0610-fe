@@ -41,19 +41,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.provider === "google") {
         try {
           const response = await axiosInstance.post("/auth/google", {
-            token: account.access_token,
             tokenId: account.id_token,
           });
+
           if (response.data) {
             profile!.backendData = response.data;
             return true;
           }
         } catch (error) {
           console.error("Google login failed:", error);
+          return false;
         }
       }
       return true;
     },
+
     async jwt({ token, user, account, profile }) {
       if (account?.provider === "google") {
         token.accessToken = account.access_token;
@@ -64,13 +66,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) token.user = user;
       return token;
     },
+
     async session({ session, token }: any) {
-      if (token) {
-        session.accessToken = token.accessToken;
-        session.user = token.backendData?.user || token.user;
-        session.backendToken = token.backendData?.token;
+      if (token?.backendData) {
+        const { accessToken, ...userData } = token.backendData;
+        session.user = userData;
+        session.backendToken = accessToken;
+      } else if (token?.user?.accessToken) {
+        const { accessToken, ...userData } = token.user;
+        session.user = userData;
+        session.backendToken = accessToken;
+      } else if (token?.user) {
+        session.user = token.user;
       }
+
+      if (token?.accessToken) {
+        session.accessToken = token.accessToken;
+      }
+
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url === baseUrl || url === `${baseUrl}/`) {
+        return `${baseUrl}/user/profile`;
+      }
+
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+      if (new URL(url).origin === baseUrl) return url;
+
+      return baseUrl;
     },
   },
   debug: true,

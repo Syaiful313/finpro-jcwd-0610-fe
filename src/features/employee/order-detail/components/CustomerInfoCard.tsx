@@ -76,6 +76,7 @@ export default function CustomerInfoCard({
               <span>{formatDate(getScheduledTime())}</span>
             </div>
             <Badge variant="outline">{jobData.type.toUpperCase()}</Badge>
+
           </div>
 
           {jobData.type === "pickup" && (
