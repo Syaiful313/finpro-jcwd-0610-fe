@@ -69,12 +69,20 @@ export default function CustomerInfoCard({
             {addressInfo.postalCode}
           </p>
         </div>
-        <div className="flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4 text-gray-500" />
-            <span>{formatDate(getScheduledTime())}</span>
+        <div className="// Default: tumpuk ke bawah (mobile), md ke atas: jejer ke samping (desktop) // Default: rata kiri, md ke atas: di tengah (vertikal) // Jarak antar item (kecil di mobile, lebih besar di desktop) flex flex-col items-start gap-2 text-sm md:flex-row md:items-center md:gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4 text-gray-500" />
+              <span>{formatDate(getScheduledTime())}</span>
+            </div>
+            <Badge variant="outline">{jobData.type.toUpperCase()}</Badge>
           </div>
-          <Badge variant="outline">{jobData.type.toUpperCase()}</Badge>
+
+          {jobData.type === "pickup" && (
+            <p className="text-gray-600">
+              It is recommended to start heading for pickup 30 minutes early.
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>

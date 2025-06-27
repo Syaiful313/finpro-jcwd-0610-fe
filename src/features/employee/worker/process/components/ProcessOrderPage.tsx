@@ -1,18 +1,18 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import Loader from "@/features/employee/components/Loader";
+import useProcessOrderLogic from "@/hooks/api/employee/worker/useProcessOrder";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import useProcessOrderLogic from "@/hooks/api/employee/worker/useProcessOrder";
+import BypassAlert from "./BypassAlert";
+import BypassRequestModal from "./BypassReqModal";
+import ItemVerificationCard from "./ItemVerificationCard";
+import OriginalOrderItems from "./OriginalOrderItem";
+import ProcessingCard from "./ProcessingCard";
 import ProcessOrderHeader from "./ProcessOrderHeader";
 import ProgressSteps from "./ProgressStep";
-import BypassAlert from "./BypassAlert";
-import OriginalOrderItems from "./OriginalOrderItem";
-import ItemVerificationCard from "./ItemVerificationCard";
-import ProcessingCard from "./ProcessingCard";
-import BypassRequestModal from "./BypassReqModal";
-import Loader from "@/features/employee/components/Loader";
 
 interface ProcessOrderProps {
   uuid: string;
@@ -101,7 +101,8 @@ export default function ProcessOrderDetailPage({ uuid }: ProcessOrderProps) {
             handleStartProcess={handleStartProcess}
             isDisabled={isVerificationSectionDisabled}
             isPending={isStartProcessPending}
-            isCompleted={isVerificationCompleted ?? false}
+            isCompleted={isVerificationCompleted}
+            currentStep={currentStep}
             bypassStatus={currentBypassRequest?.bypassStatus}
           />
 
@@ -113,7 +114,10 @@ export default function ProcessOrderDetailPage({ uuid }: ProcessOrderProps) {
             isDisabled={isProcessingSectionDisabled}
             isPending={isCompletionInProgress}
             isCompleted={isProcessingCompleted}
+            currentStep={currentStep}
+            isVerificationCompleted={isVerificationCompleted}
             paymentStatus={orderData.paymentStatus}
+            bypassStatus={currentBypassRequest?.bypassStatus}
           />
         </div>
       </Card>

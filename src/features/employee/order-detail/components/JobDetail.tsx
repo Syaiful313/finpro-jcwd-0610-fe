@@ -99,7 +99,7 @@ export default function JobDetailsTry({ jobData }: DriverOrderDetailPageProps) {
         setIsCompleteDialogOpen(false);
         formik.resetForm();
       } catch (error) {
-        console.error("Error completing task:", error);
+        console.error("Error completing job:", error);
       }
     },
   });

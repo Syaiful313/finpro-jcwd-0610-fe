@@ -1,4 +1,4 @@
-import { BypassRequest } from "./bypass";
+import { BypassResponse } from "./bypassResponse";
 import { Employee } from "./employee";
 import { OrderStatus, PaymentStatus, WorkerTypes } from "./enum";
 import { Order } from "./order";
@@ -41,7 +41,7 @@ export interface OrderWorkProcess {
   orderId: string;
   order: Order;
   bypassId?: number | null;
-  bypass?: BypassRequest | null;
+  bypass?: BypassResponse | null;
   workerType: WorkerTypes;
   notes?: string | null;
   completedAt?: string | null;

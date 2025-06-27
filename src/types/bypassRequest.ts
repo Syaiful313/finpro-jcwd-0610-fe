@@ -1,3 +1,4 @@
+import { BypassProcess } from "./bypassResponse";
 import { BypassStatus } from "./enum";
 
 export interface BypassRequest {
@@ -6,6 +7,7 @@ export interface BypassRequest {
   reason: string;
   adminNote?: string;
   bypassStatus: BypassStatus;
+  bypassProcess: BypassProcess;
   createdAt: Date;
   updatedAt: Date;
 }

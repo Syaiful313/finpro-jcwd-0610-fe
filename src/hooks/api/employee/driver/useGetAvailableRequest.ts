@@ -24,8 +24,6 @@ const useGetAvailableRequest = (queries?: GetAvailableRequestProps) => {
       );
       return data;
     },
-    staleTime: 12 * 60 * 60 * 1000,
-    gcTime: 13 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,

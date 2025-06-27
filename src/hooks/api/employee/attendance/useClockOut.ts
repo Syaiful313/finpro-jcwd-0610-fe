@@ -9,7 +9,7 @@ const useClockOut = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const { data } = await axiosInstance.post("/attendance/clock-Out");
+      const { data } = await axiosInstance.post("/attendances/clock-Out");
       return data;
     },
     onSuccess: () => {

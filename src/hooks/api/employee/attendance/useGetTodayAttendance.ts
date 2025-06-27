@@ -1,11 +1,12 @@
-import { axiosInstance } from "@/lib/axios";
+import useAxios from "@/hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 
 const useGetTodayAttendance = () => {
+  const axiosInstance = useAxios();
   return useQuery({
     queryKey: ["attendanceToday"],
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/attendance/today");
+      const { data } = await axiosInstance.get("/attendances/today");
       return data;
     },
     staleTime: 12 * 60 * 60 * 1000,

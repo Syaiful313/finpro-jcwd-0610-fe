@@ -9,8 +9,15 @@ export interface BypassResponse {
   reason: string;
   adminNote: string | null;
   bypassStatus: BypassStatus;
+  bypassProcess: BypassProcess;
   createdAt: string;
   updatedAt: string;
   approvedByEmployee: Employee | null;
   orderWorkProcesses: OrderWorkProcess[];
+}
+
+export enum BypassProcess {
+  IN_PROGRESS = "IN_PROGRESS",
+  RE_VERIFY = "RE_VERIFY",
+  COMPLETED = "COMPLETED",
 }

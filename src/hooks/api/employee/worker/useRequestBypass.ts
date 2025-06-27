@@ -26,6 +26,9 @@ const useRequestBypass = () => {
       queryClient.invalidateQueries({
         queryKey: ["orders"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["bypass-requests"],
+      });
     },
     onError: (error: AxiosError<any>) => {
       toast.error(error.response?.data.message);

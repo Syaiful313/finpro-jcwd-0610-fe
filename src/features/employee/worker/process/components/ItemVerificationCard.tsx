@@ -1,16 +1,17 @@
 "use client";
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -18,9 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle } from "lucide-react";
 import type { VerificationItem } from "@/hooks/api/employee/worker/useProcessOrder";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 
 interface ItemVerificationCardProps {
   orderData: any;
@@ -34,7 +34,8 @@ interface ItemVerificationCardProps {
   handleStartProcess: () => void;
   isDisabled: boolean;
   isPending: boolean;
-  isCompleted: boolean;
+  isCompleted?: boolean;
+  currentStep: string;
   bypassStatus?: "PENDING" | "REJECTED" | "APPROVED";
 }
 
@@ -48,7 +49,9 @@ export default function ItemVerificationCard({
   isPending,
   isCompleted,
   bypassStatus,
+  currentStep,
 }: ItemVerificationCardProps) {
+  const isFormDisabled = isCompleted && bypassStatus !== "REJECTED";
   const renderStatusIcon = () => {
     return isCompleted ? (
       <CheckCircle className="h-5 w-5 text-green-500" />
@@ -85,7 +88,7 @@ export default function ItemVerificationCard({
         <Badge
           key="rejected"
           variant="outline"
-          className="ml-2 border-red-300 bg-red-100 text-red-700"
+          className="ml-2 border-red-300 bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-500"
         >
           Bypass Rejected
         </Badge>,
@@ -93,6 +96,22 @@ export default function ItemVerificationCard({
     }
 
     return badges;
+  };
+
+  const getDescription = () => {
+    if (bypassStatus === "REJECTED") {
+      return "Bypass request was rejected. Please re-verify the items.";
+    }
+    if (isCompleted) {
+      return "Items have been verified.";
+    }
+    return "Please verify all items before proceeding.";
+  };
+
+  const getButtonText = () => {
+    if (isPending) return "Processing...";
+    if (currentStep === "bypass_rejected") return "Re-verify Items";
+    return "Verify Items";
   };
 
   return (
@@ -104,11 +123,7 @@ export default function ItemVerificationCard({
           {renderStatusBadges()}
         </CardTitle>
 
-        <CardDescription>
-          {isCompleted
-            ? "Items have been verified."
-            : "Please verify all items before proceeding."}
-        </CardDescription>
+        <CardDescription>{getDescription()}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -124,7 +139,7 @@ export default function ItemVerificationCard({
                 onValueChange={(value) =>
                   updateVerificationItem(index, "type", value)
                 }
-                disabled={isCompleted}
+                disabled={isFormDisabled}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select type" />
@@ -151,7 +166,7 @@ export default function ItemVerificationCard({
                   updateVerificationItem(index, "quantity", e.target.value)
                 }
                 placeholder="0"
-                disabled={isCompleted}
+                disabled={isFormDisabled}
               />
             </div>
           </div>
@@ -162,7 +177,7 @@ export default function ItemVerificationCard({
             variant="outline"
             onClick={addVerificationItem}
             className="flex-1"
-            disabled={isDisabled}
+            disabled={isDisabled || isFormDisabled}
           >
             Add Item
           </Button>
@@ -172,7 +187,7 @@ export default function ItemVerificationCard({
             className="flex-1"
             disabled={isDisabled || isPending}
           >
-            {isPending ? "Processing..." : "Verify Items"}
+            {getButtonText()}
           </Button>
         </div>
 
@@ -181,6 +196,15 @@ export default function ItemVerificationCard({
             <CheckCircle className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-700 dark:text-green-500">
               Items have been successfully verified.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {bypassStatus === "REJECTED" && !isCompleted && (
+          <Alert className="border-red-600 bg-red-50 dark:border-red-800 dark:bg-red-900/30">
+            <AlertTriangle className="h-4 w-4 text-red-500" />
+            <AlertDescription className="text-red-700 dark:text-red-500">
+              Bypass request was rejected. Please verify the items again.
             </AlertDescription>
           </Alert>
         )}

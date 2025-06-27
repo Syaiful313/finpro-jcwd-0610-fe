@@ -10,7 +10,7 @@ const useMarkAsRead = () => {
   return useMutation({
     mutationFn: async (notificationId: number) => {
       const { data } = await axiosInstance.post(
-        `/notification/read/${notificationId}`,
+        `/notifications/read/${notificationId}`,
       );
       return data;
     },

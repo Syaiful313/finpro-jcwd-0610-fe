@@ -10,7 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle, CreditCard, LucideIcon } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  CreditCard,
+  LucideIcon,
+} from "lucide-react";
 import { PaymentStatus } from "@/types/enum";
 
 interface ProcessingCardProps {
@@ -26,6 +31,9 @@ interface ProcessingCardProps {
   isPending: boolean;
   isCompleted: boolean;
   paymentStatus: PaymentStatus;
+  currentStep?: string;
+  isVerificationCompleted?: boolean;
+  bypassStatus?: "PENDING" | "REJECTED" | "APPROVED";
 }
 
 export default function ProcessingCard({
@@ -37,8 +45,23 @@ export default function ProcessingCard({
   isPending,
   isCompleted,
   paymentStatus,
+  bypassStatus,
+  currentStep,
+  isVerificationCompleted,
 }: ProcessingCardProps) {
   const IconComponent = currentConfig.icon;
+  const getButtonText = () => {
+    if (isPending) return "Completing...";
+    if (isCompleted && currentStep !== "bypass_rejected")
+      return "Process Completed";
+    if (currentStep === "bypass_rejected")
+      return `Re-complete ${currentConfig.title}`;
+    return `Complete ${currentConfig.title}`;
+  };
+  const buttonDisabledProcessing =
+    isPending ||
+    (isDisabled && bypassStatus !== "REJECTED") ||
+    (isCompleted && bypassStatus !== "REJECTED");
 
   return (
     <Card>
@@ -96,23 +119,22 @@ export default function ProcessingCard({
         <Button
           onClick={onComplete}
           className="w-full"
-          disabled={isDisabled || isCompleted || isPending}
+          disabled={isDisabled || isPending}
         >
-          {isCompleted
-            ? "Process Completed"
-            : isPending
-              ? "Completing..."
-              : `Complete ${currentConfig.title}`}
+          {getButtonText()}
         </Button>
 
-        {isCompleted && (
-          <Alert className="border-green-500 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            <AlertDescription className="text-green-700">
-              {currentConfig.title} process has been successfully completed.
-            </AlertDescription>
-          </Alert>
-        )}
+        <CardDescription>
+          {isCompleted && currentStep !== "bypass_rejected"
+            ? `${currentConfig.title} process has been completed.`
+            : currentStep === "bypass_rejected" && !isVerificationCompleted
+              ? `Please re-verify items first before completing ${currentConfig.title.toLowerCase()}.`
+              : currentStep === "bypass_rejected" && isVerificationCompleted
+                ? `Re-complete the ${currentConfig.title.toLowerCase()} process.`
+                : isDisabled
+                  ? `Waiting for item verification to complete first.`
+                  : `Complete the ${currentConfig.title.toLowerCase()} process.`}
+        </CardDescription>
       </CardContent>
     </Card>
   );

@@ -18,10 +18,9 @@ const useGetDriverNotifications = (
     enabled: options.enabled !== undefined ? options.enabled : true,
 
     queryFn: async () => {
-      const { data } =
-        await axiosInstance.get<PageableResponse<NotificationResponse>>(
-          `/notification/driver`,
-        );
+      const { data } = await axiosInstance.get<
+        PageableResponse<NotificationResponse>
+      >(`/notifications/driver`);
       return data;
     },
     refetchOnWindowFocus: false,
