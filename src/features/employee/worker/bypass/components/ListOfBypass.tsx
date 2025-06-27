@@ -175,7 +175,9 @@ const ListOfBypass = () => {
                       }
 
                       const isButtonDisabled =
-                        request.bypassStatus !== "APPROVED" || !isActionable;
+                        (request.bypassStatus !== "APPROVED" &&
+                          request.bypassStatus !== "REJECTED") ||
+                        !isActionable;
 
                       return (
                         <Card
@@ -254,7 +256,7 @@ const ListOfBypass = () => {
                               {request.bypassStatus === "REJECTED" && (
                                 <p className="flex items-center justify-center gap-1 text-xs text-red-600">
                                   <Info className="h-3 w-3" />
-                                  This request has been rejected
+                                  Rejected, please reverify the items.
                                 </p>
                               )}
                               {request.bypassStatus === "APPROVED" && (

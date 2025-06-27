@@ -35,6 +35,12 @@ const useRejectBypassRequest = () => {
       await queryClient.invalidateQueries({
         queryKey: ["bypass-requests", "stats"],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["ListOfBypass"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["WorkerOrderDetails"],
+      });
     },
     onError: (error: AxiosError<any>) => {
       toast.error(

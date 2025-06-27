@@ -17,10 +17,9 @@ const useGetWorkerNotification = (
     queryKey: ["worker-notifications"],
     enabled: options.enabled !== undefined ? options.enabled : true,
     queryFn: async () => {
-      const { data } =
-        await axiosInstance.get<PageableResponse<NotificationResponse>>(
-          `/notification/worker`,
-        );
+      const { data } = await axiosInstance.get<
+        PageableResponse<NotificationResponse>
+      >(`/notifications/worker`);
       return data;
     },
 

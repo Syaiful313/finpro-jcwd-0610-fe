@@ -17,6 +17,7 @@ import {
 } from "@/utils/OrderConfig";
 import { Axios, AxiosError } from "axios";
 
+
 interface UseProcessOrderLogicProps {
   uuid: string;
 }
@@ -37,6 +38,7 @@ export default function useProcessOrderLogic({
   const workerType: WorkerType = isValidWorkerType(urlWorkerType)
     ? urlWorkerType
     : "washing";
+  const [hasReverified, setHasReverified] = useState(false);
 
   const [bypassRequest, setBypassRequest] = useState({ reason: "" });
   const [showBypassModal, setShowBypassModal] = useState(false);
@@ -57,31 +59,52 @@ export default function useProcessOrderLogic({
   const requestBypassMutation = useRequestBypass();
   const finishBypassOrderMutation = useFinishBypassProcess();
 
-  const currentBypassRequest = useMemo(
-    () =>
-      orderData?.orderWorkProcess.find(
-        (p) =>
-          p.workerType.toLowerCase() === workerType.toLowerCase() && p.bypassId,
-      )?.bypass,
-    [orderData, workerType],
-  );
+  const currentBypassRequest = useMemo(() => {
+    if (!orderData?.orderWorkProcess) return null;
 
-  const isVerificationCompleted = useMemo(
-    () =>
-      orderData?.orderWorkProcess.some(
-        (p) => p.workerType.toLowerCase() === workerType.toLowerCase(),
-      ),
-    [orderData, workerType],
-  );
+    const workProcess = orderData.orderWorkProcess.find(
+      (p) =>
+        p.workerType.toLowerCase() === workerType.toLowerCase() &&
+        p.bypassId &&
+        !p.completedAt,
+    );
 
-  const isProcessingCompleted = useMemo(() => {
+    return workProcess?.bypass || null;
+  }, [orderData, workerType]);
+
+  const isVerificationCompleted = useMemo(() => {
     if (!orderData?.orderWorkProcess) return false;
-    if (currentBypassRequest?.bypassStatus === "APPROVED") return false;
+
     const currentWorkerProcess = orderData.orderWorkProcess.find(
       (p) => p.workerType.toLowerCase() === workerType.toLowerCase(),
     );
-    return currentWorkerProcess?.completedAt != null;
+
+    if (
+      currentBypassRequest?.bypassStatus === "REJECTED" &&
+      currentBypassRequest?.bypassProcess === "IN_PROGRESS"
+    ) {
+      return false;
+    }
+
+    if (
+      currentBypassRequest?.bypassStatus === "REJECTED" &&
+      currentBypassRequest?.bypassProcess === "RE_VERIFY"
+    ) {
+      return true;
+    }
+
+    return currentWorkerProcess && !currentWorkerProcess.completedAt;
   }, [orderData, workerType, currentBypassRequest]);
+
+  const isProcessingCompleted = useMemo(() => {
+    if (!orderData?.orderWorkProcess) return false;
+
+    const currentWorkerProcess = orderData.orderWorkProcess.find(
+      (p) => p.workerType.toLowerCase() === workerType.toLowerCase(),
+    );
+
+    return currentWorkerProcess?.completedAt != null;
+  }, [orderData, workerType]);
 
   useEffect(() => {
     if (orderData?.orderItems && !isInitialized) {
@@ -101,15 +124,33 @@ export default function useProcessOrderLogic({
     const currentWorkerProcess = orderData.orderWorkProcess.find(
       (p) => p.workerType.toLowerCase() === workerType.toLowerCase(),
     );
-    if (currentBypassRequest) {
-      if (currentBypassRequest.bypassStatus === "PENDING")
-        return "bypass_pending";
-      if (currentBypassRequest.bypassStatus === "REJECTED")
-        return "bypass_rejected";
-      if (currentBypassRequest.bypassStatus === "APPROVED") return "process";
-    }
+
     if (currentWorkerProcess?.completedAt) return "completed";
-    if (currentWorkerProcess) return "process";
+
+    if (currentBypassRequest) {
+      switch (currentBypassRequest.bypassStatus) {
+        case "PENDING":
+          return "bypass_pending";
+        case "REJECTED":
+          switch (currentBypassRequest.bypassProcess) {
+            case "IN_PROGRESS":
+              return "bypass_rejected";
+            case "RE_VERIFY":
+              return "process";
+            case "COMPLETED":
+              return "completed";
+            default:
+              return "bypass_rejected";
+          }
+        case "APPROVED":
+          return "process";
+      }
+    }
+
+    if (currentWorkerProcess && !currentWorkerProcess.completedAt) {
+      return "process";
+    }
+
     return "verify";
   };
 
@@ -118,6 +159,7 @@ export default function useProcessOrderLogic({
 
   const addVerificationItem = () =>
     setVerificationItems([...verificationItems, { type: "", quantity: "" }]);
+
   const updateVerificationItem = (
     index: number,
     field: keyof VerificationItem,
@@ -138,12 +180,17 @@ export default function useProcessOrderLogic({
           )?.laundryItem.id || 0,
         quantity: parseInt(item.quantity),
       }));
-
+    const isReVerification = currentStep === "bypass_rejected";
     startOrderProcessMutation.mutate(
       { orderId: uuid, items: itemsData },
       {
         onSuccess: () => {
-          toast.success("Order process started successfully!");
+          if (isReVerification) {
+            setHasReverified(true);
+            toast.success("Items re-verified successfully!");
+          } else {
+            toast.success("Order process started successfully!");
+          }
           queryClient.invalidateQueries({
             queryKey: ["WorkerOrderDetails", uuid],
           });
@@ -152,10 +199,7 @@ export default function useProcessOrderLogic({
           const message =
             err?.response?.data?.message || "Failed to start process.";
           if (message.includes("do not match") || message.includes("bypass")) {
-            toast.error("Item quantities do not match original order.");
             setShowBypassModal(true);
-          } else {
-            toast.error(message);
           }
         },
       },
@@ -182,9 +226,9 @@ export default function useProcessOrderLogic({
             exact: false,
           });
         },
-        onError: (errror: AxiosError<any>) =>
+        onError: (error: AxiosError<any>) =>
           toast.error(
-            errror?.response?.data?.message ||
+            error?.response?.data?.message ||
               "Failed to submit bypass request.",
           ),
       },
@@ -220,9 +264,9 @@ export default function useProcessOrderLogic({
               `/employee/orders/complete/${uuid}?station=${workerType}`,
             );
           },
-          onError: (errror: AxiosError<any>) =>
+          onError: (error: AxiosError<any>) =>
             toast.error(
-              errror?.response?.data?.message ||
+              error?.response?.data?.message ||
                 "Failed to Complete order bypass.",
             ),
         },
@@ -237,9 +281,9 @@ export default function useProcessOrderLogic({
               `/employee/orders/complete/${uuid}?station=${workerType}`,
             );
           },
-          onError: (errror: AxiosError<any>) =>
+          onError: (error: AxiosError<any>) =>
             toast.error(
-              errror?.response?.data?.message || "Failed to Complete order .",
+              error?.response?.data?.message || "Failed to Complete order.",
             ),
         },
       );
@@ -248,9 +292,14 @@ export default function useProcessOrderLogic({
 
   const isCompletionInProgress =
     finishOrderProcessMutation.isPending || finishBypassOrderMutation.isPending;
-  const isVerificationSectionDisabled = currentStep !== "verify";
-  const isProcessingSectionDisabled =
-    currentStep !== "process" || isProcessingCompleted;
+
+  const isVerificationSectionDisabled = !(
+    currentStep === "verify" || currentStep === "bypass_rejected"
+  );
+
+  const isProcessingSectionDisabled = !(
+    currentStep === "process" && !isProcessingCompleted
+  );
 
   return {
     isLoading,

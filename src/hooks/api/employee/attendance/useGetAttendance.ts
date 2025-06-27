@@ -17,7 +17,7 @@ const useGetAttendance = (queries?: GetAttendanceProps) => {
     queryKey: ["attendance", queries],
     queryFn: async () => {
       const { data } = await axiosInstance.get<PageableResponse<Attendance>>(
-        "/attendance",
+        "/attendances",
         { params: queries },
       );
       return data;

@@ -9,7 +9,7 @@ const useMarkAllAsRead = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const { data } = await axiosInstance.post(`/notification/read-all`);
+      const { data } = await axiosInstance.post(`/notifications/read-all`);
       return data;
     },
     onSuccess: () => {

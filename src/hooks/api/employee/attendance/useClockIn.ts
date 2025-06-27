@@ -8,7 +8,7 @@ const useClockIn = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const { data } = await axiosInstance.post("/attendance/clock-in");
+      const { data } = await axiosInstance.post("/attendances/clock-in");
       return data;
     },
     onSuccess: () => {
