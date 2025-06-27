@@ -69,6 +69,26 @@ export default function EditUserModal({
     });
   }, []);
 
+  const getInitialOutletId = () => {
+    if (user.role === "OUTLET_ADMIN") {
+      return user.outletId?.toString() || "";
+    }
+    if (["WORKER", "DRIVER"].includes(user.role)) {
+      return user.employeeInfo?.outletId?.toString() || "";
+    }
+    return "";
+  };
+
+  const getInitialNpwp = () => {
+    if (user.role === "OUTLET_ADMIN") {
+      return user.employeeInfo?.npwp || "";
+    }
+    if (["WORKER", "DRIVER"].includes(user.role)) {
+      return user.employeeInfo?.npwp || "";
+    }
+    return "";
+  };
+
   const formik = useFormik({
     initialValues: {
       email: user?.email || "",
@@ -80,12 +100,34 @@ export default function EditUserModal({
       provider: user?.provider || "CREDENTIAL",
       isVerified: user?.isVerified || false,
       profile: null as File | null,
-      outletId: user?.outletId?.toString() || "",
-      npwp: user?.employeeInfo?.npwp || "",
+      outletId: getInitialOutletId(),
+      npwp: getInitialNpwp(),
     },
     validationSchema: validationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
+      const requiresEmployeeData = isEmployeeDataRequired(values.role);
+
+      if (requiresEmployeeData) {
+        if (!values.outletId || values.outletId.trim() === "") {
+          formik.setFieldError(
+            "outletId",
+            `Outlet wajib untuk role ${values.role}`,
+          );
+          return;
+        }
+
+        if (!values.npwp || values.npwp.trim() === "") {
+          formik.setFieldError("npwp", `NPWP wajib untuk role ${values.role}`);
+          return;
+        }
+
+        if (!/^[0-9]{15}$/.test(values.npwp)) {
+          formik.setFieldError("npwp", "NPWP harus berupa 15 digit angka");
+          return;
+        }
+      }
+
       if (values.profile) {
         const profileError = validateProfilePicture(
           values.role,
@@ -94,23 +136,6 @@ export default function EditUserModal({
         );
         if (profileError) {
           formik.setFieldError("profile", profileError);
-          return;
-        }
-      }
-
-      const requiresEmployeeData = isEmployeeDataRequired(values.role);
-
-      if (requiresEmployeeData) {
-        if (!values.outletId) {
-          formik.setFieldError(
-            "outletId",
-            `Outlet wajib untuk role ${values.role}`,
-          );
-          return;
-        }
-
-        if (!values.npwp) {
-          formik.setFieldError("npwp", `NPWP wajib untuk role ${values.role}`);
           return;
         }
       }
@@ -150,10 +175,31 @@ export default function EditUserModal({
       }
 
       if (requiresEmployeeData) {
-        if (values.outletId !== user.outletId?.toString()) {
+        let currentOutletId = "";
+        let currentNpwp = "";
+
+        if (user.role === "OUTLET_ADMIN") {
+          currentOutletId = user.outletId?.toString() || "";
+          currentNpwp = user.employeeInfo?.npwp || "";
+        } else if (["WORKER", "DRIVER"].includes(user.role)) {
+          currentOutletId = user.employeeInfo?.outletId?.toString() || "";
+          currentNpwp = user.employeeInfo?.npwp || "";
+        }
+
+        const roleChanged = values.role !== user.role;
+        const currentUserRequiresEmployeeData = isEmployeeDataRequired(
+          user.role,
+        );
+
+        if (values.outletId !== currentOutletId || roleChanged) {
           updateUserPayload.outletId = values.outletId;
         }
-        if (values.npwp !== user.employeeInfo?.npwp) {
+
+        if (
+          values.npwp !== currentNpwp ||
+          roleChanged ||
+          !currentUserRequiresEmployeeData
+        ) {
           updateUserPayload.npwp = values.npwp;
         }
       }
@@ -163,7 +209,7 @@ export default function EditUserModal({
           handleClose();
           onSuccess();
         },
-        onError: (error) => {
+        onError: (error: any) => {
           console.error("Update failed:", error);
         },
       });
@@ -172,10 +218,28 @@ export default function EditUserModal({
 
   useEffect(() => {
     const requiresEmployeeData = isEmployeeDataRequired(formik.values.role);
+
     if (!requiresEmployeeData) {
       formik.setFieldValue("outletId", "");
       formik.setFieldValue("npwp", "");
+    } else {
+      let currentOutletId = "";
+      let currentNpwp = "";
+
+      if (user.role === "OUTLET_ADMIN") {
+        currentOutletId = user.outletId?.toString() || "";
+        currentNpwp = user.employeeInfo?.npwp || "";
+      } else if (["WORKER", "DRIVER"].includes(user.role)) {
+        currentOutletId = user.employeeInfo?.outletId?.toString() || "";
+        currentNpwp = user.employeeInfo?.npwp || "";
+      }
+
+      formik.setFieldValue("outletId", currentOutletId);
+      formik.setFieldValue("npwp", currentNpwp);
     }
+
+    formik.setFieldError("outletId", "");
+    formik.setFieldError("npwp", "");
   }, [formik.values.role]);
 
   useEffect(() => {
@@ -187,6 +251,20 @@ export default function EditUserModal({
 
   const handleClose = () => {
     if (!updateUserMutation.isPending) {
+      const resetOutletId =
+        user.role === "OUTLET_ADMIN"
+          ? user.outletId?.toString() || ""
+          : ["WORKER", "DRIVER"].includes(user.role)
+            ? user.employeeInfo?.outletId?.toString() || ""
+            : "";
+
+      const resetNpwp =
+        user.role === "OUTLET_ADMIN"
+          ? user.employeeInfo?.npwp || ""
+          : ["WORKER", "DRIVER"].includes(user.role)
+            ? user.employeeInfo?.npwp || ""
+            : "";
+
       formik.setValues({
         email: user?.email || "",
         firstName: user?.firstName || "",
@@ -197,8 +275,8 @@ export default function EditUserModal({
         provider: user?.provider || "CREDENTIAL",
         isVerified: user?.isVerified || false,
         profile: null,
-        outletId: user?.outletId?.toString() || "",
-        npwp: user?.employeeInfo?.npwp || "",
+        outletId: resetOutletId,
+        npwp: resetNpwp,
       });
 
       setProfilePreview(user?.profilePic || null);
@@ -440,7 +518,7 @@ export default function EditUserModal({
                 </Select>
                 {formik.touched.outletId && formik.errors.outletId && (
                   <p className="mt-1 text-xs text-red-500">
-                    {formik.errors.outletId}
+                    {String(formik.errors.outletId)}
                   </p>
                 )}
                 <p className="text-muted-foreground text-xs">
