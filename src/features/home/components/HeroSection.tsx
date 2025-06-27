@@ -71,7 +71,7 @@ const HeroSection = () => {
         </div>
 
         <div className="md:w-1/2 flex justify-center md:justify-end mt-8 md:mt-0">
-          <div className="relative w-full max-w-[600px] h-0 pb-[56.25%] overflow-hidden rounded-lg shadow-xl"> {/* 16:9 Aspect Ratio (56.25%) */}
+          <div className="relative w-full max-w-[600px] h-0 pb-[56.25%] overflow-hidden rounded-lg shadow-xl"> 
             <video
               autoPlay
               muted

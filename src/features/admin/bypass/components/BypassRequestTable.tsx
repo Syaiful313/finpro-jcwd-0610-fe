@@ -546,7 +546,6 @@ export function BypassRequestTable() {
   return (
     <>
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
-        {/* Mobile Header */}
         <div className="block sm:hidden">
           <div className="rounded-b-3xl bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg dark:from-orange-600 dark:to-orange-700">
             <div className="px-4 py-14">
@@ -587,7 +586,6 @@ export function BypassRequestTable() {
             </div>
           </div>
 
-          {/* Mobile Filters */}
           <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
             <div className="flex gap-2">
               <DropdownMenu>
@@ -655,7 +653,6 @@ export function BypassRequestTable() {
           </div>
         </div>
 
-        {/* Desktop Header */}
         <div className="hidden sm:block">
           <div className="rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 p-6 text-white shadow-lg dark:from-orange-600 dark:to-orange-700">
             <h1 className="text-2xl font-bold">
@@ -695,7 +692,6 @@ export function BypassRequestTable() {
           </div>
         </div>
 
-        {/* Desktop Filters */}
         <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -787,7 +783,6 @@ export function BypassRequestTable() {
           </div>
         </div>
 
-        {/* Mobile Content */}
         <div className="block sm:hidden">
           {isLoading ? (
             <MobileLoadingSkeleton />
@@ -812,7 +807,6 @@ export function BypassRequestTable() {
           )}
         </div>
 
-        {/* Desktop Table */}
         <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block dark:border-gray-700">
           <div className="overflow-x-auto">
             <Table>
@@ -902,7 +896,6 @@ export function BypassRequestTable() {
           </div>
         </div>
 
-        {/* Desktop Pagination */}
         {bypassData?.meta && (
           <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex dark:border-gray-700 dark:bg-gray-800">
             <PaginationSection
@@ -919,7 +912,6 @@ export function BypassRequestTable() {
           </div>
         )}
 
-        {/* Mobile Pagination */}
         {bypassData?.meta && (
           <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden dark:border-gray-700 dark:bg-gray-800">
             <PaginationSection
@@ -937,7 +929,6 @@ export function BypassRequestTable() {
         )}
       </div>
 
-      {/* Process Modal */}
       {selected.processingRequest && selected.processType && (
         <ProcessBypassModal
           open={modals.showProcess}
@@ -949,7 +940,6 @@ export function BypassRequestTable() {
         />
       )}
 
-      {/* Detail Modal */}
       {selected.viewingRequest && (
         <ViewBypassDetailModal
           open={modals.showDetail}

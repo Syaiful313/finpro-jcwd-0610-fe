@@ -75,7 +75,7 @@ export const createUserValidationSchema = ({
       is: (role: string) => ["OUTLET_ADMIN", "WORKER", "DRIVER"].includes(role),
       then: (schema) =>
         isEditMode
-          ? schema.optional() // ✅ Optional di edit mode
+          ? schema.optional() 
           : schema.required("Outlet wajib dipilih untuk role ini"),
       otherwise: (schema) => schema.optional(),
     }),
@@ -85,12 +85,12 @@ export const createUserValidationSchema = ({
       then: (schema) =>
         isEditMode
           ? schema
-              .optional() // ✅ Optional di edit mode
+              .optional() 
               .test(
                 "npwp-format",
                 "NPWP harus berupa 15 digit angka",
                 function (value) {
-                  if (!value || value.trim() === "") return true; // Allow empty
+                  if (!value || value.trim() === "") return true; 
                   return /^[0-9]{15}$/.test(value);
                 },
               )

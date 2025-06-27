@@ -55,7 +55,7 @@ export const Navbar = () => {
                 <div className="flex items-center space-x-4">
                   <ProfileImage user={session.user} />
                   <Button
-                    onClick={() => signOut({ callbackUrl: window.location.origin })}
+                    onClick={() => signOut({ callbackUrl: '/' })}
                     size="sm"
                     className={cn(isScrolled && 'lg:hidden', 'rounded-full', 'hover:cursor-pointer')}
                     variant="outline">

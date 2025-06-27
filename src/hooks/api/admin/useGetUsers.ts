@@ -21,9 +21,9 @@ interface User {
   employeeInfo?: {
     id: number;
     npwp: string;
-    outletId: number;  // ✅ ADD THIS
+    outletId: number;  
     createdAt: string;
-    outlet?: {         // ✅ ADD THIS (optional)
+    outlet?: {         
       id: number;
       outletName: string;
       address: string;

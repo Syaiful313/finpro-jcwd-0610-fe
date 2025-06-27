@@ -88,9 +88,13 @@ const OrderList: FC<OrderListProps> = ({ userId }) => {
         ))}
       </div>
 
-      {isLoading || filteredOrders.length === 0 ? (
+      {isLoading ? (
         <div className="flex justify-center items-center py-10">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center text-lg text-gray-400 py-10">
+          No orders
         </div>
       ) : (
         <ul className="space-y-4">

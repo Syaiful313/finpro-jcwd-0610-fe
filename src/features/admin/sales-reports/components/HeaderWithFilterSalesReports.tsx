@@ -44,8 +44,6 @@ export function HeaderWithFilterSalesReports() {
   });
 
   const handleDateRangeChange = (dateRange: DateRange | undefined) => {
-    console.log("Date range changed:", dateRange);
-
     if (dateRange?.from && dateRange?.to) {
       setFilters({
         startDate: format(dateRange.from, "yyyy-MM-dd"),

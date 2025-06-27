@@ -13,7 +13,7 @@ const useCreatePaymentLink = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: useCreatePaymentLinkPayload) => {
-      const { data } = await axiosInstance.post(`/payment`, payload);
+      const { data } = await axiosInstance.post(`/payments`, payload);
       return data;
     },
     onSuccess: async (data) => {

@@ -1,6 +1,5 @@
 import useAxios from "@/hooks/useAxios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 
 const useMarkAllNotif = () => {
@@ -8,7 +7,7 @@ const useMarkAllNotif = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const { data } = await axiosInstance.post(`/notification/read-all`);
+      const { data } = await axiosInstance.post(`/notifications/read-all`);
       return data;
     },
     onSuccess: async () => {

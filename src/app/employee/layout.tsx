@@ -42,7 +42,6 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
 
   return (
     <BreadcrumbProvider>
-      {/* desktop */}
       <div className="hidden md:block">
         <SidebarProvider>
           <EmployeeSidebar role="WORKER" variant="inset" />
@@ -59,7 +58,6 @@ export default function EmployeeLayout({ children }: WorkerLayoutProps) {
         </SidebarProvider>
       </div>
 
-      {/* mobile */}
       <div className="block md:hidden">
         <main
           className={`min-h-screen ${shouldShowBottomNav ? "pb-20" : "pb-0"}`}

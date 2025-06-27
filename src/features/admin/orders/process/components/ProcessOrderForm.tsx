@@ -185,7 +185,6 @@ export function ProcessOrderForm({
   const handleSubmit = useCallback(
     async (values: FormValues) => {
       if (isSubmittingRef.current || isProcessing) {
-        console.log("Submission blocked - already processing");
         return;
       }
 

@@ -21,7 +21,7 @@ const useEditAddress = (userId: number) => {
   return useMutation({
     mutationFn: async (payload: PayloadEditAddress) => {
         const { addressId, ...rest } = payload;
-        const { data } = await axiosInstance.patch(`/user/address/${addressId}`, payload);
+        const { data } = await axiosInstance.patch(`/users/address/${addressId}`, payload);
         return data;
     },
     onSuccess: async () => {

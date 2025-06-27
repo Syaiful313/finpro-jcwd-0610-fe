@@ -7,7 +7,7 @@ const useDeleteAddress = (userId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (addressId: number) => {
-      const { data } = await axiosInstance.delete(`/user/address/${addressId}`);
+      const { data } = await axiosInstance.delete(`/users/address/${addressId}`);
       return data;
     },
     onSuccess: async (data) => {

@@ -131,7 +131,6 @@ export function PaymentSection({ payment }: { payment: PaymentInfo }) {
 
       {isExpanded && (
         <div className="space-y-4">
-          {/* Total Amount */}
           <div className="flex items-center justify-between rounded-md border p-4">
             <div className="flex items-center gap-2">
               <span className="text-lg font-medium">Total Biaya</span>

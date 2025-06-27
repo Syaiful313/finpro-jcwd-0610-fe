@@ -19,7 +19,7 @@ const useGetNotificationUser = (queries?: GetNotificationsProps) => {
     enabled: sessionStatus === "authenticated" && !!session,
 
     queryFn: async () => {
-      const { data } = await axiosInstance.get<Notification[]>(`/notification/user`, {
+      const { data } = await axiosInstance.get<Notification[]>(`/notifications/user`, {
         params: {
           ...queries,
           _: Date.now(),

@@ -9,7 +9,7 @@ const useUpdateUser = (userId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<Pick<User, 'firstName' | 'lastName' | 'email' | 'phoneNumber'>>) => {
-        const { data } = await axiosInstance.patch(`/user/${userId}`, payload);
+        const { data } = await axiosInstance.patch(`/users/${userId}`, payload);
         return data;
     },
     onSuccess: async (data) => {
