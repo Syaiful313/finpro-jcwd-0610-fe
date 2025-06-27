@@ -15,7 +15,7 @@ const useFinishOrderProcess = () => {
     mutationFn: async (body: useFinishOrderProps) => {
       const { orderId, notes } = body;
       const { data } = await axiosInstance.post(
-        `/worker/orders/${orderId}/finish`,
+        `/workers/orders/${orderId}/finish`,
         { notes },
       );
       return data;

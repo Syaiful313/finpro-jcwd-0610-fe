@@ -14,7 +14,7 @@ const useStartPickUp = () => {
   return useMutation({
     mutationFn: async (pickUpJobId: number) => {
       const { data } = await axiosInstance.post(
-        `/driver/start-pickup/${pickUpJobId}`,
+        `/drivers/start-pickup/${pickUpJobId}`,
       );
       return data;
     },

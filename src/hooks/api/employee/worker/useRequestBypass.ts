@@ -10,7 +10,7 @@ const useRequestBypass = () => {
     mutationFn: async (body: { orderId: string; reason: string }) => {
       const { orderId, reason } = body;
       const { data } = await axiosInstance.post(
-        `/worker/orders/${orderId}/request-bypass`,
+        `/workers/orders/${orderId}/request-bypass`,
         { reason },
       );
       return data;

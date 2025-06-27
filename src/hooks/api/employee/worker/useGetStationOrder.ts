@@ -19,7 +19,7 @@ const useGetStationOrder = (queries?: useGetStationOrderProps) => {
     queryFn: async () => {
       const { data } = await axiosInstance.get<
         PageableResponse<WorkerResponse>
-      >(`/worker/${workerType || ""}`, {
+      >(`/workers/${workerType || ""}`, {
         params: {
           ...otherQueries,
         },

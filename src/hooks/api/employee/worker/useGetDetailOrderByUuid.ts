@@ -10,7 +10,7 @@ const useGetDetailOrderByUuid = (uuid: string) => {
     queryKey: ["WorkerOrderDetails", uuid],
     queryFn: async () => {
       const { data } = await axiosInstance.get<WorkerResponse>(
-        `/worker/orders/${uuid}`,
+        `/workers/orders/${uuid}`,
       );
       return data;
     },

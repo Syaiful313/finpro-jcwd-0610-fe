@@ -24,7 +24,7 @@ const useCompletePickUp = (pickUpJobId: number) => {
       if (pickUpPhotos) completePickUp.append("pickUpPhotos", pickUpPhotos);
 
       const { data } = await axiosInstance.post(
-        `/driver/complete-pickup/${pickUpJobId}`,
+        `/drivers/complete-pickup/${pickUpJobId}`,
         completePickUp,
         {
           headers: {
