@@ -7,7 +7,7 @@ const useGetUser = (userId: number) => {
   return useQuery<User>({
     queryKey: ["user", userId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get(`/user/${userId}`);
+      const { data } = await axiosInstance.get(`/users/${userId}`);
       return data;
     },
     enabled: !!userId,
