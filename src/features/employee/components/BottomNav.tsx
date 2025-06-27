@@ -100,14 +100,6 @@ const BottomNav: React.FC = () => {
 
   if (status === "loading") return null;
 
-  if (
-    !session ||
-    (session.user.role !== "WORKER" && session.user.role !== "DRIVER")
-  ) {
-    router.push("/login");
-    return null;
-  }
-
   if (!mounted) return null;
 
   return (

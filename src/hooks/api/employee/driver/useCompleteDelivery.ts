@@ -42,7 +42,6 @@ const useCompleteDelivery = (deliveryJobId: number) => {
       queryClient.invalidateQueries({
         queryKey: ["orders"],
       });
-      router.push("/employee");
     },
     onError: (error: AxiosError<any>) => {
       toast.error(error.response?.data.message);
