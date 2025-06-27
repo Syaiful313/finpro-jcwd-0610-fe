@@ -9,7 +9,7 @@ const useUploadProfilePic = (userId: number) => {
   const { update, data: session } = useSession();
   return useMutation({
     mutationFn: async (payload: FormData) => {
-        const { data } = await axiosInstance.patch(`/user/photo/${userId}`, payload, {
+        const { data } = await axiosInstance.patch(`/users/photo/${userId}`, payload, {
           headers: {
             'Content-Type': undefined, 
           },

@@ -95,7 +95,6 @@ const SalesReportCard = ({
 
   return (
     <div className="overflow-hidden rounded-2xl border-l-4 border-blue-500 bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:border-blue-400 dark:bg-gray-800 dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70">
-      {/* Header */}
       <div className="border-b border-slate-200 bg-slate-50 p-3.5 dark:border-gray-700 dark:bg-gray-700/50">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-semibold text-white dark:from-blue-600 dark:to-blue-700">

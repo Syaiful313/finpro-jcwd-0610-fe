@@ -200,7 +200,6 @@ const LaundryItemCard = ({
               <span>Harga:</span>
             </div>
             <div className="text-right">
-              {/* UPDATED: Now shows price for both PER_PIECE and PER_KG */}
               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 Rp {laundryItem.basePrice.toLocaleString("id-ID")}
               </div>

@@ -1,4 +1,3 @@
-// components/ui/date-range-picker.tsx
 "use client";
 
 import * as React from "react";
@@ -12,7 +11,6 @@ import {
 } from "@/components/ui/popover";
 import { format, startOfMonth, endOfMonth, isSameDay, isAfter, isBefore, addMonths, subMonths, isToday } from "date-fns";
 
-// ✅ Use DateRange from react-day-picker to avoid type conflicts
 export type { DateRange } from "react-day-picker";
 import type { DateRange } from "react-day-picker";
 
@@ -24,7 +22,6 @@ interface DatePickerWithRangeProps {
   disabled?: boolean;
 }
 
-// Custom Calendar Component
 function CustomCalendar({
   selected,
   onSelect,
@@ -40,11 +37,9 @@ function CustomCalendar({
   const firstDayOfMonth = startOfMonth(month);
   const lastDayOfMonth = endOfMonth(month);
   
-  // Get first day of calendar (including previous month days)
   const startDate = new Date(firstDayOfMonth);
   startDate.setDate(startDate.getDate() - firstDayOfMonth.getDay());
   
-  // Generate calendar days (6 weeks = 42 days)
   const days: Date[] = [];
   for (let i = 0; i < 42; i++) {
     const date = new Date(startDate);
@@ -52,32 +47,24 @@ function CustomCalendar({
     days.push(date);
   }
 
-  // Improved date click handler
   const handleDateClick = (date: Date) => {
     console.log("Date clicked:", date, "Current selected:", selected);
     
     if (!selected?.from) {
-      // No date selected yet - start new selection
       onSelect({ from: date, to: undefined });
     } else if (selected.from && !selected.to) {
-      // First date selected, selecting second date
       if (isSameDay(date, selected.from)) {
-        // Clicked same date - just select single date
         onSelect({ from: date, to: undefined });
       } else if (isBefore(date, selected.from)) {
-        // Clicked earlier date - swap them
         onSelect({ from: date, to: selected.from });
       } else {
-        // Normal case - complete the range
         onSelect({ from: selected.from, to: date });
       }
     } else if (selected.from && selected.to) {
-      // Both dates selected - start new selection
       onSelect({ from: date, to: undefined });
     }
   };
 
-  // Helper functions for styling
   const isDateInRange = (date: Date) => {
     if (!selected?.from || !selected?.to) return false;
     return (isAfter(date, selected.from) || isSameDay(date, selected.from)) && 
@@ -108,7 +95,6 @@ function CustomCalendar({
 
   return (
     <div className="p-3 select-none">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <Button
           type="button"
@@ -143,7 +129,6 @@ function CustomCalendar({
         </Button>
       </div>
 
-      {/* Week days */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {weekDays.map((day) => (
           <div key={day} className="text-center text-xs font-medium text-muted-foreground p-1">
@@ -152,7 +137,6 @@ function CustomCalendar({
         ))}
       </div>
 
-      {/* Calendar days */}
       <div className="grid grid-cols-7 gap-1">
         {days.map((date, index) => {
           const inRange = isDateInRange(date);
@@ -203,12 +187,10 @@ export function DatePickerWithRange({
   const [isOpen, setIsOpen] = React.useState(false);
   const [currentMonth, setCurrentMonth] = React.useState(date?.from || new Date());
 
-  // Handle date selection
   const handleDateSelect = (selectedDate: DateRange | undefined) => {
     console.log("handleDateSelect called with:", selectedDate);
     onDateChange(selectedDate);
     
-    // Close popover when both dates are selected
     if (selectedDate?.from && selectedDate?.to) {
       setTimeout(() => {
         setIsOpen(false);
@@ -216,14 +198,12 @@ export function DatePickerWithRange({
     }
   };
 
-  // Handle clear date - separate button outside popover trigger
   const handleClearDate = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     onDateChange(undefined);
   };
 
-  // Format date display
   const formatDateDisplay = () => {
     if (!date?.from) return placeholder;
 
@@ -250,7 +230,7 @@ export function DatePickerWithRange({
             disabled={disabled}
             className={cn(
               "w-full justify-start text-left font-normal",
-              "min-h-[40px] h-auto px-3 py-2 pr-10", // Extra padding right for clear button
+              "min-h-[40px] h-auto px-3 py-2 pr-10", 
               !date?.from && "text-muted-foreground",
               className
             )}
@@ -262,7 +242,6 @@ export function DatePickerWithRange({
           </Button>
         </PopoverTrigger>
         
-        {/* Clear button positioned absolutely - OUTSIDE the trigger button */}
         {date?.from && (
           <div 
             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer p-1 hover:bg-gray-100 rounded-sm transition-colors"
@@ -286,7 +265,6 @@ export function DatePickerWithRange({
               onMonthChange={setCurrentMonth}
             />
             
-            {/* Quick Actions */}
             <div className="flex flex-wrap gap-2 p-3 border-t">
               <Button
                 type="button"

@@ -21,7 +21,7 @@ const useCreateAddress = (userId: number) => {
   return useMutation({
     mutationFn: async (payload: PayloadCreateAddress) => {
       const { data } = await axiosInstance.post(
-        `/user/address/${userId}`,
+        `/users/address/${userId}`,
         payload,
       );
       return data;
