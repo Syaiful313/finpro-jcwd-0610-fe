@@ -10,7 +10,7 @@ const useClaimDelivery = () => {
   return useMutation({
     mutationFn: async (deliveryJobId: number) => {
       const { data } = await axiosInstance.post(
-        `/driver/claim-delivery/${deliveryJobId}`,
+        `/drivers/claim-delivery/${deliveryJobId}`,
       );
       return data;
     },

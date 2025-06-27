@@ -15,7 +15,7 @@ const useGetAvailableRequest = (queries?: GetAvailableRequestProps) => {
 
     queryFn: async () => {
       const { data } = await axiosInstance.get<PageableResponse<RequestList>>(
-        `/driver/requests`,
+        `/drivers/requests`,
         {
           params: {
             ...queries,

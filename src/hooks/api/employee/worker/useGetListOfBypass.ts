@@ -18,7 +18,7 @@ const useGetListOfBypass = (queries?: BypassProps) => {
     queryFn: async () => {
       const { data } = await axiosInstance.get<
         PageableResponse<BypassResponse>
-      >("/worker/bypass-requests", {
+      >("/workers/bypass-requests", {
         params: {
           ...queries,
           ...(queries?.status === "approved" &&

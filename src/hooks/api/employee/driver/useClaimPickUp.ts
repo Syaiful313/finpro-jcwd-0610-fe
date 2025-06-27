@@ -10,7 +10,7 @@ const useClaimPickUp = () => {
   return useMutation({
     mutationFn: async (pickupJobId: number) => {
       const { data } = await axiosInstance.post(
-        `/driver/claim-pickup/${pickupJobId}`,
+        `/drivers/claim-pickup/${pickupJobId}`,
       );
       return data;
     },

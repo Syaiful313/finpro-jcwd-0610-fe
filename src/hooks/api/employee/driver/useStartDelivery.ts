@@ -10,7 +10,7 @@ const useStartDelivery = () => {
   return useMutation({
     mutationFn: async (deliveryJobId: number) => {
       const { data } = await axiosInstance.post(
-        `/driver/start-delivery/${deliveryJobId}`,
+        `/drivers/start-delivery/${deliveryJobId}`,
       );
       return data;
     },
