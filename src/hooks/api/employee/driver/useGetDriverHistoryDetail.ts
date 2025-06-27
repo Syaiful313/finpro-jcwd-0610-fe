@@ -16,7 +16,7 @@ const useGetDriverHistoryDetail = ({
     queryKey: ["driverHistoryDetail", jobId, type],
     queryFn: async () => {
       const { data } = await axiosInstance.get<DriverJobDetailResponse>(
-        `/driver/history/${jobId}/${type}`,
+        `/drivers/history/${jobId}/${type}`,
       );
       return data;
     },

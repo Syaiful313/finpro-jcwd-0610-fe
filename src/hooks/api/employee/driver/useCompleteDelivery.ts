@@ -25,7 +25,7 @@ const useCompleteDelivery = (deliveryJobId: number) => {
       if (deliveryPhotos)
         completeDelivery.append("deliveryPhotos", deliveryPhotos);
       const { data } = await axiosInstance.post(
-        `/driver/complete-delivery/${deliveryJobId}`,
+        `/drivers/complete-delivery/${deliveryJobId}`,
         completeDelivery,
         {
           headers: {

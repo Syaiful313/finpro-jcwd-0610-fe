@@ -11,7 +11,7 @@ const useDeleteLaundryItem = () => {
 
   return useMutation({
     mutationFn: async (laundryItemId: number) => {
-      const { data } = await axiosInstance.delete(`/laundry-item/${laundryItemId}`);
+      const { data } = await axiosInstance.delete(`/laundry-items/${laundryItemId}`);
       return data;
     },
     onSuccess: (data) => {

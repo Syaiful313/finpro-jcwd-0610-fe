@@ -22,7 +22,7 @@ const useStartOrderProcess = () => {
     mutationFn: async (body: useStartOrderProcessProps) => {
       const { orderId, items } = body;
       const { data } = await axiosInstance.post(
-        `/worker/orders/${orderId}/start`,
+        `/workers/orders/${orderId}/start`,
         { items },
       );
       return data;

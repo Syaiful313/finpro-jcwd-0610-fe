@@ -36,7 +36,7 @@ const useGetOutlets = (
   options?: UseGetOutletsOptions,
 ) => {
   const axiosInstance = useAxios();
-  const endpoint = `/outlet`;
+  const endpoint = `/outlets`;
   const queryKey = ["outlets", queries];
   const defaultQueries = {
     take: 10,

@@ -8,7 +8,7 @@ const useGetHistoryDetail = (uuid: string) => {
     queryKey: ["WorkerHistoryDetail", uuid],
     queryFn: async () => {
       const { data } = await axiosInstance.get<WorkerResponse>(
-        `/worker/history/${uuid}`,
+        `/workers/history/${uuid}`,
       );
       return data;
     },

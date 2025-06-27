@@ -21,7 +21,7 @@ const useCreateLaundryItem = () => {
 
   return useMutation({
     mutationFn: async (payload: CreateLaundryItemPayload) => {
-      const { data } = await axiosInstance.post("/laundry-item", {
+      const { data } = await axiosInstance.post("/laundry-items", {
         name: payload.name,
         category: payload.category,
         basePrice: payload.basePrice,

@@ -51,7 +51,7 @@ const useUpdateLaundryItem = (laundryItemId: number) => {
       }
 
       const { data } = await axiosInstance.patch(
-        `/laundry-item/${laundryItemId}`,
+        `/laundry-items/${laundryItemId}`,
         updateData,
       );
       return data;

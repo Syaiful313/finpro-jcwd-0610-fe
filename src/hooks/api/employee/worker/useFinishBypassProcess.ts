@@ -20,7 +20,7 @@ const useFinishBypassProcess = () => {
     mutationFn: async (body: useFinishBypassProcessProps) => {
       const { bypassRequestId, notes, items } = body;
       const { data } = await axiosInstance.post(
-        `/worker/orders/complete-bypassed/${bypassRequestId}`,
+        `/workers/orders/complete-bypassed/${bypassRequestId}`,
         { notes, items },
       );
       return data;

@@ -15,7 +15,7 @@ const useGetWorkerHistory = (queries?: WorkerHistoryProps) => {
     queryFn: async () => {
       const { data } = await axiosInstance.get<
         PageableResponse<OrderWorkProcess>
-      >("/worker/history", {
+      >("/workers/history", {
         params: queries,
       });
       return data;

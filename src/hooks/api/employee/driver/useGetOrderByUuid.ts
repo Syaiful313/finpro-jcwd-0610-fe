@@ -11,7 +11,7 @@ const useGetOrderByUuid = (uuid: string) => {
 
     queryFn: async () => {
       const { data } = await axiosInstance.get<DriverJobResponse>(
-        `/driver/details/${uuid}`,
+        `/drivers/details/${uuid}`,
       );
       return data;
     },
