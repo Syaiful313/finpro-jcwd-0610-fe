@@ -152,7 +152,7 @@ export default function DeliveryRequestList() {
                 Claiming...
               </>
             ) : claimDeliveryMutation.isSuccess ? (
-              "Claimed!"
+              "Claim Delivery"
             ) : (
               "Claim Delivery"
             )}

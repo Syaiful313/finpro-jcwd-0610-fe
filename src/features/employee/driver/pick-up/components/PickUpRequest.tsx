@@ -152,7 +152,7 @@ export default function PickUpRequestList() {
                 Claiming...
               </>
             ) : claimPickUpMutation.isSuccess ? (
-              "Claimed!"
+              "Claim Pick Up"
             ) : (
               "Claim Pick Up"
             )}
