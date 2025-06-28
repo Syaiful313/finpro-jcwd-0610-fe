@@ -74,21 +74,13 @@ export function OrderTimeline({
     );
     const historyItem = sortedHistory.find((item) => item.status === statusKey);
 
-    // Jika ada history item untuk status ini, maka completed
     if (historyItem) {
       return "completed";
-    } 
-    // Jika step index lebih kecil dari current status index, maka completed juga
-    // (ini membuat semua step sebelumnya menjadi hijau)
-    else if (stepIndex < currentStatusIndex) {
+    } else if (stepIndex < currentStatusIndex) {
       return "completed";
-    } 
-    // Jika ini adalah current status
-    else if (statusKey === currentStatus) {
+    } else if (statusKey === currentStatus) {
       return "current";
-    } 
-    // Selainnya pending
-    else {
+    } else {
       return "pending";
     }
   };
@@ -212,9 +204,7 @@ export function OrderTimeline({
                   ) : stepStatus === "current" ? (
                     <div className="text-sm text-blue-500">Status saat ini</div>
                   ) : stepStatus === "completed" ? (
-                    <div className="text-sm text-green-500">
-                      Tahap selesai
-                    </div>
+                    <div className="text-sm text-green-500">Tahap selesai</div>
                   ) : (
                     <div className="text-muted-foreground text-sm">
                       Menunggu
