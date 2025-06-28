@@ -18,6 +18,21 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
   const generateStatusHistory = (): StatusHistoryItem[] => {
     const history: StatusHistoryItem[] = [];
 
+    const statusOrder = [
+      "WAITING_FOR_PICKUP",
+      "DRIVER_ON_THE_WAY_TO_CUSTOMER",
+      "ARRIVED_AT_CUSTOMER",
+      "DRIVER_ON_THE_WAY_TO_OUTLET",
+      "ARRIVED_AT_OUTLET",
+      "BEING_WASHED",
+      "BEING_IRONED",
+      "BEING_PACKED",
+      "READY_FOR_DELIVERY",
+      "BEING_DELIVERED_TO_CUSTOMER",
+      "DELIVERED_TO_CUSTOMER",
+      "COMPLETED",
+    ];
+
     history.push({
       status: "WAITING_FOR_PICKUP",
       timestamp: orderDetail.createdAt,
@@ -46,6 +61,36 @@ export function OrderDetailContent({ orderDetail }: OrderDetailContentProps) {
           });
         }
       });
+    }
+
+    const currentStatus = orderDetail.orderStatus || "WAITING_FOR_PICKUP";
+    const currentStatusIndex = statusOrder.findIndex(
+      (status) => status === currentStatus,
+    );
+
+    if (currentStatusIndex > 0) {
+      const existingStatuses = new Set(history.map((h) => h.status));
+
+      for (let i = 1; i < currentStatusIndex; i++) {
+        const statusToAdd = statusOrder[i];
+
+        if (!existingStatuses.has(statusToAdd)) {
+          const baseTimestamp = new Date(orderDetail.createdAt);
+          const estimatedTimestamp = new Date(
+            baseTimestamp.getTime() + i * 30 * 60 * 1000,
+          );
+
+          history.push({
+            status: statusToAdd,
+            timestamp: estimatedTimestamp.toISOString(),
+            updatedBy: {
+              name: "System",
+              role: "system",
+            },
+            notes: "Auto-completed based on current status",
+          });
+        }
+      }
     }
 
     return history.sort(

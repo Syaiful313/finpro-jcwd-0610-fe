@@ -50,6 +50,7 @@ import {
 } from "nuqs";
 import { useEffect, useState } from "react";
 import { PendingOrdersTable } from "./PendingOrdersTable";
+import { RefreshCw } from "lucide-react";
 
 const PAGE_SIZE = 10;
 const DEBOUNCE_DELAY = 300;
@@ -80,22 +81,39 @@ const getCellClass = (columnId: string, isAdmin: boolean) => {
 
 const getStatusColor = (status: string) => {
   const statusColors: Record<string, string> = {
-    WAITING_FOR_PICKUP: "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-300",
-    DRIVER_ON_THE_WAY_TO_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-    ARRIVED_AT_CUSTOMER: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-    DRIVER_ON_THE_WAY_TO_OUTLET: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-    ARRIVED_AT_OUTLET: "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
-    BEING_WASHED: "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-    BEING_IRONED: "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-    BEING_PACKED: "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-    WAITING_PAYMENT: "border-red-200 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300",
-    READY_FOR_DELIVERY: "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
-    BEING_DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
-    DELIVERED_TO_CUSTOMER: "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
-    COMPLETED: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-    IN_RESOLUTION: "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+    WAITING_FOR_PICKUP:
+      "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-300",
+    DRIVER_ON_THE_WAY_TO_CUSTOMER:
+      "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    ARRIVED_AT_CUSTOMER:
+      "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    DRIVER_ON_THE_WAY_TO_OUTLET:
+      "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    ARRIVED_AT_OUTLET:
+      "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+    BEING_WASHED:
+      "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+    BEING_IRONED:
+      "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+    BEING_PACKED:
+      "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+    WAITING_PAYMENT:
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300",
+    READY_FOR_DELIVERY:
+      "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
+    BEING_DELIVERED_TO_CUSTOMER:
+      "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
+    DELIVERED_TO_CUSTOMER:
+      "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300",
+    COMPLETED:
+      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+    IN_RESOLUTION:
+      "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
   };
-  return statusColors[status] || "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-300";
+  return (
+    statusColors[status] ||
+    "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-300"
+  );
 };
 
 const getStatusText = (status: string) => {
@@ -145,7 +163,9 @@ const StatusBadge = ({ status }: { status: string }) => (
 
 const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
   <div className="flex flex-col">
-    <div className="font-medium break-words text-gray-900 dark:text-gray-100">{name}</div>
+    <div className="font-medium break-words text-gray-900 dark:text-gray-100">
+      {name}
+    </div>
     <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400">
       <User className="mr-1 h-3 w-3" />
       <span className="break-all">{email}</span>
@@ -155,7 +175,7 @@ const CustomerInfo = ({ name, email }: { name: string; email: string }) => (
 
 const OutletInfo = ({ outletName }: { outletName: string }) => (
   <div className="flex flex-col">
-    <div className="flex items-center text-xs text-gray-900 dark:text-gray-100 sm:text-sm">
+    <div className="flex items-center text-xs text-gray-900 sm:text-sm dark:text-gray-100">
       <MapPin className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
       <span className="truncate font-medium">{outletName}</span>
     </div>
@@ -174,16 +194,16 @@ const TrackingInfo = ({
   if (currentWorker) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 sm:text-sm">
+        <div className="flex items-center text-xs text-blue-600 sm:text-sm dark:text-blue-400">
           <Package className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{currentWorker.name}</span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+        <div className="flex items-center gap-1 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
           <Activity className="h-2 w-2 sm:h-3 sm:w-3" />
           <span>{currentWorker.station}</span>
         </div>
         {currentWorker.hasBypass && (
-          <div className="text-xs font-medium text-orange-600 dark:text-orange-400 sm:text-sm">
+          <div className="text-xs font-medium text-orange-600 sm:text-sm dark:text-orange-400">
             ⚠ Bypass Request
           </div>
         )}
@@ -194,11 +214,13 @@ const TrackingInfo = ({
   if (pickup && orderStatus.includes("DRIVER")) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-green-600 dark:text-green-400 sm:text-sm">
+        <div className="flex items-center text-xs text-green-600 sm:text-sm dark:text-green-400">
           <User className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{pickup.driver}</span>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Pickup Driver</div>
+        <div className="text-xs text-gray-500 sm:text-sm dark:text-gray-400">
+          Pickup Driver
+        </div>
       </div>
     );
   }
@@ -206,11 +228,13 @@ const TrackingInfo = ({
   if (delivery && orderStatus.includes("DELIVERY")) {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-green-600 dark:text-green-400 sm:text-sm">
+        <div className="flex items-center text-xs text-green-600 sm:text-sm dark:text-green-400">
           <User className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{delivery.driver}</span>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Delivery Driver</div>
+        <div className="text-xs text-gray-500 sm:text-sm dark:text-gray-400">
+          Delivery Driver
+        </div>
       </div>
     );
   }
@@ -219,11 +243,11 @@ const TrackingInfo = ({
     const lastProcess = processHistory[processHistory.length - 1];
     return (
       <div className="flex flex-col">
-        <div className="flex items-center text-xs text-gray-600 dark:text-gray-300 sm:text-sm">
+        <div className="flex items-center text-xs text-gray-600 sm:text-sm dark:text-gray-300">
           <Timer className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
           <span className="truncate font-medium">{lastProcess.worker}</span>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+        <div className="text-xs text-gray-500 sm:text-sm dark:text-gray-400">
           {lastProcess.station} ({lastProcess.duration})
         </div>
       </div>
@@ -231,7 +255,7 @@ const TrackingInfo = ({
   }
 
   return (
-    <div className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+    <div className="text-xs text-gray-500 sm:text-sm dark:text-gray-400">
       {orderStatus.includes("DRIVER") ? "Awaiting Assignment" : "No Worker"}
     </div>
   );
@@ -246,10 +270,10 @@ const OrderCard = ({
   onViewDetail: (order: OrderSummary) => void;
   showOutlet?: boolean;
 }) => (
-  <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 dark:border-blue-500 bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-900/50 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/70">
-    <div className="border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-700/50 p-3.5">
+  <div className="overflow-hidden rounded-2xl border-l-4 border-blue-400 bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:border-blue-500 dark:bg-gray-800 dark:shadow-gray-900/50 dark:hover:shadow-gray-900/70">
+    <div className="border-b border-slate-200 bg-slate-50 p-3.5 dark:border-gray-700 dark:bg-gray-700/50">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-sm font-semibold text-white">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-semibold text-white dark:from-blue-600 dark:to-blue-700">
           {order.orderNumber.slice(-2)}
         </div>
         <div className="min-w-0 flex-1">
@@ -290,7 +314,7 @@ const OrderCard = ({
       </div>
 
       {order.tracking.currentWorker && (
-        <div className="mb-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 p-2">
+        <div className="mb-3 rounded-lg bg-blue-50 p-2 dark:bg-blue-950/30">
           <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
             <Package className="h-3 w-3" />
             <span className="font-medium">
@@ -306,7 +330,7 @@ const OrderCard = ({
       <div className="flex gap-2">
         <button
           onClick={() => onViewDetail(order)}
-          className="flex-1 rounded-lg border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950/30"
+          className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
         >
           Lihat Detail
         </button>
@@ -324,14 +348,14 @@ const OrderRow = ({
   onViewDetail: (order: OrderSummary) => void;
   isAdmin: boolean;
 }) => (
-  <TableRow className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+  <TableRow className="border-b hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50">
     <TableCell className={getCellClass("orderNumber", isAdmin)}>
       <div className="flex flex-col">
         <div className="font-medium break-words text-gray-900 dark:text-gray-100">
           {order.orderNumber}
         </div>
         <div
-          className={`mt-1 text-xs break-words text-gray-500 dark:text-gray-400 sm:text-sm ${isAdmin ? "lg:hidden" : "md:hidden"}`}
+          className={`mt-1 text-xs break-words text-gray-500 sm:text-sm dark:text-gray-400 ${isAdmin ? "lg:hidden" : "md:hidden"}`}
         >
           {order.customer.name}
         </div>
@@ -368,7 +392,9 @@ const OrderRow = ({
 
     <TableCell className={getCellClass("date", isAdmin)}>
       <div className="text-center">
-        <span className="text-sm dark:text-gray-300">{formatDate(order.createdAt)}</span>
+        <span className="text-sm dark:text-gray-300">
+          {formatDate(order.createdAt)}
+        </span>
       </div>
     </TableCell>
 
@@ -378,7 +404,7 @@ const OrderRow = ({
           size="sm"
           variant="ghost"
           onClick={() => onViewDetail(order)}
-          className="h-7 w-7 p-0 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 sm:h-8 sm:w-8"
+          className="h-7 w-7 p-0 text-blue-600 hover:bg-blue-50 sm:h-8 sm:w-8 dark:text-blue-400 dark:hover:bg-blue-950/30"
           title="Lihat Detail"
         >
           <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -418,6 +444,8 @@ export function OrderManagementTable() {
   const isOutletAdmin = session?.user?.role === "OUTLET_ADMIN";
   const hasAccess = isAdmin || isOutletAdmin;
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -436,18 +464,21 @@ export function OrderManagementTable() {
     data: ordersData,
     isLoading,
     error,
-  } = useGetOrders({
-    page,
-    take: PAGE_SIZE,
-    search: debouncedSearch,
-    status: status ?? undefined,
-    outletId: outletId ?? undefined,
-    employeeId: employeeId ?? undefined,
-    startDate: startDate ?? undefined,
-    endDate: endDate ?? undefined,
-    sortBy,
-    sortOrder,
-  });
+  } = useGetOrders(
+    {
+      page,
+      take: PAGE_SIZE,
+      search: debouncedSearch,
+      status: status ?? undefined,
+      outletId: outletId ?? undefined,
+      employeeId: employeeId ?? undefined,
+      startDate: startDate ?? undefined,
+      endDate: endDate ?? undefined,
+      sortBy,
+      sortOrder,
+    },
+    refreshKey,
+  );
 
   const { data: outletsData, isLoading: isLoadingOutlets } = useGetOutlets({
     all: true,
@@ -509,7 +540,9 @@ export function OrderManagementTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2 text-sm sm:text-base dark:text-gray-300">Loading session...</span>
+        <span className="ml-2 text-sm sm:text-base dark:text-gray-300">
+          Loading session...
+        </span>
       </div>
     );
   }
@@ -518,10 +551,10 @@ export function OrderManagementTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500 dark:text-red-400 sm:text-base">
+          <span className="text-sm text-red-500 sm:text-base dark:text-red-400">
             Access Denied
           </span>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
             You don't have permission to view this page.
           </p>
         </div>
@@ -544,10 +577,10 @@ export function OrderManagementTable() {
     return (
       <div className="flex h-64 items-center justify-center px-1">
         <div className="text-center">
-          <span className="text-sm text-red-500 dark:text-red-400 sm:text-base">
+          <span className="text-sm text-red-500 sm:text-base dark:text-red-400">
             Kesalahan memuat data
           </span>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+          <p className="mt-2 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
             {error.message || "Terjadi kesalahan tidak dikenal"}
           </p>
         </div>
@@ -559,7 +592,7 @@ export function OrderManagementTable() {
     <>
       <div className="space-y-3 sm:space-y-6 sm:px-4 lg:px-0">
         <div className="block sm:hidden">
-          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-lg">
+          <div className="rounded-b-3xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg dark:from-blue-600 dark:to-blue-700">
             <div className="px-4 py-14">
               <h1 className="text-2xl font-bold">Manajemen Pesanan</h1>
               <p className="mt-2 opacity-90">
@@ -570,7 +603,7 @@ export function OrderManagementTable() {
             </div>
           </div>
 
-          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-lg dark:shadow-gray-900/50">
+          <div className="relative mx-6 -mt-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
             <div className="relative mb-3">
               <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <input
@@ -578,7 +611,7 @@ export function OrderManagementTable() {
                 placeholder="Cari berdasarkan nomor order atau customer..."
                 value={search}
                 onChange={handleSearchChange}
-                className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 py-3.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none text-gray-900 dark:text-gray-100"
+                className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 pr-4 pl-10 text-sm text-gray-900 transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:bg-gray-800 dark:focus:ring-blue-400"
               />
             </div>
 
@@ -586,8 +619,18 @@ export function OrderManagementTable() {
               <div className="mb-3">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="grid w-full grid-cols-2 dark:bg-gray-700">
-                    <TabsTrigger value="all" className="dark:data-[state=active]:bg-gray-600">Semua Pesanan</TabsTrigger>
-                    <TabsTrigger value="pending" className="dark:data-[state=active]:bg-gray-600">Pending Proses</TabsTrigger>
+                    <TabsTrigger
+                      value="all"
+                      className="dark:data-[state=active]:bg-gray-600"
+                    >
+                      Semua Pesanan
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="pending"
+                      className="dark:data-[state=active]:bg-gray-600"
+                    >
+                      Pending Proses
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -599,7 +642,7 @@ export function OrderManagementTable() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
-                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700"
+                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:border-gray-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                         disabled={isLoadingOutlets}
                       >
                         <MapPin className="h-4 w-4" />
@@ -614,11 +657,11 @@ export function OrderManagementTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
+                      className="max-h-64 w-56 overflow-y-auto dark:border-gray-700 dark:bg-gray-800"
                     >
                       <DropdownMenuItem
                         onClick={() => handleOutletChange(undefined)}
-                        className="dark:hover:bg-gray-700 dark:text-gray-100"
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         <MapPin className="mr-2 h-4 w-4" />
                         Semua Outlet
@@ -629,7 +672,7 @@ export function OrderManagementTable() {
                           onClick={() =>
                             handleOutletChange(outlet.id.toString())
                           }
-                          className="dark:hover:bg-gray-700 dark:text-gray-100"
+                          className="dark:text-gray-100 dark:hover:bg-gray-700"
                         >
                           <div className="flex min-w-0 flex-1 items-center justify-between">
                             <div className="flex min-w-0 flex-1 flex-col">
@@ -663,7 +706,7 @@ export function OrderManagementTable() {
               <div className="flex gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700">
+                    <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:border-gray-600 dark:bg-blue-600 dark:hover:bg-blue-700">
                       <Filter className="h-4 w-4" />
                       <span className="truncate">
                         {status
@@ -672,46 +715,49 @@ export function OrderManagementTable() {
                       </span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 dark:bg-gray-800 dark:border-gray-700">
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-48 dark:border-gray-700 dark:bg-gray-800"
+                  >
                     <DropdownMenuItem
                       onClick={() => handleStatusChange(undefined)}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Semua Status
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_FOR_PICKUP")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Menunggu Pickup
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_WASHED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Sedang Dicuci
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_IRONED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Sedang Disetrika
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_PACKED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Sedang Dikemas
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_PAYMENT")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Menunggu Pembayaran
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("COMPLETED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Selesai
                     </DropdownMenuItem>
@@ -721,7 +767,7 @@ export function OrderManagementTable() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-blue-500 dark:bg-blue-600 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:hover:bg-blue-700"
+                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-blue-500 px-4 text-sm text-white transition-colors hover:bg-blue-600 dark:border-gray-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                       disabled={isLoadingEmployees}
                     >
                       <UserCheck className="h-4 w-4" />
@@ -736,11 +782,11 @@ export function OrderManagementTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
+                    className="max-h-64 w-56 overflow-y-auto dark:border-gray-700 dark:bg-gray-800"
                   >
                     <DropdownMenuItem
                       onClick={() => handleEmployeeChange(undefined)}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       <UserCheck className="mr-2 h-4 w-4" />
                       Semua Karyawan
@@ -751,7 +797,7 @@ export function OrderManagementTable() {
                         onClick={() =>
                           handleEmployeeChange(employee.id.toString())
                         }
-                        className="dark:hover:bg-gray-700 dark:text-gray-100"
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         <div className="flex min-w-0 flex-1 items-center justify-between">
                           <div className="flex min-w-0 flex-1 flex-col">
@@ -779,7 +825,7 @@ export function OrderManagementTable() {
                     onChange={(e) =>
                       handleDateRangeChange("start", e.target.value)
                     }
-                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none dark:text-gray-100"
+                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 bg-gray-50 px-3 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:bg-gray-800 dark:focus:ring-blue-400"
                   />
                   <Input
                     type="date"
@@ -788,16 +834,25 @@ export function OrderManagementTable() {
                     onChange={(e) =>
                       handleDateRangeChange("end", e.target.value)
                     }
-                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 text-sm transition-all focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none dark:text-gray-100"
+                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 bg-gray-50 px-3 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:bg-gray-800 dark:focus:ring-blue-400"
                   />
                 </div>
               )}
+              <Button
+                variant="outline"
+                onClick={() => setRefreshKey(Date.now())}
+                className="ml-2 flex h-10 items-center gap-2 rounded-xl border-gray-200 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                title="Refresh Data"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </Button>
             </div>
           </div>
         </div>
 
         <div className="hidden sm:block">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-6 text-white shadow-lg">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg dark:from-blue-600 dark:to-blue-700">
             <h1 className="text-2xl font-bold">Manajemen Pesanan</h1>
             <p className="mt-2 opacity-90">
               {isAdmin
@@ -807,20 +862,20 @@ export function OrderManagementTable() {
           </div>
         </div>
 
-        <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm sm:mx-0 sm:block sm:p-6">
+        <div className="mx-1 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0 sm:block sm:p-6 dark:border-gray-700 dark:bg-gray-800">
           {isOutletAdmin && (
             <div className="mb-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid h-12 w-full max-w-lg grid-cols-2 rounded-xl bg-gray-100 dark:bg-gray-700 p-1">
+                <TabsList className="grid h-12 w-full max-w-lg grid-cols-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-700">
                   <TabsTrigger
                     value="all"
-                    className="h-10 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 transition-all hover:text-gray-900 dark:hover:text-gray-200 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
+                    className="h-10 rounded-lg text-sm font-medium text-gray-600 transition-all hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm dark:text-gray-400 dark:hover:text-gray-200 dark:data-[state=active]:bg-gray-600 dark:data-[state=active]:text-blue-400"
                   >
                     Semua Pesanan
                   </TabsTrigger>
                   <TabsTrigger
                     value="pending"
-                    className="h-10 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 transition-all hover:text-gray-900 dark:hover:text-gray-200 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
+                    className="h-10 rounded-lg text-sm font-medium text-gray-600 transition-all hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm dark:text-gray-400 dark:hover:text-gray-200 dark:data-[state=active]:bg-gray-600 dark:data-[state=active]:text-blue-400"
                   >
                     Pending Proses
                   </TabsTrigger>
@@ -836,7 +891,7 @@ export function OrderManagementTable() {
                 placeholder="Cari berdasarkan nomor order atau customer..."
                 value={search}
                 onChange={handleSearchChange}
-                className="rounded-xl border-gray-200 dark:border-gray-600 pl-12 text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100"
+                className="rounded-xl border-gray-200 pl-12 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               />
             </div>
 
@@ -847,7 +902,7 @@ export function OrderManagementTable() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px] dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                        className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                         disabled={isLoadingOutlets}
                       >
                         <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
@@ -863,11 +918,11 @@ export function OrderManagementTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
+                      className="max-h-64 w-56 overflow-y-auto dark:border-gray-700 dark:bg-gray-800"
                     >
                       <DropdownMenuItem
                         onClick={() => handleOutletChange(undefined)}
-                        className="dark:hover:bg-gray-700 dark:text-gray-100"
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         <MapPin className="mr-2 h-4 w-4" />
                         Semua Outlet
@@ -878,7 +933,7 @@ export function OrderManagementTable() {
                           onClick={() =>
                             handleOutletChange(outlet.id.toString())
                           }
-                          className="dark:hover:bg-gray-700 dark:text-gray-100"
+                          className="dark:text-gray-100 dark:hover:bg-gray-700"
                         >
                           <div className="flex min-w-0 flex-1 items-center justify-between">
                             <div className="flex min-w-0 flex-1 flex-col">
@@ -912,7 +967,7 @@ export function OrderManagementTable() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px] dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                      className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                     >
                       <FilterIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                       <span className="truncate text-xs sm:text-sm">
@@ -923,47 +978,47 @@ export function OrderManagementTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
+                    className="max-h-64 w-56 overflow-y-auto dark:border-gray-700 dark:bg-gray-800"
                   >
                     <DropdownMenuItem
                       onClick={() => handleStatusChange(undefined)}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Semua Status
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_FOR_PICKUP")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Menunggu Pickup
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_WASHED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Sedang Dicuci
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_IRONED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Sedang Disetrika
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("BEING_PACKED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Sedang Dikemas
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("WAITING_PAYMENT")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Menunggu Pembayaran
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleStatusChange("COMPLETED")}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       Selesai
                     </DropdownMenuItem>
@@ -974,7 +1029,7 @@ export function OrderManagementTable() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-10 min-w-0 rounded-xl border-gray-200 dark:border-gray-600 text-sm lg:min-w-[140px] dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                      className="h-10 min-w-0 rounded-xl border-gray-200 text-sm lg:min-w-[140px] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                       disabled={isLoadingEmployees}
                     >
                       <UserCheck className="mr-2 h-4 w-4 flex-shrink-0" />
@@ -990,11 +1045,11 @@ export function OrderManagementTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="max-h-64 w-56 overflow-y-auto dark:bg-gray-800 dark:border-gray-700"
+                    className="max-h-64 w-56 overflow-y-auto dark:border-gray-700 dark:bg-gray-800"
                   >
                     <DropdownMenuItem
                       onClick={() => handleEmployeeChange(undefined)}
-                      className="dark:hover:bg-gray-700 dark:text-gray-100"
+                      className="dark:text-gray-100 dark:hover:bg-gray-700"
                     >
                       <UserCheck className="mr-2 h-4 w-4" />
                       Semua Karyawan
@@ -1005,7 +1060,7 @@ export function OrderManagementTable() {
                         onClick={() =>
                           handleEmployeeChange(employee.id.toString())
                         }
-                        className="dark:hover:bg-gray-700 dark:text-gray-100"
+                        className="dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         <div className="flex min-w-0 flex-1 items-center justify-between">
                           <div className="flex min-w-0 flex-1 flex-col">
@@ -1034,7 +1089,7 @@ export function OrderManagementTable() {
                       onChange={(e) =>
                         handleDateRangeChange("start", e.target.value)
                       }
-                      className="h-10 w-32 rounded-xl border-gray-200 dark:border-gray-600 text-xs sm:w-36 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
+                      className="h-10 w-32 rounded-xl border-gray-200 text-xs sm:w-36 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                     />
                     <Input
                       type="date"
@@ -1043,7 +1098,7 @@ export function OrderManagementTable() {
                       onChange={(e) =>
                         handleDateRangeChange("end", e.target.value)
                       }
-                      className="h-10 w-32 rounded-xl border-gray-200 dark:border-gray-600 text-xs sm:w-36 sm:text-sm dark:bg-gray-700 dark:text-gray-100"
+                      className="h-10 w-32 rounded-xl border-gray-200 text-xs sm:w-36 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                     />
                   </div>
                 )}
@@ -1059,9 +1114,18 @@ export function OrderManagementTable() {
                     !startDate &&
                     !endDate
                   }
-                  className="h-10 rounded-xl border-gray-200 dark:border-gray-600 text-sm dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                  className="h-10 rounded-xl border-gray-200 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                 >
                   Reset
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setRefreshKey(Date.now())}
+                  className="ml-2 flex h-10 items-center gap-2 rounded-xl border-gray-200 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                  title="Refresh Data"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Refresh
                 </Button>
               </div>
             </div>
@@ -1078,7 +1142,9 @@ export function OrderManagementTable() {
               {isLoading ? (
                 <div className="flex h-32 items-center justify-center">
                   <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                  <span className="text-sm dark:text-gray-300">Memuat data pesanan...</span>
+                  <span className="text-sm dark:text-gray-300">
+                    Memuat data pesanan...
+                  </span>
                 </div>
               ) : error ? (
                 <div className="mx-3 p-4 text-center text-red-500 dark:text-red-400">
@@ -1099,7 +1165,7 @@ export function OrderManagementTable() {
                   ))}
                 </div>
               ) : (
-                <div className="mx-5 mt-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-center">
+                <div className="mx-5 mt-4 rounded-2xl border border-gray-200 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-800">
                   <span className="mb-4 block text-sm text-gray-500 dark:text-gray-400">
                     {debouncedSearch
                       ? `Tidak ada pesanan ditemukan untuk "${debouncedSearch}"`
@@ -1109,7 +1175,7 @@ export function OrderManagementTable() {
               )}
             </div>
 
-            <div className="mx-1 hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm sm:mx-0 sm:block">
+            <div className="mx-1 hidden rounded-2xl border border-gray-200 shadow-sm sm:mx-0 sm:block dark:border-gray-700">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -1211,7 +1277,7 @@ export function OrderManagementTable() {
 
             {ordersData?.meta && (
               <>
-                <div className="mx-1 hidden justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:mx-0 sm:flex">
+                <div className="mx-1 hidden justify-center rounded-2xl border-t bg-white p-4 sm:mx-0 sm:flex dark:border-gray-700 dark:bg-gray-800">
                   <PaginationSection
                     page={ordersData.meta.page}
                     take={ordersData.meta.take}
@@ -1222,7 +1288,7 @@ export function OrderManagementTable() {
                   />
                 </div>
 
-                <div className="flex justify-center rounded-2xl border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-3 sm:hidden">
+                <div className="flex justify-center rounded-2xl border-t bg-white p-3 sm:hidden dark:border-gray-700 dark:bg-gray-800">
                   <PaginationSection
                     page={ordersData.meta.page}
                     take={ordersData.meta.take}
