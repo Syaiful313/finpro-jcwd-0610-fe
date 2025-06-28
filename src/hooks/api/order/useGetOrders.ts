@@ -27,9 +27,9 @@ interface ApiResponse {
   };
 }
 
-const useGetOrders = (queries?: GetOrdersQueries) => {
+const useGetOrders = (queries?: GetOrdersQueries, refreshKey?: number) => {
   return useQuery({
-    queryKey: ["orders", queries],
+    queryKey: ["orders", queries, refreshKey],
     queryFn: async (): Promise<PageableResponse<OrderSummary>> => {
       const { data } = await axiosInstance.get<ApiResponse>("/orders", {
         params: queries,

@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   CheckCircle2,
   Clock,
   Droplets,
@@ -80,13 +74,21 @@ export function OrderTimeline({
     );
     const historyItem = sortedHistory.find((item) => item.status === statusKey);
 
+    // Jika ada history item untuk status ini, maka completed
     if (historyItem) {
       return "completed";
-    } else if (stepIndex < currentStatusIndex) {
-      return "skipped";
-    } else if (statusKey === currentStatus) {
+    } 
+    // Jika step index lebih kecil dari current status index, maka completed juga
+    // (ini membuat semua step sebelumnya menjadi hijau)
+    else if (stepIndex < currentStatusIndex) {
+      return "completed";
+    } 
+    // Jika ini adalah current status
+    else if (statusKey === currentStatus) {
       return "current";
-    } else {
+    } 
+    // Selainnya pending
+    else {
       return "pending";
     }
   };
@@ -117,90 +119,32 @@ export function OrderTimeline({
               const IconComponent = status.icon;
 
               return (
-                <TooltipProvider key={status.key}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex w-20 flex-col items-center">
-                        <div
-                          className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border ${
-                            stepStatus === "completed"
-                              ? "border-green-500 bg-green-50 text-green-500"
-                              : stepStatus === "current"
-                                ? "border-blue-500 bg-blue-50 text-blue-500"
-                                : stepStatus === "skipped"
-                                  ? "border-orange-500 bg-orange-50 text-orange-500"
-                                  : "border-gray-200 bg-gray-50 text-gray-400"
-                          } `}
-                        >
-                          <IconComponent className="h-5 w-5" />
-                        </div>
+                <div
+                  key={status.key}
+                  className="flex w-20 flex-col items-center"
+                >
+                  <div
+                    className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border ${
+                      stepStatus === "completed"
+                        ? "border-green-500 bg-green-50 text-green-500"
+                        : stepStatus === "current"
+                          ? "border-blue-500 bg-blue-50 text-blue-500"
+                          : "border-gray-200 bg-gray-50 text-gray-400"
+                    } `}
+                  >
+                    <IconComponent className="h-5 w-5" />
+                  </div>
 
-                        <div className="mt-2 text-center text-xs font-medium">
-                          {status.label}
-                        </div>
+                  <div className="mt-2 text-center text-xs font-medium">
+                    {status.label}
+                  </div>
 
-                        {historyItem && (
-                          <div className="text-muted-foreground mt-1 text-center text-xs">
-                            {formatDate(historyItem.timestamp)}
-                          </div>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-
-                    <TooltipContent
-                      side="bottom"
-                      align="center"
-                      className="max-w-xs p-4"
-                    >
-                      <div className="space-y-2">
-                        <div className="font-medium">{status.label}</div>
-                        {historyItem ? (
-                          <>
-                            <div className="text-muted-foreground text-sm">
-                              {new Date(historyItem.timestamp).toLocaleString(
-                                "id-ID",
-                                {
-                                  day: "numeric",
-                                  month: "long",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
-                            </div>
-                            {historyItem.updatedBy && (
-                              <div className="flex items-center text-xs">
-                                <User className="mr-1 h-3 w-3" />
-                                <span>
-                                  {historyItem.updatedBy.name} (
-                                  {historyItem.updatedBy.role})
-                                </span>
-                              </div>
-                            )}
-                            {historyItem.notes && (
-                              <div className="bg-muted flex items-start gap-1 rounded-md p-2 text-xs">
-                                <Info className="h-3 w-3 shrink-0 translate-y-0.5" />
-                                <span>{historyItem.notes}</span>
-                              </div>
-                            )}
-                          </>
-                        ) : stepStatus === "current" ? (
-                          <div className="text-muted-foreground text-sm">
-                            Status saat ini
-                          </div>
-                        ) : stepStatus === "skipped" ? (
-                          <div className="text-sm text-orange-500">
-                            Tahap ini dilewati
-                          </div>
-                        ) : (
-                          <div className="text-muted-foreground text-sm">
-                            Menunggu
-                          </div>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                  {historyItem && (
+                    <div className="text-muted-foreground mt-1 text-center text-xs">
+                      {formatDate(historyItem.timestamp)}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -224,9 +168,7 @@ export function OrderTimeline({
                       ? "border-green-500 bg-green-50 text-green-500"
                       : stepStatus === "current"
                         ? "border-blue-500 bg-blue-50 text-blue-500"
-                        : stepStatus === "skipped"
-                          ? "border-orange-500 bg-orange-50 text-orange-500"
-                          : "border-gray-200 bg-gray-50 text-gray-400"
+                        : "border-gray-200 bg-gray-50 text-gray-400"
                   } `}
                 >
                   <IconComponent className="h-5 w-5" />
@@ -269,9 +211,9 @@ export function OrderTimeline({
                     </>
                   ) : stepStatus === "current" ? (
                     <div className="text-sm text-blue-500">Status saat ini</div>
-                  ) : stepStatus === "skipped" ? (
-                    <div className="text-sm text-orange-500">
-                      Tahap ini dilewati
+                  ) : stepStatus === "completed" ? (
+                    <div className="text-sm text-green-500">
+                      Tahap selesai
                     </div>
                   ) : (
                     <div className="text-muted-foreground text-sm">
