@@ -299,7 +299,7 @@ const WorkerHistory = () => {
                       <h3 className="mb-2 text-xl font-semibold">
                         No Order History
                       </h3>
-                      <p className="text-muted max-w-md">
+                      <p className="text-muted-foreground max-w-md">
                         Please check back later, or if you've applied filters,
                         try clearing them.
                       </p>

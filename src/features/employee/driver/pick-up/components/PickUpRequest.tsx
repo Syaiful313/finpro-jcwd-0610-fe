@@ -10,9 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Loader from "@/features/employee/components/Loader";
 import useClaimPickUp from "@/hooks/api/employee/driver/useClaimPickUp";
 import useGetAvailableRequest from "@/hooks/api/employee/driver/useGetAvailableRequest";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import {
   Clock,
   Loader2,
@@ -24,7 +25,6 @@ import {
   Truck,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -32,17 +32,14 @@ import { useDebounceValue } from "usehooks-ts";
 import ErrorState from "../../components/ErrorState";
 import MapModal from "../../components/MapModal";
 import PickUpRequestFilters from "./FilterPickUpRequest";
-import Loader from "@/features/employee/components/Loader";
 
 export default function PickUpRequestList() {
   const [search] = useQueryState("search", { defaultValue: "" });
   const [debouncedSearch] = useDebounceValue(search, 500);
   const [sortOrder] = useQueryState("sortOrder", { defaultValue: "desc" });
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [showMap, setShowMap] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
-  const router = useRouter();
-
+  const [loadingRequestId, setLoadingRequestId] = useState<number | null>(null);
   const itemsPerPage = 4;
 
   const queryParams = {
@@ -75,14 +72,16 @@ export default function PickUpRequestList() {
   }, [search, sortOrder, setPage]);
 
   const handleClaimRequest = async (requestId: number) => {
-    try {
-      await claimPickUpMutation.mutateAsync(requestId);
-      toast.success("Successfully claimed pick up request");
-      refetch();
-    } catch (error) {
-      toast.error("Failed to claim pick up request. Please try again.");
-      console.error("Failed to claim pick up request:", error);
-    }
+    setLoadingRequestId(requestId);
+    claimPickUpMutation.mutate(requestId, {
+      onSuccess: () => {
+        toast.success("Successfully claimed pick up request");
+        setLoadingRequestId(null);
+      },
+      onError: () => {
+        setLoadingRequestId(null);
+      },
+    });
   };
 
   const handleCloseMapModal = () => {
@@ -144,18 +143,16 @@ export default function PickUpRequestList() {
         <div className="flex gap-2 pt-2">
           <Button
             onClick={() => handleClaimRequest(request.id)}
-            disabled={
-              claimPickUpMutation.isPending || claimPickUpMutation.isSuccess
-            }
+            disabled={loadingRequestId === request.id}
             className="flex-1"
           >
-            {claimPickUpMutation.isPending ? (
+            {loadingRequestId === request.id ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Claiming...
               </>
             ) : claimPickUpMutation.isSuccess ? (
-              "Claimed!"
+              "Claim Pick Up"
             ) : (
               "Claim Pick Up"
             )}
