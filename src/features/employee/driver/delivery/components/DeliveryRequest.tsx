@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Loader from "@/features/employee/components/Loader";
 import useClaimDelivery from "@/hooks/api/employee/driver/useClaimDelivery";
 import useGetAvailableRequest from "@/hooks/api/employee/driver/useGetAvailableRequest";
 import { format } from "date-fns";
@@ -23,26 +24,22 @@ import {
   Phone,
   Truck,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
-import DeliveryRequestFilters from "./FilterDeliveryRequest";
 import ErrorState from "../../components/ErrorState";
 import MapModal from "../../components/MapModal";
-import Image from "next/image";
-import Loader from "@/features/employee/components/Loader";
+import DeliveryRequestFilters from "./FilterDeliveryRequest";
 
 export default function DeliveryRequestList() {
   const [search] = useQueryState("search", { defaultValue: "" });
   const [debouncedSearch] = useDebounceValue(search, 500);
   const [sortOrder] = useQueryState("sortOrder", { defaultValue: "desc" });
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [showMap, setShowMap] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
-  const router = useRouter();
-
+  const [loadingRequestId, setLoadingRequestId] = useState<number | null>(null);
   const itemsPerPage = 4;
 
   const queryParams = {
@@ -75,14 +72,16 @@ export default function DeliveryRequestList() {
   }, [search, sortOrder, setPage]);
 
   const handleClaimRequest = async (requestId: number) => {
-    try {
-      await claimDeliveryMutation.mutateAsync(requestId);
-      toast.success("Successfully claimed delivery request");
-      refetch();
-    } catch (error) {
-      toast.error("Failed to claim delivery request. Please try again.");
-      console.error("Failed to claim delivery request:", error);
-    }
+    setLoadingRequestId(requestId);
+    claimDeliveryMutation.mutate(requestId, {
+      onSuccess: () => {
+        toast.success("Successfully claimed delivery request");
+        setLoadingRequestId(null);
+      },
+      onError: () => {
+        setLoadingRequestId(null);
+      },
+    });
   };
 
   const handleCloseMapModal = () => {
@@ -144,12 +143,10 @@ export default function DeliveryRequestList() {
         <div className="flex gap-2 pt-2">
           <Button
             onClick={() => handleClaimRequest(request.id)}
-            disabled={
-              claimDeliveryMutation.isPending || claimDeliveryMutation.isSuccess
-            }
+            disabled={loadingRequestId === request.id}
             className="flex-1"
           >
-            {claimDeliveryMutation.isPending ? (
+            {loadingRequestId === request.id ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Claiming...
